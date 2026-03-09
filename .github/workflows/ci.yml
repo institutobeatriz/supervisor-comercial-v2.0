@@ -222,10 +222,16 @@ jobs:
       FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE: ./logs/monitoring/ci-fullcycle-report.json
       FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-operational-provider.json
       FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability-operational-provider.md
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_REPORT_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability-operational-producer-report.json
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability-operational-producer.md
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_AUDIT_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability-operational-producer-audit.jsonl
       FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_MODE: "materialized_contract"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_MODE: "dedicated_script"
       FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_MATERIALIZE: "true"
       FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_ALLOW_LEGACY_FALLBACK: "false"
       FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_PROVIDER: "true"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_PRODUCER: "true"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_DEPRECATION_TARGET: "phase43-disable-legacy-fallback"
       FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_REPORT: "true"
       FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_MAX_AGE_MIN: "30"
       FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_MAX_AGE_MIN: "30"
@@ -328,6 +334,9 @@ jobs:
 
       - name: Connector observability operational provider contract drill (phase41)
         run: npm run test:phase41
+
+      - name: Connector observability operational producer drill (phase42)
+        run: npm run test:phase42
 
       - name: Connector observability legacy convergence drill (phase35)
         env:
@@ -467,7 +476,7 @@ jobs:
       - name: Connector observability realtime alerting gate
         run: npm run monitor:fullcycle:observability:alerting
 
-      - name: Connector observability backend operational provider gate
+      - name: Connector observability backend operational producer gate
         env:
           FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_INCIDENTS: "false"
           FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_ALERT_REPORT: "false"

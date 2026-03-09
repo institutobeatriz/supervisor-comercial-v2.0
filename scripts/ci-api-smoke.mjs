@@ -410,6 +410,26 @@ const checks = [
     ],
   },
   {
+    name: 'observability_backend_producer',
+    path: '/api/observability/connectors/backend/producer',
+    statuses: [200, 503],
+    kind: 'json',
+    headers: {
+      'x-admin-key': ADMIN_KEY,
+      'x-observability-role': 'operator',
+    },
+    validators: [
+      ({ data }) => {
+        const errors = validateJsonObject(data, ['role', 'producer']);
+        pushIf(errors, isObject(data?.producer), 'producer must be object');
+        pushIf(errors, isObject(data?.producer?.summary), 'producer.summary must be object');
+        pushIf(errors, String(data?.producer?.summary?.producerMode || '').trim().length > 0, 'producer.summary.producerMode expected');
+        pushIf(errors, typeof data?.producer?.summary?.contractLoaded === 'boolean', 'producer.summary.contractLoaded must be boolean');
+        return errors;
+      },
+    ],
+  },
+  {
     name: 'observability_backend_report',
     path: '/api/observability/connectors/backend/report',
     statuses: [200, 503],

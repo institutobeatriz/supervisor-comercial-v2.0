@@ -262,6 +262,7 @@ export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
     backendDashboardFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_DASHBOARD_FILE', 'docs/fullcycle-connectors-observability-backend.md'),
     backendAnalyticsFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE', 'logs/monitoring/fullcycle-connector-observability-backend-analytics.json'),
     backendOperationalContractFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE', 'logs/monitoring/fullcycle-connector-observability-operational-provider.json'),
+    backendOperationalProducerReportFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_REPORT_FILE', 'logs/monitoring/fullcycle-connector-observability-operational-producer-report.json'),
     streamStateFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_STREAM_STATE_FILE', 'logs/monitoring/fullcycle-connector-observability-stream-state.json'),
     streamEventsFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_STREAM_EVENTS_FILE', 'logs/monitoring/fullcycle-connector-observability-stream-events.jsonl'),
     streamReportFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_STREAM_REPORT_FILE', 'logs/monitoring/fullcycle-connector-observability-realtime-report.json'),
@@ -587,6 +588,23 @@ export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
       role: getProvidedRole(request),
       generatedAt: provider?.generatedAt || null,
       provider,
+    };
+  });
+
+  // Producer dedicado da ingestao operacional (operator+)
+  fastify.get('/observability/connectors/backend/producer', async (request, reply) => {
+    if (!(await requireAccess(request, reply, 'operator'))) return;
+    if (!(await fileExists(cfg.backendOperationalProducerReportFile))) {
+      return reply.code(503).send({
+        error: 'Observability backend producer unavailable',
+        file: cfg.backendOperationalProducerReportFile,
+      });
+    }
+    const producer = await readJson(cfg.backendOperationalProducerReportFile, {});
+    return {
+      role: getProvidedRole(request),
+      generatedAt: producer?.generatedAt || null,
+      producer,
     };
   });
 

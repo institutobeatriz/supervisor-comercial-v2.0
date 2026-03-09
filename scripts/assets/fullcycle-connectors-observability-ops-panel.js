@@ -139,9 +139,12 @@ const D = readPanelData();
       const opOverall = operational?.overall || {};
       const opState = operationalSource('incidentAutomation');
       const opSnapshot = operationalSource('itsmSnapshot');
+      const providerSubtitle = provider?.producerMode
+        ? 'producer ' + provider.producerMode + ' / legacy ' + (provider?.legacyFallbackState || 'n/a')
+        : 'contract v' + (provider?.contractVersion || 'n/a');
       const cards = [
         ['Backend status', state.backendSummary?.status || state.backendReport?.report?.status || state.incidentSummary?.status || D?.summary?.backendStatus || 'unknown', 'route store + backend report'],
-        ['Operational provider', provider?.mode || 'unknown', 'contract v' + (provider?.contractVersion || 'n/a')],
+        ['Operational provider', provider?.mode || 'unknown', providerSubtitle],
         ['Stream status', D?.summary?.streamStatus || 'unknown', 'SSE timeline contract'],
         ['Operational workload', opOverall?.workloadState || D?.summary?.operationalWorkloadState || 'unknown', 'active vs idle'],
         ['Operational freshness', opOverall?.freshnessState || D?.summary?.operationalFreshnessState || 'unknown', 'source health'],

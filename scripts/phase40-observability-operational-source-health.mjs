@@ -433,6 +433,9 @@ async function main() {
         contractLoaded: providerMeta.contractLoaded,
         contractVersion: providerMeta.contractVersion,
         contractSchema: providerMeta.contractSchema,
+        producerMode: providerMeta.producerMode || null,
+        producerReady: providerMeta.producerReady ?? null,
+        legacyFallbackState: providerMeta.legacyFallbackState || null,
       }
       : null,
   };
@@ -466,6 +469,9 @@ async function main() {
         mode: providerMeta.mode,
         contractLoaded: providerMeta.contractLoaded,
         contractVersion: providerMeta.contractVersion,
+        producerMode: providerMeta.producerMode || null,
+        producerReady: providerMeta.producerReady ?? null,
+        legacyFallbackState: providerMeta.legacyFallbackState || null,
       }
       : null,
   };

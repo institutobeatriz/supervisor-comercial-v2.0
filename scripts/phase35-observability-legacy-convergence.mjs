@@ -266,7 +266,7 @@ function renderDashboard(ts, legacyReport, legacyFeed, backendStore, backendDash
 async function main() {
   const ts = new Date().toISOString();
   const cfg = {
-    phase41Script: path.resolve(process.cwd(), 'scripts/phase41-observability-operational-provider-contract.mjs'),
+    phase42Script: path.resolve(process.cwd(), 'scripts/phase42-observability-operational-provider-producer.mjs'),
     skipBackendBoot: envBool('FULLCYCLE_CONNECTOR_OBS_COMPAT_SKIP_BACKEND_BOOT', false),
     backendStoreFile: envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_STORE_FILE', path.resolve(process.cwd(), 'logs/monitoring/fullcycle-connector-observability-backend-store.json')),
     backendReportFile: envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_REPORT_FILE', path.resolve(process.cwd(), 'logs/monitoring/fullcycle-connector-observability-backend-report.json')),
@@ -299,11 +299,11 @@ async function main() {
       backendEnv.FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_REPORT = 'false';
     }
 
-    backendRun = await runNode(cfg.phase41Script, backendEnv);
+    backendRun = await runNode(cfg.phase42Script, backendEnv);
     if ((backendRun.status ?? 1) !== 0) {
       if (backendRun.stdout.trim()) process.stdout.write(backendRun.stdout);
       if (backendRun.stderr.trim()) process.stderr.write(backendRun.stderr);
-      throw new Error(`phase41 backend run failed with status=${backendRun.status}`);
+      throw new Error(`phase42 backend run failed with status=${backendRun.status}`);
     }
   }
 

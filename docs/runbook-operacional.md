@@ -310,6 +310,32 @@ Capacidades adicionais:
 4. expõe `GET /api/observability/connectors/backend/provider` para `operator+`;
 5. endurece smoke/live/CI para exigir o provider canônico.
 
+Produtor dedicado do provider operacional (Fase 42):
+```bash
+npm run test:phase42
+npm run monitor:fullcycle:observability:backend
+```
+Decisao oficial:
+1. separar producao e consumo do contrato operacional em duas etapas explicitamente rastreaveis;
+2. usar `scripts/phase42-observability-operational-provider-producer.mjs` como gate oficial do backend;
+3. manter o contrato `fullcycle.observability.operational-provider.v1`, mas desabilitar fallback `legacy_files` por padrao no caminho oficial.
+
+Capacidades adicionais:
+1. publica relatorio do produtor em `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_REPORT_FILE`;
+2. publica dashboard do produtor em `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_DASHBOARD_FILE`;
+3. publica trilha de auditoria do produtor em `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_AUDIT_FILE`;
+4. expõe `GET /api/observability/connectors/backend/producer` para `operator+`;
+5. executa backend consumer via contrato materializado com `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_MATERIALIZE=false`;
+6. marca `phase43-disable-legacy-fallback` como alvo explicito de descontinuacao do caminho legado.
+
+Variaveis adicionais:
+1. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_REPORT_FILE`
+2. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_DASHBOARD_FILE`
+3. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_AUDIT_FILE`
+4. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_MODE`
+5. `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_PRODUCER`
+6. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_DEPRECATION_TARGET`
+
 Validacao live da API interna + painel headless (Fase 33):
 ```bash
 npm run test:phase33
@@ -320,7 +346,7 @@ Capacidades:
 3. recompila `@supervisor/api` antes do boot live para evitar drift entre `src` e `dist`, e inicializa a API buildada em porta dedicada;
 4. executa `scripts/ci-api-smoke.mjs` contra a API live;
 5. valida o painel em Edge/Chrome headless via CDP, com screenshot, DOM e logs;
-6. consulta `/api/observability/connectors/backend/provider` e `/api/observability/connectors/backend/analytics` como validacao operacional/executiva final.
+6. consulta `/api/observability/connectors/backend/summary`, `/api/observability/connectors/backend/provider`, `/api/observability/connectors/backend/producer` e `/api/observability/connectors/backend/analytics` como validacao operacional/executiva final;
 7. usa containers Docker nomeados por execucao e limpeza por `label`, evitando conflito de rerun local em `phase33`/`phase34`.
 
 Artefatos da Fase 33:

@@ -140,7 +140,7 @@ function summarizeSources(sources) {
   };
 }
 
-function buildMaterializedContract({ sources, cfg, ts, materializedBy }) {
+function buildMaterializedContract({ sources, cfg, ts, materializedBy, producer = null }) {
   return {
     version: OPERATIONAL_PROVIDER_VERSION,
     schema: OPERATIONAL_PROVIDER_SCHEMA,
@@ -148,6 +148,19 @@ function buildMaterializedContract({ sources, cfg, ts, materializedBy }) {
     providerMode: 'materialized_contract',
     materializationMode: 'controlled',
     materializedBy,
+    producer: producer && typeof producer === 'object'
+      ? {
+        mode: String(producer.mode || '').trim() || 'unknown',
+        generatedAt: String(producer.generatedAt || ts).trim() || ts,
+        ready: producer.ready !== false,
+        reportFile: String(producer.reportFile || '').trim() || null,
+        dashboardFile: String(producer.dashboardFile || '').trim() || null,
+        auditFile: String(producer.auditFile || '').trim() || null,
+        legacyFallbackAllowed: producer.legacyFallbackAllowed === true,
+        legacyFallbackState: String(producer.legacyFallbackState || '').trim() || (producer.legacyFallbackAllowed === true ? 'deprecated_allowed' : 'disabled'),
+        deprecationTarget: String(producer.deprecationTarget || '').trim() || null,
+      }
+      : null,
     sourceFiles: {
       incidentAutomation: cfg.automationStateFile,
       itsmSnapshot: cfg.snapshotFile,
@@ -170,6 +183,7 @@ function isOperationalContract(contract) {
 }
 
 function buildProviderMeta({ cfg, mode, contract, sources, contractLoaded, loadError, materialized }) {
+  const producer = contract?.producer && typeof contract.producer === 'object' ? contract.producer : null;
   return {
     mode,
     sourceMode: mode === 'materialized_contract' ? 'operational_contract' : 'operational_state',
@@ -183,6 +197,15 @@ function buildProviderMeta({ cfg, mode, contract, sources, contractLoaded, loadE
     materializationMode: contract?.materializationMode || (mode === 'materialized_contract' ? 'controlled' : 'legacy'),
     materializedBy: contract?.materializedBy || null,
     allowLegacyFallback: cfg.allowLegacyFallback,
+    producerMode: producer?.mode || null,
+    producerGeneratedAt: producer?.generatedAt || null,
+    producerReady: producer ? producer.ready !== false : null,
+    producerReportFile: producer?.reportFile || null,
+    producerDashboardFile: producer?.dashboardFile || null,
+    producerAuditFile: producer?.auditFile || null,
+    legacyFallbackState: producer?.legacyFallbackState || (cfg.allowLegacyFallback ? 'deprecated_allowed' : 'disabled'),
+    legacyFallbackAllowed: producer?.legacyFallbackAllowed === true || cfg.allowLegacyFallback,
+    deprecationTarget: producer?.deprecationTarget || null,
     sources,
     summary: summarizeSources(sources),
     loadError: loadError || null,
@@ -227,6 +250,7 @@ export async function loadOperationalProvider(options = {}) {
     snapshotFile: options.snapshotFile || envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_FILE', envString('ITSM_SNAPSHOT_FILE', path.resolve(process.cwd(), 'logs/monitoring/itsm-snapshot.json'))),
     fullcycleReportFile: options.fullcycleReportFile || envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE', envString('FULLCYCLE_REPORT_FILE', path.resolve(process.cwd(), 'logs/monitoring/fullcycle-governance-report.json'))),
     materializedBy: options.materializedBy || 'phase41-observability-operational-provider-contract',
+    producer: options.producer && typeof options.producer === 'object' ? options.producer : null,
   };
 
   const [automationState, snapshot, fullcycleReport] = await Promise.all([
@@ -265,6 +289,7 @@ export async function loadOperationalProvider(options = {}) {
       cfg,
       ts,
       materializedBy: cfg.materializedBy,
+      producer: cfg.producer,
     });
     await writeJson(cfg.contractFile, contract);
     materialized = true;

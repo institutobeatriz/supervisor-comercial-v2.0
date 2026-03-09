@@ -925,6 +925,41 @@ CI (Fase 41):
 3. `test:phase33` / `test:phase34` validando `backend/provider` e live governance;
 4. smoke da API interna exigindo `/api/observability/connectors/backend/provider`.
 
+## Produtor dedicado do provider operacional (Fase 42)
+Conectar o contrato canônico a uma etapa produtora dedicada antes do consumo runtime:
+```bash
+npm run test:phase42
+npm run monitor:fullcycle:observability:backend
+```
+
+Decisao arquitetural:
+1. separar producao do contrato e consumo do backend em wrappers distintos;
+2. manter o schema `fullcycle.observability.operational-provider.v1` como fronteira oficial;
+3. desabilitar `legacy_files` no caminho oficial do backend, mantendo apenas a capacidade de replay via contrato materializado;
+4. registrar `phase43-disable-legacy-fallback` como alvo de deprecacao explicita.
+
+Capacidades adicionais:
+1. publica relatorio executivo do produtor em `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_REPORT_FILE`;
+2. publica dashboard em `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_DASHBOARD_FILE`;
+3. publica auditoria JSONL em `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_AUDIT_FILE`;
+4. expõe `GET /api/observability/connectors/backend/producer` para `operator+`;
+5. executa o backend consumer com `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_MATERIALIZE=false`, consumindo apenas o contrato ja materializado;
+6. adiciona metadata de `producerMode`, `producerReady`, `legacyFallbackState` e `deprecationTarget` em `backend/provider`, `backend/summary`, `backend/analytics` e no painel.
+
+Variaveis principais adicionais:
+1. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_REPORT_FILE`
+2. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_DASHBOARD_FILE`
+3. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_AUDIT_FILE`
+4. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_MODE`
+5. `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_PRODUCER`
+6. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_DEPRECATION_TARGET`
+
+CI (Fase 42):
+1. `test:phase42` (drill `materialize/replay/fail` do producer + backend consumer);
+2. `monitor:fullcycle:observability:backend` (gate oficial producer-backed);
+3. `test:phase33` / `test:phase34` validando `backend/producer` no runtime live;
+4. smoke da API interna exigindo `/api/observability/connectors/backend/producer`.
+
 ## Validacao live da API interna + painel headless (Fase 33)
 Executar validacao runtime real da camada de observabilidade:
 ```bash
@@ -950,7 +985,7 @@ Capacidades:
 4. roda o smoke live cobrindo endpoints observability expandidos;
 5. valida o painel em Edge/Chrome headless via CDP;
 6. registra screenshot, DOM e log do browser para auditoria;
-7. consulta `/api/observability/connectors/backend/summary`, `/backend/provider` e `/backend/analytics` como prova operacional/executiva final.
+7. consulta `/api/observability/connectors/backend/summary`, `/backend/provider`, `/backend/producer` e `/backend/analytics` como prova operacional/executiva final.
 
 Variaveis principais:
 1. `FULLCYCLE_CONNECTOR_OBS_LIVE_API_HOST`

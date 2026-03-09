@@ -3,7 +3,7 @@
 ## Atualizacao
 - Data: 2026-03-09 (America/Sao_Paulo)
 - Responsavel: Orquestracao tecnica (software house premium)
-- Fonte de verdade: este arquivo + evidencias em `11-fase-0-baseline.md` ate `51-fase-40-validacao.md`
+- Fonte de verdade: este arquivo + evidencias em `11-fase-0-baseline.md` ate `52-fase-41-validacao.md`
 
 ## Status por fase
 
@@ -50,6 +50,7 @@
 | Fase 38 - Hardening de CSP/assets dos dashboards internos | CONCLUIDA | 2026-03-09 | 2026-03-09 | `49-fase-38-validacao.md` | Assets externos no dashboard/painel, CSP sem `unsafe-inline`, smoke/live endurecidos e compat dashboard alinhado |
 | Fase 39 - Ownership operacional do backend observability | CONCLUIDA | 2026-03-09 | 2026-03-09 | `50-fase-39-validacao.md` | Backend oficial migra para incident-automation/snapshot/fullcycle, drill pass/fail dedicado e CI remoto verde |
 | Fase 40 - Saude e frescor da fonte operacional | CONCLUIDA | 2026-03-09 | 2026-03-09 | `51-fase-40-validacao.md` | Backend oficial passa a expor `workloadState`/`freshnessState`/`actionabilityState`, painel/API usam `backend/summary` e CI remoto verde |
+| Fase 41 - Provider operacional canonico | CONCLUIDA | 2026-03-09 | 2026-03-09 | `52-fase-41-validacao.md` | Contrato versionado `fullcycle.observability.operational-provider.v1`, endpoint `backend/provider`, replay por contrato e CI remoto verde |
 
 ## Log de checkpoints
 
@@ -2080,6 +2081,63 @@ Riscos residuais:
 
 Proxima fase liberada:
 1. Fase 41 - decidir e implementar o proximo passo da ingestao operacional: provider externo dedicado ou materializacao controlada com contrato/versionamento proprio.
+
+### 2026-03-09 - Checkpoint 43 (Fase 41 concluida)
+Itens executados:
+1. Decisao arquitetural fechada:
+- adotada `materializacao controlada com contrato versionado` como caminho canonico da ingestao operacional;
+- schema oficial definido como `fullcycle.observability.operational-provider.v1`;
+- provider materializado passa a ser a fronteira canonica entre coleta operacional e consumo runtime.
+2. Provider operacional implementado:
+- criado `scripts/observability-operational-provider.mjs`;
+- criado `scripts/phase41-observability-operational-provider-contract.mjs`;
+- criado `scripts/phase41-observability-operational-provider-contract-drill.mjs`;
+- `monitor:fullcycle:observability:backend` passa a apontar para a Fase 41.
+3. Backend/API/painel/live/compat alinhados:
+- `scripts/phase39-observability-backend-operational-oncall.mjs` e `scripts/phase40-observability-operational-source-health.mjs` passam a consumir metadata do provider canonico;
+- criado `GET /api/observability/connectors/backend/provider` em `apps/api/src/routes/observability.ts`;
+- `scripts/phase31-observability-panel-backend-integration.mjs`, `scripts/assets/fullcycle-connectors-observability-ops-panel.js`, `scripts/phase33-observability-live-runtime-validation.mjs`, `scripts/phase34-observability-live-governance.mjs`, `scripts/phase35-observability-legacy-convergence.mjs` e `scripts/ci-api-smoke.mjs` foram atualizados para exigir o provider canonico.
+4. Hardening operacional complementar:
+- a validacao live passou a consultar `backend/provider` como prova operacional;
+- o bootstrap Docker de `phase33`/`phase34` passou a usar containers nomeados por execucao e limpeza por `label`, eliminando conflito de rerun local.
+5. Documentacao e artefatos:
+- atualizado `README.md`, `docs/runbook-operacional.md`, `docs/monitoramento-externo.md` e gerado `docs/fullcycle-connectors-observability-operational-provider.md`;
+- evidencia formal consolidada em `52-fase-41-validacao.md`.
+
+Validacao tecnica deste checkpoint:
+1. Sintaxe:
+- `node --check scripts/observability-operational-provider.mjs` => sucesso;
+- `node --check scripts/phase39-observability-backend-operational-oncall.mjs` => sucesso;
+- `node --check scripts/phase40-observability-operational-source-health.mjs` => sucesso;
+- `node --check scripts/phase41-observability-operational-provider-contract.mjs` => sucesso;
+- `node --check scripts/phase41-observability-operational-provider-contract-drill.mjs` => sucesso;
+- `node --check scripts/phase33-observability-live-runtime-validation.mjs` => sucesso;
+- `node --check scripts/phase35-observability-legacy-convergence.mjs` => sucesso;
+- `node --check scripts/ci-api-smoke.mjs` => sucesso;
+- `node --check scripts/assets/fullcycle-connectors-observability-ops-panel.js` => sucesso.
+2. Drills/regressoes locais:
+- `npm run test:phase37` => sucesso;
+- `npm run test:phase39` => sucesso;
+- `npm run test:phase40` => sucesso;
+- `npm run test:phase41` => sucesso;
+- `npm run test:phase33` => sucesso;
+- `npm run test:phase34` => sucesso (`contracts=23/23`).
+3. Build/gates locais:
+- `npm run build -w @supervisor/api` => sucesso;
+- `npm run monitor:fullcycle:observability:backend` => `warn` com `provider=materialized_contract`, `contract=ready`, `loadedSources=2`;
+- `npm run monitor:fullcycle:observability:live` => sucesso (`contracts=23/23`).
+4. Validacao remota no repo standalone:
+- PR `#8`: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/8`;
+- GitHub Actions run `22872998907` => `success`;
+- commit standalone: `55a92e8f772f4ff936f12983c1a6421c9f8eaafd`.
+
+Riscos residuais:
+1. o provider canonico ainda e alimentado por artefatos locais, nao por um coletor/servico operacional dedicado;
+2. o fallback `legacy_files` ainda existe e precisa de estrategia de desativacao;
+3. o repo canonico de CI remoto continua separado do git root principal do workspace.
+
+Proxima fase liberada:
+1. Fase 42 - conectar o provider operacional canônico a um produtor/coletor dedicado e definir a estrategia de deprecacao do fallback `legacy_files`.
 
 ## Backlog ativo (referencia curta)
 

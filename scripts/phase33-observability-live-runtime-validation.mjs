@@ -206,6 +206,9 @@ async function prepareFixtures(fixturesDir) {
     fullcycleReportFile: path.resolve(fixturesDir, 'fullcycle-report.json'),
     operationalContractFile: path.resolve(fixturesDir, 'operational-provider.json'),
     operationalProviderDashboardFile: path.resolve(fixturesDir, 'operational-provider.md'),
+    operationalProducerReportFile: path.resolve(fixturesDir, 'operational-producer-report.json'),
+    operationalProducerDashboardFile: path.resolve(fixturesDir, 'operational-producer.md'),
+    operationalProducerAuditFile: path.resolve(fixturesDir, 'operational-producer-audit.jsonl'),
     observabilityStoreFile: path.resolve(fixturesDir, 'observability-store.json'),
     observabilityReportFile: path.resolve(fixturesDir, 'observability-report.json'),
     observabilityFeedFile: path.resolve(fixturesDir, 'observability-feed.json'),
@@ -351,9 +354,15 @@ function buildValidationEnv(files, reportFile, dashboardFile, auditFile, apiBase
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE: files.fullcycleReportFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE: files.operationalContractFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_DASHBOARD_FILE: files.operationalProviderDashboardFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_REPORT_FILE: files.operationalProducerReportFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_DASHBOARD_FILE: files.operationalProducerDashboardFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_AUDIT_FILE: files.operationalProducerAuditFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_MODE: 'materialized_contract',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_MODE: 'dedicated_script',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_MATERIALIZE: 'true',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_ALLOW_LEGACY_FALLBACK: 'false',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_PRODUCER: 'true',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_DEPRECATION_TARGET: 'phase43-disable-legacy-fallback',
     INCIDENT_AUTOMATION_STATE_FILE: files.incidentAutomationStateFile,
     ITSM_SNAPSHOT_FILE: files.itsmSnapshotFile,
     FULLCYCLE_REPORT_FILE: files.fullcycleReportFile,
@@ -409,9 +418,9 @@ function buildValidationEnv(files, reportFile, dashboardFile, auditFile, apiBase
 }
 
 async function bootObservabilityArtifacts(env) {
-  const backendRun = await runCommand('node', ['scripts/phase41-observability-operational-provider-contract.mjs'], env);
+  const backendRun = await runCommand('node', ['scripts/phase42-observability-operational-provider-producer.mjs'], env);
   if ((backendRun.status ?? 1) !== 0) {
-    throw new Error(`phase41 backend run failed: ${backendRun.stderr || backendRun.stdout}`.trim());
+    throw new Error(`phase42 backend run failed: ${backendRun.stderr || backendRun.stdout}`.trim());
   }
 
   const compatRun = await runCommand('node', ['scripts/phase35-observability-legacy-convergence.mjs'], env);
@@ -1118,6 +1127,26 @@ async function main() {
         message: `backend provider mode=${provider.data?.provider?.providerMode || 'unknown'}`,
       });
     }
+    const producer = await fetchJson(`${apiServer.baseUrl}/api/observability/connectors/backend/producer`, {
+      headers: {
+        'x-admin-key': apiAdminKey,
+        'x-observability-role': 'operator',
+      },
+      timeoutMs: 10_000,
+    });
+    if (producer.status !== 200) {
+      violations.push({
+        code: 'backend_producer_endpoint_failed',
+        blocking: true,
+        message: `backend producer status=${producer.status}`,
+      });
+    } else if (producer.data?.producer?.summary?.producerMode !== 'dedicated_script') {
+      violations.push({
+        code: 'backend_producer_mode_unexpected',
+        blocking: true,
+        message: `backend producer mode=${producer.data?.producer?.summary?.producerMode || 'unknown'}`,
+      });
+    }
 
     const blockingViolations = violations.filter((item) => item.blocking);
     const status = blockingViolations.length > 0 ? 'fail' : 'pass';
@@ -1154,6 +1183,9 @@ async function main() {
         providerStatus: provider.status,
         providerMode: provider.data?.provider?.providerMode || 'unknown',
         providerContractVersion: provider.data?.provider?.version || null,
+        producerStatus: producer.status,
+        producerMode: producer.data?.producer?.summary?.producerMode || 'unknown',
+        producerLegacyFallbackState: producer.data?.producer?.summary?.legacyFallbackState || 'unknown',
       },
       api: {
         health: apiServer.health,
@@ -1161,7 +1193,7 @@ async function main() {
         logFile: apiLogFile,
       },
       commands: {
-        backend: 'node scripts/phase41-observability-operational-provider-contract.mjs',
+        backend: 'node scripts/phase42-observability-operational-provider-producer.mjs',
         compat: 'node scripts/phase35-observability-legacy-convergence.mjs',
         panel: 'node scripts/phase31-observability-panel-backend-integration.mjs',
         build: 'npm run build -w @supervisor/api',
@@ -1187,6 +1219,10 @@ async function main() {
         status: provider.status,
         payload: provider.data,
       },
+      producerEndpoint: {
+        status: producer.status,
+        payload: producer.data,
+      },
       analyticsEndpoint: {
         status: analytics.status,
         payload: analytics.data,
@@ -1201,6 +1237,9 @@ async function main() {
         panelAuditFile,
         operationalContractFile: files.operationalContractFile,
         operationalProviderDashboardFile: files.operationalProviderDashboardFile,
+        operationalProducerReportFile: files.operationalProducerReportFile,
+        operationalProducerDashboardFile: files.operationalProducerDashboardFile,
+        operationalProducerAuditFile: files.operationalProducerAuditFile,
         compatReportFile: files.compatReportFile,
         compatDashboardFile: files.compatDashboardFile,
         compatAuditFile: files.compatAuditFile,

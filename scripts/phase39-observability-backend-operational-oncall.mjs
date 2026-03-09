@@ -269,6 +269,10 @@ function buildAnalytics({ ts, environment, incidents, alerts, teams, prevAnalyti
     contractLoaded: Boolean(providerMeta?.contractLoaded),
     contractVersion: providerMeta?.contractVersion || null,
     contractSchema: providerMeta?.contractSchema || null,
+    producerMode: providerMeta?.producerMode || null,
+    producerReady: providerMeta?.producerReady ?? null,
+    legacyFallbackState: providerMeta?.legacyFallbackState || null,
+    legacyFallbackAllowed: providerMeta?.legacyFallbackAllowed === true,
     loadedSources: Number(providerMeta?.summary?.loadedSources || 0),
     missingSources: Number(providerMeta?.summary?.missingSources || 0),
   };
