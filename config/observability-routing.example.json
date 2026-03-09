@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "defaultTeam": "comercial-ops",
+  "severity": {
+    "critical": {
+      "team": "platform-oncall",
+      "channels": ["paging", "itsm", "slack"],
+      "escalateAfterMinutes": 15
+    },
+    "warning": {
+      "team": "comercial-ops",
+      "channels": ["slack", "webhook"],
+      "escalateAfterMinutes": 60
+    },
+    "info": {
+      "team": "comercial-ops",
+      "channels": ["dashboard"],
+      "escalateAfterMinutes": 240
+    }
+  },
+  "sources": {
+    "api_sla": {
+      "team": "platform-api",
+      "channels": ["slack", "webhook"],
+      "escalateAfterMinutes": 20
+    },
+    "api_governance": {
+      "team": "platform-api",
+      "channels": ["slack", "webhook"],
+      "escalateAfterMinutes": 20
+    },
+    "stream": {
+      "team": "platform-ops",
+      "channels": ["slack"],
+      "escalateAfterMinutes": 30
+    },
+    "governance": {
+      "team": "platform-ops",
+      "channels": ["slack"],
+      "escalateAfterMinutes": 30
+    },
+    "connectors_runtime": {
+      "team": "integrations",
+      "channels": ["webhook", "slack"],
+      "escalateAfterMinutes": 30
+    }
+  }
+}

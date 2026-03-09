@@ -1,0 +1,19 @@
+{
+  "id": "test-conv-003",
+  "description": "Cliente existente renovando plano mensal",
+  "messages": [
+    {"direction": "inbound", "text": "Oi, meu plano vence semana que vem. Como renovo?", "timestamp": "2026-01-15T09:00:00Z"},
+    {"direction": "outbound", "text": "Olá! Ótimo que quer continuar! O plano mensal é R$ 97", "timestamp": "2026-01-15T09:05:00Z"},
+    {"direction": "inbound", "text": "Beleza, vou pagar agora via PIX", "timestamp": "2026-01-15T09:10:00Z"},
+    {"direction": "outbound", "text": "Perfeito! Chave PIX: empresa@email.com", "timestamp": "2026-01-15T09:11:00Z"},
+    {"direction": "inbound", "text": "Paguei! Segue o comprovante", "timestamp": "2026-01-15T09:20:00Z"}
+  ],
+  "expected": {
+    "final_funnel_stage": "closed_won",
+    "outcome": "won",
+    "sale_type": "renovacao",
+    "last_intent": "pagamento",
+    "has_objection": false,
+    "objection_type": null
+  }
+}

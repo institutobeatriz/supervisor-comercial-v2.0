@@ -1,0 +1,20 @@
+{
+  "name": "@supervisor/audit",
+  "version": "1.0.0",
+  "description": "Sistema de auditoria JSONL para rastreabilidade de decisões da IA",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@types/pg": "^8.18.0",
+    "pg": "^8.20.0",
+    "pino": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

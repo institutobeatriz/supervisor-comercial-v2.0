@@ -1,0 +1,73 @@
+{
+  "generatedAt": "2026-03-09T15:45:22.791Z",
+  "status": "warn",
+  "source": "backend_first_compat",
+  "summary": {
+    "environment": "development",
+    "streamStatus": "unknown",
+    "alertingStatus": "unknown",
+    "cursor": 0,
+    "incidents": {
+      "total": 0,
+      "open": 0,
+      "resolved": 0,
+      "openCritical": 0,
+      "openWarning": 0,
+      "openInfo": 0
+    },
+    "alerts": {
+      "total": 0,
+      "active": 0,
+      "resolved": 0,
+      "activeCritical": 0,
+      "activeWarning": 0,
+      "activeInfo": 0
+    },
+    "teamsTracked": 0,
+    "latestApiSla": null,
+    "violations": 3,
+    "blockingViolations": 3,
+    "ownerCoveragePct": 100,
+    "unassignedOwners": 0,
+    "breachedEscalations": 0,
+    "analyticsPoints": 1,
+    "incidentsTracked": 0,
+    "alertsTracked": 0,
+    "historyPoints": 1,
+    "compatibilityMode": "materialized_from_backend_first"
+  },
+  "teams": [],
+  "incidents": [],
+  "alerts": [],
+  "analytics": {
+    "current": {
+      "generatedAt": "2026-03-09T15:45:22.861Z",
+      "environment": "development",
+      "recordsTracked": 0,
+      "activeRecords": 0,
+      "ownerCoveragePct": 100,
+      "assignedOwners": 0,
+      "unassignedOwners": 0,
+      "breachedEscalations": 0,
+      "bySource": {},
+      "byTeam": [],
+      "severity": {
+        "incidents": {
+          "criticalOpen": 0,
+          "warningOpen": 0,
+          "infoOpen": 0
+        },
+        "alerts": {
+          "criticalActive": 0,
+          "warningActive": 0,
+          "infoActive": 0
+        }
+      }
+    },
+    "totalEntries": 1
+  },
+  "links": {
+    "backendReportGeneratedAt": "2026-03-09T15:45:22.861Z",
+    "backendStoreGeneratedAt": "2026-03-09T15:45:22.861Z"
+  }
+}

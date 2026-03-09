@@ -1,0 +1,20 @@
+{
+  "id": "test-conv-001",
+  "description": "Lead qualificado que compra curso no WhatsApp",
+  "messages": [
+    {"direction": "outbound", "text": "Olá! Posso te ajudar com informações sobre o curso?", "timestamp": "2026-01-10T10:00:00Z"},
+    {"direction": "inbound", "text": "Oi! Sim, quero saber sobre o pacote básico", "timestamp": "2026-01-10T10:01:00Z"},
+    {"direction": "outbound", "text": "O pacote básico é R$ 197 com acesso por 6 meses", "timestamp": "2026-01-10T10:02:00Z"},
+    {"direction": "inbound", "text": "Quanto vale? Posso parcelar?", "timestamp": "2026-01-10T10:03:00Z"},
+    {"direction": "outbound", "text": "Pode pagar em 3x de R$ 65,67 no cartão ou à vista no PIX por R$ 179", "timestamp": "2026-01-10T10:05:00Z"},
+    {"direction": "inbound", "text": "Vou fazer o PIX agora", "timestamp": "2026-01-10T10:10:00Z"}
+  ],
+  "expected": {
+    "final_funnel_stage": "closed_won",
+    "outcome": "won",
+    "sale_type": "nova_venda",
+    "last_intent": "compra",
+    "has_objection": true,
+    "objection_type": "preco"
+  }
+}

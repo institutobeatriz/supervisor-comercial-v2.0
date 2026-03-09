@@ -1,0 +1,461 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  quality-and-smoke:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: sales_supervisor
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app -d sales_supervisor"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NODE_ENV: production
+      PORT: 3000
+      API_HOST: 127.0.0.1
+      DATABASE_URL: postgresql://app:app@127.0.0.1:5432/sales_supervisor
+      REDIS_URL: redis://127.0.0.1:6379
+      ADMIN_API_KEY: ci-admin-key
+      AUDIT_LOG_DIR: ./logs
+      CI_API_URL: http://127.0.0.1:3000
+      MONITOR_STATE_FILE: ./logs/monitoring/ci-slo-state.json
+      MONITOR_REPORT_FILE: ./logs/monitoring/ci-last-report.json
+      MONITOR_INCIDENTS_FILE: ./logs/monitoring/ci-incidents.json
+      RELIABILITY_REPORT_FILE: ./logs/monitoring/ci-reliability-summary.json
+      RELIABILITY_DASHBOARD_FILE: ./logs/monitoring/ci-reliability-dashboard.md
+      POSTMORTEM_OUTPUT_DIR: ./logs/monitoring/ci-postmortems
+      INCIDENT_AUTOMATION_STATE_FILE: ./logs/monitoring/ci-incident-automation-state.json
+      INCIDENT_AUTOMATION_REPORT_FILE: ./logs/monitoring/ci-incident-automation-report.json
+      ONCALL_DASHBOARD_FILE: ./logs/monitoring/ci-oncall-dashboard.md
+      ONCALL_EXECUTIVE_REPORT_FILE: ./logs/monitoring/ci-executive-sla-report.json
+      ONCALL_AUDIT_FILE: ./logs/monitoring/ci-executive-audit-trail.jsonl
+      GOVERNANCE_REPORT_FILE: ./logs/monitoring/ci-governance-report.json
+      GOVERNANCE_DASHBOARD_FILE: ./logs/monitoring/ci-governance-dashboard.md
+      ONCALL_ROTATION_FILE: ./config/oncall-rotation.example.json
+      ONCALL_CALENDAR_FILE: ./config/oncall-calendar.example.json
+      FULLCYCLE_ACTIONS_FILE: ./logs/monitoring/ci-fullcycle-actions.json
+      FULLCYCLE_REPORT_FILE: ./logs/monitoring/ci-fullcycle-report.json
+      FULLCYCLE_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-dashboard.md
+      GOVERNANCE_HISTORY_FILE: ./logs/monitoring/ci-governance-history.json
+      FULLCYCLE_EXECUTION_STATE_FILE: ./logs/monitoring/ci-fullcycle-execution-state.json
+      FULLCYCLE_EXECUTION_REPORT_FILE: ./logs/monitoring/ci-fullcycle-execution-report.json
+      FULLCYCLE_EXECUTION_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-execution-dashboard.md
+      FULLCYCLE_CONNECTOR_TELEMETRY_FILE: ./logs/monitoring/ci-fullcycle-connector-telemetry.json
+      FULLCYCLE_CONNECTOR_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors.md
+      FULLCYCLE_CONNECTOR_RUNTIME_REPORT_FILE: ./logs/monitoring/ci-fullcycle-connector-runtime-report.json
+      FULLCYCLE_CONNECTOR_RUNTIME_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-runtime.md
+      FULLCYCLE_CONNECTOR_INCIDENTS_FILE: ./logs/monitoring/ci-fullcycle-connector-incidents.json
+      FULLCYCLE_CONNECTOR_ENVIRONMENTS_FILE: ./config/connector-environments.example.json
+      FULLCYCLE_CONNECTOR_READINESS_REPORT_FILE: ./logs/monitoring/ci-fullcycle-connector-readiness-report.json
+      FULLCYCLE_CONNECTOR_READINESS_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-readiness.md
+      FULLCYCLE_CONNECTOR_TUNING_OUTPUT_FILE: ./logs/monitoring/ci-fullcycle-connector-thresholds-suggested.json
+      FULLCYCLE_CONNECTOR_TIMESERIES_FILE: ./logs/monitoring/ci-fullcycle-connector-timeseries.json
+      FULLCYCLE_CONNECTOR_OPERATIONS_REPORT_FILE: ./logs/monitoring/ci-fullcycle-connector-operations-report.json
+      FULLCYCLE_CONNECTOR_OPERATIONS_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-operations.md
+      FULLCYCLE_CONNECTOR_POSTMORTEM_DIR: ./logs/monitoring/ci-connector-postmortems
+      FULLCYCLE_CONNECTOR_EXEC_AUDIT_FILE: ./logs/monitoring/ci-fullcycle-connector-executive-audit-trail.jsonl
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_STORE_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-store.json
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_REPORT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-report.json
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_FEED_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability.json
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability.html
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_AUDIT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-audit.jsonl
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_ARCHIVE_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-archive.jsonl
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_API_PAYLOAD_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-api-payload.json
+      FULLCYCLE_CONNECTOR_PRODUCTIZATION_REPORT_FILE: ./logs/monitoring/ci-fullcycle-connector-productization-report.json
+      FULLCYCLE_CONNECTOR_PRODUCTIZATION_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-productization.md
+      FULLCYCLE_CONNECTOR_PRODUCTIZATION_AUDIT_FILE: ./logs/monitoring/ci-fullcycle-connector-productization-audit.jsonl
+      FULLCYCLE_CONNECTOR_OBS_API_GOVERNANCE_REPORT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-api-governance-report.json
+      FULLCYCLE_CONNECTOR_OBS_API_GOVERNANCE_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability-api-governance.md
+      FULLCYCLE_CONNECTOR_OBS_API_GOVERNANCE_AUDIT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-api-governance-audit.jsonl
+      FULLCYCLE_CONNECTOR_OBS_STREAM_STATE_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-stream-state.json
+      FULLCYCLE_CONNECTOR_OBS_STREAM_EVENTS_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-stream-events.jsonl
+      FULLCYCLE_CONNECTOR_OBS_STREAM_REPORT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-realtime-report.json
+      FULLCYCLE_CONNECTOR_OBS_STREAM_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability-realtime.md
+      FULLCYCLE_CONNECTOR_OBS_STREAM_AUDIT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-realtime-audit.jsonl
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_STATE_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-alerting-state.json
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_REPORT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-alerting-report.json
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability-alerting.md
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_AUDIT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-alerting-audit.jsonl
+      FULLCYCLE_CONNECTOR_OBS_API_SLA_HISTORY_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-api-sla-history.json
+      FULLCYCLE_CONNECTOR_OBS_API_SLA_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability-api-sla.md
+      FULLCYCLE_CONVERGENCE_REPORT_FILE: ./logs/monitoring/ci-fullcycle-convergence-report.json
+      FULLCYCLE_CONVERGENCE_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-convergence-dashboard.md
+      ITSM_CONNECTOR_PROVIDER: generic
+      ONCALL_CONNECTOR_PROVIDER: generic
+      FULLCYCLE_CONNECTOR_VALIDATE_CONTRACT: "true"
+      FULLCYCLE_CONNECTOR_ENFORCE_REQUEST_CONTRACT: "true"
+      FULLCYCLE_CONNECTOR_ENFORCE_RESPONSE_CONTRACT: "false"
+      FULLCYCLE_CONNECTOR_ENFORCE_TARGETS: "true"
+      FULLCYCLE_CONNECTOR_MIN_SAMPLES: "1"
+      FULLCYCLE_CONNECTOR_TARGET_SUCCESS_RATE_PCT: "95"
+      FULLCYCLE_CONNECTOR_TARGET_TIMEOUT_RATE_PCT_MAX: "20"
+      FULLCYCLE_CONNECTOR_TARGET_HTTP_ERROR_RATE_PCT_MAX: "20"
+      FULLCYCLE_CONNECTOR_TARGET_P95_LATENCY_MS: "10000"
+      FULLCYCLE_CONNECTOR_TARGET_CONTRACT_ERRORS_MAX: "0"
+      FULLCYCLE_CONNECTOR_EXIT_ON_INCIDENT: "true"
+      FULLCYCLE_CONNECTOR_READINESS_ENFORCE_TARGETS: "true"
+      FULLCYCLE_CONNECTOR_READINESS_REQUIRE_SANDBOX: "true"
+      FULLCYCLE_CONNECTOR_READINESS_REQUIRE_PROD: "true"
+      FULLCYCLE_CONNECTOR_READINESS_REQUIRE_NO_ACTIVE_INCIDENT: "true"
+      FULLCYCLE_CONNECTOR_READINESS_REQUIRE_ALERTS: "true"
+      FULLCYCLE_CONNECTOR_READINESS_MIN_SAMPLES_FOR_TUNING: "1"
+      FULLCYCLE_CONNECTOR_ALERT_EXEC_WEBHOOK_URL: "https://alerts.example.invalid/connectors/exec"
+      FULLCYCLE_CONNECTOR_ENVIRONMENT: "ci"
+      FULLCYCLE_CONNECTOR_TIMESERIES_MAX_POINTS: "200"
+      FULLCYCLE_CONNECTOR_TREND_WINDOW_POINTS: "30"
+      FULLCYCLE_CONNECTOR_OPERATIONS_ENFORCE_TARGETS: "true"
+      FULLCYCLE_CONNECTOR_REQUIRE_RUNTIME_PASS: "true"
+      FULLCYCLE_CONNECTOR_REQUIRE_READINESS_PASS: "true"
+      FULLCYCLE_CONNECTOR_REQUIRE_NO_ACTIVE_INCIDENT: "true"
+      FULLCYCLE_CONNECTOR_POSTMORTEM_REQUIRED_FOR_RESOLVED: "true"
+      FULLCYCLE_CONNECTOR_POSTMORTEM_MIN_COVERAGE_PCT: "100"
+      FULLCYCLE_CONNECTOR_POSTMORTEM_AUTO_CREATE: "true"
+      FULLCYCLE_CONNECTOR_POSTMORTEM_INCLUDE_OPEN: "false"
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_HISTORY_MAX_ENTRIES: "200"
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_TREND_WINDOW_POINTS: "60"
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_ENFORCE_TARGETS: "true"
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_REQUIRE_OPERATIONS_PASS: "true"
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_REQUIRE_MULTI_ENV: "false"
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_MIN_ENVIRONMENTS: "1"
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_REQUIRE_POSTMORTEM_LINK: "true"
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_POSTMORTEM_SLA_HOURS: "24"
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_MAX_OPEN_CRITICAL_INCIDENTS: "0"
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_RETENTION_DAYS: "30"
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_RETENTION_MAX_ENTRIES: "200"
+      FULLCYCLE_CONNECTOR_OBSERVABILITY_API_HISTORY_LIMIT: "100"
+      FULLCYCLE_CONNECTOR_PRODUCTIZATION_ENFORCE_TARGETS: "true"
+      FULLCYCLE_CONNECTOR_PRODUCTIZATION_REQUIRE_OBSERVABILITY_PASS: "true"
+      FULLCYCLE_CONNECTOR_PRODUCTIZATION_REQUIRE_FEED: "true"
+      FULLCYCLE_CONNECTOR_PRODUCTIZATION_REQUIRE_DASHBOARD: "true"
+      FULLCYCLE_CONNECTOR_PRODUCTIZATION_REQUIRE_API_PAYLOAD: "true"
+      FULLCYCLE_CONNECTOR_PRODUCTIZATION_REQUIRE_HISTORY_AFTER_RETENTION: "true"
+      FULLCYCLE_CONNECTOR_OBS_API_BASE: "http://127.0.0.1:3000"
+      FULLCYCLE_CONNECTOR_OBS_API_ADMIN_KEY: "ci-admin-key"
+      FULLCYCLE_CONNECTOR_OBS_API_TIMEOUT_MS: "8000"
+      FULLCYCLE_CONNECTOR_OBS_API_MAX_LATENCY_MS: "3500"
+      FULLCYCLE_CONNECTOR_OBS_API_MAX_PAYLOAD_AGE_MIN: "240"
+      FULLCYCLE_CONNECTOR_OBS_API_ENFORCE_TARGETS: "true"
+      FULLCYCLE_CONNECTOR_OBS_API_REQUIRE_ALL_ENDPOINTS: "true"
+      FULLCYCLE_CONNECTOR_OBS_API_REQUIRE_RBAC: "true"
+      FULLCYCLE_CONNECTOR_OBS_API_REQUIRE_ADMIN_KEY: "true"
+      FULLCYCLE_CONNECTOR_OBS_API_REQUIRE_DASHBOARD_HTML: "true"
+      FULLCYCLE_CONNECTOR_OBS_API_ALLOW_UNAVAILABLE: "false"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ENFORCE_TARGETS: "true"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_REQUIRE_OBSERVABILITY_PASS: "true"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_REQUIRE_PRODUCTIZATION_PASS: "true"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_REQUIRE_API_GOVERNANCE_PASS: "true"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_REQUIRE_API_NO_BLOCKING_VIOLATIONS: "true"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_MAX_OPEN_CRITICAL_INCIDENTS: "0"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_MAX_REPORT_AGE_MIN: "240"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_MAX_EVENT_HISTORY: "400"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_DEFAULT_LIMIT: "100"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_POLL_MS: "5000"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_HEARTBEAT_MS: "15000"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_ENFORCE_TARGETS: "true"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_REQUIRE_STREAM_PASS: "true"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_REQUIRE_API_GOVERNANCE_PASS: "true"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_MAX_ACTIVE_ISSUES: "30"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_ONLY_ON_NEW: "true"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_NOTIFY_RESOLVED: "true"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_COOLDOWN_MINUTES: "30"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_TIMEOUT_MS: "8000"
+      FULLCYCLE_CONNECTOR_OBS_STREAM_ALERT_DRY_RUN: "true"
+      FULLCYCLE_CONNECTOR_OBS_API_SLA_MIN_AVAILABILITY_PCT: "95"
+      FULLCYCLE_CONNECTOR_OBS_API_SLA_MAX_LATENCY_MS: "3500"
+      FULLCYCLE_CONNECTOR_OBS_API_SLA_MAX_PAYLOAD_AGE_MIN: "240"
+      FULLCYCLE_CONNECTOR_OBS_API_SLA_MAX_BLOCKING_VIOLATIONS: "0"
+      FULLCYCLE_CONNECTOR_OBS_API_SLA_HISTORY_MAX_POINTS: "400"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_REPORT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-panel-report.json
+      FULLCYCLE_CONNECTOR_OBS_PANEL_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability-ops-panel.html
+      FULLCYCLE_CONNECTOR_OBS_PANEL_AUDIT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-panel-audit.jsonl
+      FULLCYCLE_CONNECTOR_OBS_PANEL_API_BASE: "http://127.0.0.1:3000"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_DEFAULT_ENVIRONMENT: "ci"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_ENFORCE_TARGETS: "true"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_STREAM_PASS: "true"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_ALERTING_PASS: "true"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_API_SLA_HISTORY: "true"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_BACKEND_STORE: "true"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_BACKEND_PASS: "true"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_TEAM_ROUTING: "true"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_AUTO_CONNECT: "true"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_REFRESH_MS: "30000"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_SLA_POINTS: "1"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_TEAMS: "1"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_MAX_STREAM_AGE_MIN: "240"
+      FULLCYCLE_CONNECTOR_OBS_PANEL_MAX_SLA_AGE_MIN: "240"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_STORE_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-backend-store.json
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_REPORT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-backend-report.json
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability-backend.md
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_AUDIT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-backend-audit.jsonl
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-backend-analytics.json
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_ROUTE_MATRIX_FILE: ./config/observability-routing.example.json
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_ROTATION_FILE: ./config/oncall-rotation.example.json
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_CALENDAR_FILE: ./config/oncall-calendar.example.json
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_DEFAULT_ENVIRONMENT: "ci"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_ENFORCE_TARGETS: "true"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_INCIDENTS: "true"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_ALERT_REPORT: "true"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_API_SLA_HISTORY: "true"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_DYNAMIC_OWNER_ENABLED: "true"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_PRESERVE_MANUAL_OWNER: "true"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_DYNAMIC_OWNER: "true"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_MIN_OWNER_COVERAGE_PCT: "100"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_MAX_ENTRIES: "400"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_MAX_OPEN_CRITICAL_INCIDENTS: "0"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_MAX_ACTIVE_CRITICAL_ALERTS: "0"
+      FULLCYCLE_CONNECTOR_OBS_COMPAT_REPORT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-compat-report.json
+      FULLCYCLE_CONNECTOR_OBS_COMPAT_DASHBOARD_FILE: ./logs/monitoring/ci-fullcycle-connectors-observability-compat.md
+      FULLCYCLE_CONNECTOR_OBS_COMPAT_AUDIT_FILE: ./logs/monitoring/ci-fullcycle-connector-observability-compat-audit.jsonl
+      FULLCYCLE_CONNECTOR_OBS_COMPAT_REQUIRE_LEGACY_READY: "true"
+      FULLCYCLE_CONNECTOR_OBS_LIVE_OUTPUT_DIR: ./logs/monitoring/ci-phase34-live
+      FULLCYCLE_CONNECTOR_OBS_LIVE_GOVERNANCE_REPORT_FILE: ./logs/monitoring/ci-observability-live-governance-report.json
+      FULLCYCLE_CONNECTOR_OBS_LIVE_GOVERNANCE_DASHBOARD_FILE: ./logs/monitoring/ci-observability-live-governance.md
+      FULLCYCLE_CONNECTOR_OBS_LIVE_GOVERNANCE_AUDIT_FILE: ./logs/monitoring/ci-observability-live-governance-audit.jsonl
+      FULLCYCLE_CONNECTOR_OBS_LIVE_RUNTIME_PROFILE: "ci"
+      FULLCYCLE_CONNECTOR_OBS_LIVE_API_HOST: 127.0.0.1
+      FULLCYCLE_CONNECTOR_OBS_LIVE_API_PORT: 3100
+      FULLCYCLE_CONNECTOR_OBS_LIVE_ADMIN_API_KEY: ci-admin-key
+      FULLCYCLE_CONNECTOR_OBS_LIVE_BOOT_DOCKER_INFRA: "false"
+      FULLCYCLE_CONNECTOR_OBS_LIVE_DATABASE_URL: postgresql://app:app@127.0.0.1:5432/sales_supervisor
+      FULLCYCLE_CONNECTOR_OBS_LIVE_REDIS_URL: redis://127.0.0.1:6379
+      FULLCYCLE_CONNECTOR_OBS_LIVE_BROWSER_ARGS: --no-sandbox,--disable-dev-shm-usage
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Connector adapters drill (phase20)
+        run: npm run test:phase20
+
+      - name: Connector runtime drill (phase21)
+        run: npm run test:phase21
+
+      - name: Connector readiness drill (phase22)
+        run: npm run test:phase22
+
+      - name: Connector consolidation drill (phase23)
+        run: npm run test:phase23
+
+      - name: Connector observability drill (phase24)
+        run: npm run test:phase24
+
+      - name: Connector productization drill (phase25)
+        run: npm run test:phase25
+
+      - name: Connector observability API governance drill (phase26)
+        run: npm run test:phase26
+
+      - name: Connector observability realtime drill (phase27)
+        run: npm run test:phase27
+
+      - name: Connector observability realtime alerting drill (phase28)
+        run: npm run test:phase28
+
+      - name: Connector observability realtime panel drill (phase29)
+        run: npm run test:phase29
+
+      - name: Connector observability backend consolidation drill (phase30)
+        run: npm run test:phase30
+
+      - name: Connector observability backend-first panel drill (phase31)
+        run: npm run test:phase31
+
+      - name: Connector observability backend on-call analytics drill (phase32)
+        run: npm run test:phase32
+
+      - name: Connector observability legacy convergence drill (phase35)
+        run: npm run test:phase35
+
+      - name: Connector observability live governance gate (phase34)
+        run: npm run test:phase34
+
+      - name: Start API
+        run: |
+          node apps/api/dist/index.js > ci-api.log 2>&1 &
+          echo $! > ci-api.pid
+
+      - name: Wait for health
+        run: |
+          for i in {1..60}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/health || true)
+            if [ "$code" = "200" ]; then
+              echo "API healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "API did not become healthy"
+          cat ci-api.log || true
+          exit 1
+
+      - name: API smoke checks
+        run: npm run test:ci:api-smoke
+
+      - name: Monitoring check (CI gate)
+        env:
+          MONITOR_DOCKER_WORKER_CHECK: "false"
+          MONITOR_EXIT_ON_INCIDENT: "true"
+        run: npm run monitor:check
+
+      - name: Reliability targets gate
+        env:
+          RELIABILITY_ENFORCE_TARGETS: "true"
+          RELIABILITY_TARGET_MTTR_MIN: "180"
+          RELIABILITY_TARGET_MTTD_SEC: "600"
+          RELIABILITY_MAX_OPEN_INCIDENTS: "0"
+        run: npm run monitor:reliability
+
+      - name: Build reliability dashboard
+        run: npm run monitor:dashboard
+
+      - name: Postmortem automation snapshot
+        run: npm run monitor:postmortem
+
+      - name: ITSM/paging automation snapshot
+        run: npm run monitor:itsm
+
+      - name: Enterprise governance gate
+        env:
+          ONCALL_OWNER_DYNAMIC_ENABLED: "true"
+          ONCALL_OWNER_PRESERVE_MANUAL: "true"
+          ITSM_RECONCILIATION_ENABLED: "true"
+          ITSM_RECONCILIATION_ALLOW_MISSING_SNAPSHOT: "true"
+          ITSM_RECONCILIATION_FAIL_ON_DRIFT: "false"
+          SLO_EXECUTIVE_ENFORCE_TARGETS: "true"
+          SLO_EXEC_MAX_OPEN_INCIDENTS: "0"
+        run: npm run monitor:governance
+
+      - name: Full-cycle governance gate
+        env:
+          FULLCYCLE_APPLY_LOCAL_BACKFILL: "false"
+          FULLCYCLE_ENFORCE_TARGETS: "true"
+          FULLCYCLE_REQUIRE_GOVERNANCE_PASS: "true"
+          FULLCYCLE_MAX_PENDING_ACTIONS: "20"
+          FULLCYCLE_MAX_ORPHAN_EXTERNALS: "0"
+          FULLCYCLE_MIN_OWNER_COVERAGE_PCT: "95"
+        run: npm run monitor:fullcycle
+
+      - name: Full-cycle execution gate
+        env:
+          FULLCYCLE_EXEC_DRY_RUN: "true"
+          FULLCYCLE_EXEC_REQUIRE_ENDPOINTS: "false"
+          FULLCYCLE_EXEC_FAIL_ON_ERROR: "false"
+          FULLCYCLE_EXEC_FAIL_ON_BLOCKING_ERROR: "true"
+          FULLCYCLE_EXEC_REPLAY_SUCCESS: "false"
+          FULLCYCLE_EXEC_REPLAY_APPLIED: "false"
+        run: npm run monitor:fullcycle:execute
+
+      - name: Full-cycle convergence gate
+        env:
+          FULLCYCLE_LOOP_MAX_CYCLES: "2"
+          FULLCYCLE_LOOP_ENFORCE_TARGETS: "true"
+          FULLCYCLE_LOOP_REQUIRE_IMPROVEMENT: "false"
+          FULLCYCLE_LOOP_REQUIRE_ZERO_BLOCKING: "true"
+          FULLCYCLE_LOOP_PATCH_SNAPSHOT: "true"
+          FULLCYCLE_EXEC_DRY_RUN: "true"
+          FULLCYCLE_EXEC_REQUIRE_ENDPOINTS: "false"
+          FULLCYCLE_EXEC_FAIL_ON_ERROR: "false"
+          FULLCYCLE_EXEC_FAIL_ON_BLOCKING_ERROR: "true"
+        run: npm run monitor:fullcycle:loop
+
+      - name: Connector runtime gate
+        run: npm run monitor:fullcycle:connectors
+
+      - name: Connector readiness gate
+        run: npm run monitor:fullcycle:readiness
+
+      - name: Connector consolidation gate
+        run: npm run monitor:fullcycle:consolidation
+
+      - name: Connector observability gate
+        run: npm run monitor:fullcycle:observability
+
+      - name: Connector productization gate
+        run: npm run monitor:fullcycle:productization
+
+      - name: Connector observability API governance gate
+        run: npm run monitor:fullcycle:observability:api
+
+      - name: Connector observability realtime gate
+        run: npm run monitor:fullcycle:observability:realtime
+
+      - name: Connector observability realtime alerting gate
+        run: npm run monitor:fullcycle:observability:alerting
+
+      - name: Connector observability backend on-call analytics gate
+        run: npm run monitor:fullcycle:observability:backend
+
+      - name: Connector observability backend-first panel gate
+        run: npm run monitor:fullcycle:observability:panel
+
+      - name: On-call executive dashboard snapshot
+        run: npm run monitor:oncall
+
+      - name: Stop API
+        if: always()
+        run: |
+          if [ -f ci-api.pid ]; then
+            kill "$(cat ci-api.pid)" || true
+          fi
+
+      - name: Upload reliability artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reliability-artifacts
+          path: |
+            logs/monitoring/ci-*.json
+            logs/monitoring/ci-*.md
+            logs/monitoring/ci-*.html
+            logs/monitoring/ci-*.jsonl
+            logs/monitoring/ci-phase34-live/**
+            logs/monitoring/ci-connector-postmortems/**
+            logs/monitoring/ci-postmortems/**
+          if-no-files-found: warn
+
+      - name: Show API log on failure
+        if: failure()
+        run: cat ci-api.log || true

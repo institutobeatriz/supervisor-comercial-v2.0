@@ -1,0 +1,19 @@
+{
+  "name": "@supervisor/vision",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/node": "^20.0.0"
+  }
+}

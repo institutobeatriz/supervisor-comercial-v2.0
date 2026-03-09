@@ -1,0 +1,53 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "strict": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "noEmitOnError": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@supervisor/audit": ["./packages/audit/src/index.ts"],
+      "@supervisor/audit/*": ["./packages/audit/src/*"],
+      "@supervisor/db": ["./packages/db/src/index.ts"],
+      "@supervisor/db/*": ["./packages/db/src/*"],
+      "@supervisor/embeddings": ["./packages/embeddings/src/index.ts"],
+      "@supervisor/embeddings/*": ["./packages/embeddings/src/*"],
+      "@supervisor/evolution": ["./packages/evolution/src/index.ts"],
+      "@supervisor/evolution/*": ["./packages/evolution/src/*"],
+      "@supervisor/governance": ["./packages/governance/src/index.ts"],
+      "@supervisor/governance/*": ["./packages/governance/src/*"],
+      "@supervisor/llm": ["./packages/llm/src/index.ts"],
+      "@supervisor/llm/*": ["./packages/llm/src/*"],
+      "@supervisor/planner": ["./packages/planner/src/index.ts"],
+      "@supervisor/planner/*": ["./packages/planner/src/*"],
+      "@supervisor/rag": ["./packages/rag/src/index.ts"],
+      "@supervisor/rag/*": ["./packages/rag/src/*"],
+      "@supervisor/stt": ["./packages/stt/src/index.ts"],
+      "@supervisor/stt/*": ["./packages/stt/src/*"],
+      "@supervisor/vision": ["./packages/vision/src/index.ts"],
+      "@supervisor/vision/*": ["./packages/vision/src/*"]
+    }
+  },
+  "include": [
+    "apps/api/src/**/*.ts",
+    "apps/worker/src/index.ts",
+    "packages/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/simple.ts", "**/test-*.ts"]
+}

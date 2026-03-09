@@ -1,0 +1,20 @@
+{
+  "id": "test-conv-002",
+  "description": "Lead com objeção de preço que não compra",
+  "messages": [
+    {"direction": "outbound", "text": "Boa tarde! Vi que você se interessou pelo nosso programa", "timestamp": "2026-01-11T14:00:00Z"},
+    {"direction": "inbound", "text": "Sim, mas achei muito caro", "timestamp": "2026-01-11T14:05:00Z"},
+    {"direction": "outbound", "text": "Entendo! Temos opções de parcelamento em até 12x", "timestamp": "2026-01-11T14:07:00Z"},
+    {"direction": "inbound", "text": "Mesmo assim está fora do meu orçamento no momento", "timestamp": "2026-01-11T14:10:00Z"},
+    {"direction": "outbound", "text": "Posso te mandar mais informações para quando melhorar?", "timestamp": "2026-01-11T14:12:00Z"},
+    {"direction": "inbound", "text": "Tá bom, mas por enquanto não", "timestamp": "2026-01-11T14:15:00Z"}
+  ],
+  "expected": {
+    "final_funnel_stage": "closed_lost",
+    "outcome": "lost",
+    "sale_type": null,
+    "last_intent": "recusa",
+    "has_objection": true,
+    "objection_type": "preco"
+  }
+}
