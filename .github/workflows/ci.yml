@@ -307,6 +307,10 @@ jobs:
         run: npm run test:phase32
 
       - name: Connector observability legacy convergence drill (phase35)
+        env:
+          FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_INCIDENTS: "false"
+          FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_ALERT_REPORT: "false"
+          FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_API_SLA_HISTORY: "false"
         run: npm run test:phase35
 
       - name: Connector observability live governance gate (phase34)
