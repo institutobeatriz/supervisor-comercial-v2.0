@@ -633,14 +633,15 @@ async function main() {
   const activeRecords = [...incidents.filter((item) => item.status !== 'resolved'), ...alerts.filter((item) => item.status !== 'resolved')];
   const ownership = summarizeOwnership(activeRecords);
   const unassignedRecords = activeRecords.filter((item) => !String(item.owner || '').trim()).map((item) => item.id ? `incident:${item.id}` : `alert:${item.key}`);
+  const hasActiveRecords = activeRecords.length > 0;
 
   const violations = safeArray(baseReport.violations).map((item) => ({ ...item }));
   const operationalStateLoaded = Boolean(automationState && typeof automationState === 'object');
   const snapshotLoaded = Boolean(snapshot && typeof snapshot === 'object');
   const fullcycleLoaded = Boolean(fullcycleReport && typeof fullcycleReport === 'object');
-  if (cfg.requireOperationalSource && !operationalStateLoaded && !snapshotLoaded) violations.push({ code: 'operational_oncall_source_unavailable', blocking: true, message: `operational state unavailable at ${cfg.automationStateFile} and snapshot unavailable at ${cfg.snapshotFile}` });
-  if (cfg.requireSnapshot && !snapshotLoaded) violations.push({ code: 'operational_snapshot_unavailable', blocking: true, message: `snapshot unavailable at ${cfg.snapshotFile}` });
-  if (cfg.requireOperationalSource && directEntries.length === 0) violations.push({ code: 'operational_roster_unavailable', blocking: true, message: 'no direct operational owner evidence was found to build the roster' });
+  if (cfg.requireOperationalSource && hasActiveRecords && !operationalStateLoaded && !snapshotLoaded) violations.push({ code: 'operational_oncall_source_unavailable', blocking: true, message: `operational state unavailable at ${cfg.automationStateFile} and snapshot unavailable at ${cfg.snapshotFile}` });
+  if (cfg.requireSnapshot && hasActiveRecords && !snapshotLoaded) violations.push({ code: 'operational_snapshot_unavailable', blocking: true, message: `snapshot unavailable at ${cfg.snapshotFile}` });
+  if (cfg.requireOperationalSource && hasActiveRecords && directEntries.length === 0) violations.push({ code: 'operational_roster_unavailable', blocking: true, message: 'no direct operational owner evidence was found to build the roster' });
   if (cfg.requireOperationalSource && unassignedRecords.length > 0) violations.push({ code: 'operational_owner_unassigned', blocking: true, message: `records without operational owner: ${unassignedRecords.join(', ')}` });
   if (ownership.coveragePct < cfg.minOwnerCoveragePct) violations.push({ code: 'operational_owner_coverage_below_target', blocking: true, message: `owner coverage ${ownership.coveragePct}% < ${cfg.minOwnerCoveragePct}%` });
 
