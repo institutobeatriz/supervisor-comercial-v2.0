@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-09T15:45:22.791Z",
+  "generatedAt": "2026-03-09T18:58:07.537Z",
   "status": "warn",
   "source": "backend_first_compat",
   "summary": {
@@ -8,9 +8,9 @@
     "alertingStatus": "unknown",
     "cursor": 0,
     "incidents": {
-      "total": 0,
+      "total": 1,
       "open": 0,
-      "resolved": 0,
+      "resolved": 1,
       "openCritical": 0,
       "openWarning": 0,
       "openInfo": 0
@@ -23,34 +23,138 @@
       "activeWarning": 0,
       "activeInfo": 0
     },
-    "teamsTracked": 0,
+    "teamsTracked": 1,
     "latestApiSla": null,
-    "violations": 3,
-    "blockingViolations": 3,
+    "violations": 2,
+    "blockingViolations": 2,
     "ownerCoveragePct": 100,
     "unassignedOwners": 0,
     "breachedEscalations": 0,
-    "analyticsPoints": 1,
-    "incidentsTracked": 0,
+    "analyticsPoints": 6,
+    "incidentsTracked": 1,
     "alertsTracked": 0,
-    "historyPoints": 1,
+    "historyPoints": 6,
     "compatibilityMode": "materialized_from_backend_first"
   },
-  "teams": [],
-  "incidents": [],
+  "teams": [
+    {
+      "team": "integrations",
+      "openIncidents": 0,
+      "resolvedIncidents": 1,
+      "criticalOpenIncidents": 0,
+      "activeAlerts": 0,
+      "resolvedAlerts": 0,
+      "criticalActiveAlerts": 0,
+      "pendingEscalations": 0,
+      "ownerCount": 0,
+      "owners": [],
+      "channels": [
+        "slack",
+        "webhook"
+      ],
+      "sources": [
+        "connectors_runtime"
+      ]
+    }
+  ],
+  "incidents": [
+    {
+      "id": "conn-20260309011820-mtofr",
+      "source": "connectors_runtime",
+      "environment": "development",
+      "status": "resolved",
+      "severity": "critical",
+      "maxSeverity": "critical",
+      "startedAt": "2026-03-09T01:18:20.881Z",
+      "detectedAt": "2026-03-09T01:18:20.881Z",
+      "openedAt": "2026-03-09T01:18:20.881Z",
+      "lastSeenAt": "2026-03-09T01:19:07.907Z",
+      "resolvedAt": "2026-03-09T01:19:07.907Z",
+      "ageMinutes": 0.78,
+      "durationMinutes": 0.78,
+      "violationCount": 1,
+      "violations": [
+        {
+          "connector": "oncall:generic",
+          "code": "success_rate_below_target",
+          "message": "success rate 90% < 99%",
+          "severity": "critical",
+          "blocking": true
+        }
+      ],
+      "connectors": [
+        "oncall:generic"
+      ],
+      "alertEventsCount": 0,
+      "lastAlertAt": null,
+      "routing": {
+        "team": "integrations",
+        "channels": [
+          "webhook",
+          "slack"
+        ],
+        "escalateAfterMinutes": 30,
+        "matchedBy": "source",
+        "ruleKey": "connectors_runtime"
+      },
+      "ownerTeam": "integrations",
+      "escalationTeam": "integrations",
+      "postmortem": {
+        "exists": false,
+        "filePath": null,
+        "status": null,
+        "generated": false,
+        "resolvedAt": null
+      },
+      "presentInSource": true,
+      "owner": null,
+      "ownerSource": null,
+      "ownerRuleId": null,
+      "ownerAssignedAt": null,
+      "ownerTimezone": "America/Sao_Paulo",
+      "ownerTier": "P1",
+      "ownerReferenceTime": "2026-03-09T01:18:20.881Z",
+      "escalation": {
+        "targetMinutes": 30,
+        "ageMinutes": 0.78,
+        "breached": false,
+        "status": "resolved"
+      }
+    }
+  ],
   "alerts": [],
   "analytics": {
     "current": {
-      "generatedAt": "2026-03-09T15:45:22.861Z",
+      "generatedAt": "2026-03-09T18:58:07.602Z",
       "environment": "development",
-      "recordsTracked": 0,
+      "recordsTracked": 1,
       "activeRecords": 0,
       "ownerCoveragePct": 100,
       "assignedOwners": 0,
       "unassignedOwners": 0,
       "breachedEscalations": 0,
       "bySource": {},
-      "byTeam": [],
+      "byTeam": [
+        {
+          "team": "integrations",
+          "openIncidents": 0,
+          "resolvedIncidents": 1,
+          "criticalOpenIncidents": 0,
+          "activeAlerts": 0,
+          "resolvedAlerts": 0,
+          "criticalActiveAlerts": 0,
+          "pendingEscalations": 0,
+          "ownerCount": 0,
+          "owners": [],
+          "channels": [
+            "slack",
+            "webhook"
+          ],
+          "sources": [
+            "connectors_runtime"
+          ]
+        }
+      ],
       "severity": {
         "incidents": {
           "criticalOpen": 0,
@@ -64,10 +168,10 @@
         }
       }
     },
-    "totalEntries": 1
+    "totalEntries": 6
   },
   "links": {
-    "backendReportGeneratedAt": "2026-03-09T15:45:22.861Z",
-    "backendStoreGeneratedAt": "2026-03-09T15:45:22.861Z"
+    "backendReportGeneratedAt": "2026-03-09T18:58:07.602Z",
+    "backendStoreGeneratedAt": "2026-03-09T18:58:07.602Z"
   }
 }

@@ -796,12 +796,18 @@ Controles:
 6. `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_API_SLA_HISTORY`
 7. `FULLCYCLE_CONNECTOR_OBS_BACKEND_MAX_OPEN_CRITICAL_INCIDENTS`
 8. `FULLCYCLE_CONNECTOR_OBS_BACKEND_MAX_ACTIVE_CRITICAL_ALERTS`
-9. `FULLCYCLE_CONNECTOR_OBS_BACKEND_ROTATION_FILE`
-10. `FULLCYCLE_CONNECTOR_OBS_BACKEND_CALENDAR_FILE`
-11. `FULLCYCLE_CONNECTOR_OBS_BACKEND_DYNAMIC_OWNER_ENABLED`
-12. `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_DYNAMIC_OWNER`
-13. `FULLCYCLE_CONNECTOR_OBS_BACKEND_MIN_OWNER_COVERAGE_PCT`
-14. `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_MAX_ENTRIES`
+9. `FULLCYCLE_CONNECTOR_OBS_BACKEND_ROTATION_FILE` (legado/drill file-based)
+10. `FULLCYCLE_CONNECTOR_OBS_BACKEND_CALENDAR_FILE` (legado/drill file-based)
+11. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE`
+12. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_FILE`
+13. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE`
+14. `FULLCYCLE_CONNECTOR_OBS_BACKEND_DYNAMIC_OWNER_ENABLED`
+15. `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_DYNAMIC_OWNER`
+16. `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SOURCE`
+17. `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SNAPSHOT`
+18. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_TIMEZONE`
+19. `FULLCYCLE_CONNECTOR_OBS_BACKEND_MIN_OWNER_COVERAGE_PCT`
+20. `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_MAX_ENTRIES`
 
 Endpoints internos adicionais:
 1. `GET /api/observability/connectors/incidents/summary` (`operator+`)
@@ -840,6 +846,25 @@ CI (Fase 32):
 1. `test:phase32` (drill pass/fail de owner dinamico + analytics);
 2. `monitor:fullcycle:observability:backend` (gate oficial do backend ja evoluido na Fase 32);
 3. smoke da API interna incluindo `/api/observability/connectors/backend/analytics`.
+
+## Ownership operacional oficial do backend dedicado (Fase 39)
+Substituir a origem file-based do owner pelo estado operacional real:
+```bash
+npm run test:phase39
+npm run monitor:fullcycle:observability:backend
+```
+
+Capacidades adicionais:
+1. usa `INCIDENT_AUTOMATION_STATE_FILE` como fonte primaria de ownership operacional;
+2. cruza `ITSM_SNAPSHOT_FILE` para priorizar owner remoto quando houver evidência viva de paging/ticket;
+3. usa `FULLCYCLE_REPORT_FILE` como contexto operacional auxiliar e trilha de auditoria;
+4. preserva owner manual existente quando nenhuma evidência operacional mais forte estiver disponivel;
+5. mantem `backend/report`, `backend/analytics`, incidents, alerts e painel backend-first no mesmo contrato.
+
+CI (Fase 39):
+1. `test:phase39` (drill pass/fail da trilha operacional sem depender de `rotation/calendar`);
+2. `monitor:fullcycle:observability:backend` (gate oficial operacional-first);
+3. `test:phase33` / `test:phase34` para validar a trilha live consumindo a mesma origem operacional.
 
 ## Validacao live da API interna + painel headless (Fase 33)
 Executar validacao runtime real da camada de observabilidade:

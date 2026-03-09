@@ -9,6 +9,17 @@ Este runbook define o procedimento oficial de operacao para API, worker, filas, 
 - API local: `npm run dev:api` ou `npm run start:api`.
 - Worker local: `npm run dev:worker` ou `npm run start:worker`.
 - Infra local (somente Postgres/Redis): `npm run local:infra`.
+- Sync do repo standalone: `npm run standalone:sync`.
+- Check de drift do standalone: `npm run standalone:sync:check`.
+- Publicacao canonica em branch/PR do standalone: `npm run standalone:publish`.
+
+## Repo standalone canonico
+Enquanto este projeto continuar dentro do repo guarda-chuva local, o fluxo oficial de GitHub Actions e PR remotos deve usar `.export-repo`.
+
+- Workspace principal: `C:/Users/user/.openclaw/workspace/supervisor-comercial`
+- Repo standalone local: `C:/Users/user/.openclaw/workspace/supervisor-comercial/.export-repo`
+- Repo remoto: `https://github.com/institutobeatriz/supervisor-comercial-v2.0`
+- Guia detalhado: `docs/standalone-repo-flow.md`
 
 ## Modos de operacao
 
@@ -266,7 +277,14 @@ Owner dinamico + analytics historico do backend dedicado (Fase 32):
 npm run test:phase32
 npm run monitor:fullcycle:observability:backend
 ```
-O backend oficial passa a resolver owner por rotacao/calendario de plantao, calcular cobertura de ownership, controlar escalations pendentes e publicar historico em `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE`.
+O marco da Fase 32 introduz a camada de analytics/ownership historica. O drill da fase continua validando a trilha file-based por `rotation/calendar` como referencia de compatibilidade.
+
+Ownership operacional oficial do backend dedicado (Fase 39):
+```bash
+npm run test:phase39
+npm run monitor:fullcycle:observability:backend
+```
+O comando oficial do backend passa a consumir `INCIDENT_AUTOMATION_STATE_FILE`, `ITSM_SNAPSHOT_FILE` e `FULLCYCLE_REPORT_FILE` (ou aliases `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_*`), preserva owner manual quando aplicavel, recalcula coverage/escalations e publica o historico final em `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE`.
 
 Validacao live da API interna + painel headless (Fase 33):
 ```bash
@@ -311,6 +329,23 @@ Capacidades adicionais:
 2. materializa `FULLCYCLE_CONNECTOR_OBSERVABILITY_STORE_FILE`, `REPORT_FILE`, `FEED_FILE`, `API_PAYLOAD_FILE` e `DASHBOARD_FILE`;
 3. publica relatorio/dash/audit dedicados em `FULLCYCLE_CONNECTOR_OBS_COMPAT_*`;
 4. endurece o smoke/live para exigir HTTP `200` em `summary`, `feed`, `history` e `dashboard`.
+
+Hardening de CSP/assets dos dashboards HTML internos (Fase 38):
+```bash
+npm run test:phase38
+npm run monitor:fullcycle:observability:live
+```
+Capacidades adicionais:
+1. remove CSS/JS inline do painel realtime e do dashboard executivo materializado;
+2. publica assets externos sob `assets/` ao lado do HTML gerado;
+3. endurece CSP route-scoped para `style-src 'self'` e `script-src 'self'`;
+4. valida rotas HTML e assets externos no smoke/live.
+
+Rotas HTML/asset relevantes:
+1. `/api/observability/connectors/dashboard`
+2. `/api/observability/connectors/assets/*`
+3. `/api/observability/connectors/realtime/panel`
+4. `/api/observability/connectors/realtime/assets/*`
 
 Artefatos da Fase 34:
 1. `logs/monitoring/phase34-live/live-validation-report.json`
@@ -604,11 +639,14 @@ Backend dedicado de incidents/alerts:
 4. Audit trail dedicado: `FULLCYCLE_CONNECTOR_OBS_BACKEND_AUDIT_FILE`.
 5. Analytics historico do backend: `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE`.
 6. Matriz de roteamento severidade/equipe: `FULLCYCLE_CONNECTOR_OBS_BACKEND_ROUTE_MATRIX_FILE` (template: `config/observability-routing.example.json`).
-7. Integracao on-call: `FULLCYCLE_CONNECTOR_OBS_BACKEND_ROTATION_FILE` e `FULLCYCLE_CONNECTOR_OBS_BACKEND_CALENDAR_FILE`.
+7. Integracao operacional oficial: `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE`, `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_FILE` e `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE`.
 8. Politicas adicionais de ownership:
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_DYNAMIC_OWNER_ENABLED`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_PRESERVE_MANUAL_OWNER`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_DYNAMIC_OWNER`
+- `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SOURCE`
+- `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SNAPSHOT`
+- `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_TIMEZONE`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_MIN_OWNER_COVERAGE_PCT`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_MAX_ENTRIES`
 9. Politicas base:
