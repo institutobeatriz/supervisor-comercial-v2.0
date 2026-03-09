@@ -59,6 +59,8 @@ Eliminar dependencia de CSS/JS inline nos dashboards HTML internos de observabil
 4. Runtime live oficial:
 - `npm run test:phase34`
 - `npm run monitor:fullcycle:observability:live`
+5. Publicacao/CI remoto no repo standalone:
+- `node scripts/phase37-standalone-publish.mjs --watch-ci --commit-message "fix(ci): materialize observability panel shell before smoke" --pr-title "fix(ci): materialize observability panel shell before smoke" --watch-timeout-ms 1800000`
 
 ## Resultado observado
 1. `npm run test:phase38` => `pass`.
@@ -72,6 +74,11 @@ Eliminar dependencia de CSS/JS inline nos dashboards HTML internos de observabil
 - `observability_realtime_panel_asset_js`
 5. O dashboard executivo deixou de retornar HTML com `<style>` inline no fluxo live.
 6. O painel realtime continuou funcional em browser/headless com assets externos.
+7. O repo standalone canonico passou na GitHub Actions apos materializar o shell do painel antes do `API smoke checks`.
+8. PR remota aberta com a correcao:
+- PR `#3`: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/3`
+- Run verde: `22866594857`
+- Commit standalone: `573bf52d86b7c699bbd4c79f5b6e68be7a5571d7`
 
 ## Evidencia objetiva
 1. `logs/monitoring/fullcycle-connector-observability-live-governance-report.json`
@@ -80,11 +87,13 @@ Eliminar dependencia de CSS/JS inline nos dashboards HTML internos de observabil
 4. `logs/monitoring/phase34-live/panel-dom.html`
 5. `logs/monitoring/phase24-drill/fullcycle-connectors-observability.html`
 6. `logs/monitoring/phase31-drill/panel-dashboard.html`
+7. `logs/monitoring/standalone-export-publish-report.json`
+8. `https://github.com/institutobeatriz/supervisor-comercial-v2.0/actions/runs/22866594857`
 
 ## Riscos residuais
 1. A camada de on-call segue dependente de arquivos locais (`rotation/calendar`).
-2. O repo standalone remoto ainda nao foi republicado nesta fase.
-3. O dashboard executivo materializado continua sendo gerado pela trilha de compatibilidade; qualquer evolucao visual futura precisa considerar essa origem como fonte real do endpoint `/dashboard`.
+2. O dashboard executivo materializado continua sendo gerado pela trilha de compatibilidade; qualquer evolucao visual futura precisa considerar essa origem como fonte real do endpoint `/dashboard`.
+3. O repo canonico de CI remoto continua separado do git root principal do workspace, entao a sincronizacao segue sendo um passo explicito.
 
 ## Proxima fase liberada
 Fase 39 - substituir a origem file-based de on-call por fonte operacional real, preservando os contratos atuais de backend analytics, incidents/alerts e painel.

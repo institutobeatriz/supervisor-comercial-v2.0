@@ -277,7 +277,14 @@ Owner dinamico + analytics historico do backend dedicado (Fase 32):
 npm run test:phase32
 npm run monitor:fullcycle:observability:backend
 ```
-O backend oficial passa a resolver owner por rotacao/calendario de plantao, calcular cobertura de ownership, controlar escalations pendentes e publicar historico em `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE`.
+O marco da Fase 32 introduz a camada de analytics/ownership historica. O drill da fase continua validando a trilha file-based por `rotation/calendar` como referencia de compatibilidade.
+
+Ownership operacional oficial do backend dedicado (Fase 39):
+```bash
+npm run test:phase39
+npm run monitor:fullcycle:observability:backend
+```
+O comando oficial do backend passa a consumir `INCIDENT_AUTOMATION_STATE_FILE`, `ITSM_SNAPSHOT_FILE` e `FULLCYCLE_REPORT_FILE` (ou aliases `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_*`), preserva owner manual quando aplicavel, recalcula coverage/escalations e publica o historico final em `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE`.
 
 Validacao live da API interna + painel headless (Fase 33):
 ```bash
@@ -632,11 +639,14 @@ Backend dedicado de incidents/alerts:
 4. Audit trail dedicado: `FULLCYCLE_CONNECTOR_OBS_BACKEND_AUDIT_FILE`.
 5. Analytics historico do backend: `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE`.
 6. Matriz de roteamento severidade/equipe: `FULLCYCLE_CONNECTOR_OBS_BACKEND_ROUTE_MATRIX_FILE` (template: `config/observability-routing.example.json`).
-7. Integracao on-call: `FULLCYCLE_CONNECTOR_OBS_BACKEND_ROTATION_FILE` e `FULLCYCLE_CONNECTOR_OBS_BACKEND_CALENDAR_FILE`.
+7. Integracao operacional oficial: `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE`, `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_FILE` e `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE`.
 8. Politicas adicionais de ownership:
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_DYNAMIC_OWNER_ENABLED`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_PRESERVE_MANUAL_OWNER`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_DYNAMIC_OWNER`
+- `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SOURCE`
+- `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SNAPSHOT`
+- `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_TIMEZONE`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_MIN_OWNER_COVERAGE_PCT`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_MAX_ENTRIES`
 9. Politicas base:

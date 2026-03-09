@@ -24,7 +24,7 @@
 - Fases 0 a 38 concluidas e registradas na memoria oficial.
 - A trilha live/backend-first continua validada localmente apos remocao de assets inline.
 - O painel realtime e o dashboard executivo interno passaram a operar com assets externos e CSP endurecida.
-- O fluxo canonico standalone continua pronto para sync/publish remoto quando quisermos propagar esta fase para o repo canonico de CI.
+- A Fase 38 ja foi propagada para o repo canonico de CI com PR e GitHub Actions verde.
 
 ## O que a Fase 38 entregou
 - Externalizacao de CSS/JS do painel realtime em `scripts/phase31-observability-panel-backend-template.html` + `scripts/assets/fullcycle-connectors-observability-ops-panel.*`.
@@ -39,6 +39,10 @@
 - Memoria oficial atualizada: `docs/analise-projeto/10-memoria-execucao-fases.md`
 - Novo drill: `scripts/phase38-observability-csp-hardening.mjs`
 - Rotas/CSP: `apps/api/src/routes/observability.ts`
+- Repo standalone canonico:
+  - PR: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/3`
+  - CI run: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/actions/runs/22866594857`
+  - Commit standalone: `573bf52d86b7c699bbd4c79f5b6e68be7a5571d7`
 
 ## Arquivos alterados na fase concluida
 - `apps/api/src/routes/observability.ts`
@@ -75,10 +79,12 @@
 - `npm run build -w @supervisor/api`: OK
 - `npm run test:phase34`: OK (`status=pass`, `contracts=21/21`)
 - `npm run monitor:fullcycle:observability:live`: OK (`status=pass`, `contracts=21/21`)
+- Repo standalone:
+  - PR `#3` aberta com a correcao de CI da Fase 38
+  - GitHub Actions `22866594857`: OK (`success`)
 
 ## O que ainda nao foi fechado
 - A origem de on-call continua file-based (`rotation/calendar`).
-- O repo standalone remoto ainda nao foi republicado com a Fase 38.
 - `docs/fullcycle-connectors-observability-live-governance.md` continua sendo artefato gerado; se outra rotina live rodar depois, ele muda novamente.
 
 ## Proximo passo exato

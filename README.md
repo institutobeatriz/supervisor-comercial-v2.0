@@ -373,7 +373,7 @@ npm run monitor:fullcycle:productization # Productizacao com payload estavel par
 npm run monitor:fullcycle:observability:api # Gate da API interna (contrato de endpoint + RBAC/auth + freshness de payload)
 npm run monitor:fullcycle:observability:realtime # Motor de stream realtime + trilha de eventos + gate executivo
 npm run monitor:fullcycle:observability:alerting # Alerting proativo do realtime + historico SLA da API interna
-npm run monitor:fullcycle:observability:backend # Consolida incidents/alerts com owner dinamico on-call + analytics historico
+npm run monitor:fullcycle:observability:backend # Consolida incidents/alerts com ownership operacional-first (incident automation + snapshot ITSM/fullcycle) + analytics historico
 npm run monitor:fullcycle:observability:panel # Publica painel operacional backend-first (incidents/alerts + timeline realtime + SLA)
 npm run monitor:fullcycle:observability:compat # Materializa payload legado de observability a partir do backend-first
 npm run monitor:fullcycle:observability:live # Fluxo oficial das Fases 34/35: governanca live + contrato + painel headless + convergencia legada

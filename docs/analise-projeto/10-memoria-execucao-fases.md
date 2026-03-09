@@ -1962,11 +1962,16 @@ Validacao tecnica deste checkpoint:
 - `npm run monitor:fullcycle:observability:live` => sucesso (`status=pass`, `contracts=21/21`).
 3. Build:
 - `npm run build -w @supervisor/api` => sucesso.
+4. Publicacao/CI remoto no repo standalone:
+- `node scripts/phase37-standalone-publish.mjs --watch-ci --commit-message "fix(ci): materialize observability panel shell before smoke" --pr-title "fix(ci): materialize observability panel shell before smoke" --watch-timeout-ms 1800000` => sucesso;
+- PR `#3`: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/3`;
+- GitHub Actions run `22866594857` => `success`;
+- commit standalone: `573bf52d86b7c699bbd4c79f5b6e68be7a5571d7`.
 
 Riscos residuais:
 1. a origem de on-call continua file-based (`rotation/calendar`) apesar do hardening da camada HTML/CSP;
-2. o repo standalone remoto ainda nao foi republicado nesta fase;
-3. `docs/fullcycle-connectors-observability-live-governance.md` segue sendo artefato gerado e pode divergir se a rotina live for executada fora do fluxo de fechamento da fase.
+2. `docs/fullcycle-connectors-observability-live-governance.md` segue sendo artefato gerado e pode divergir se a rotina live for executada fora do fluxo de fechamento da fase;
+3. o repo canonico de CI remoto continua separado do git root principal do workspace, exigindo sincronizacao explicita.
 
 Proxima fase liberada:
 1. Fase 39 - substituir a origem file-based de on-call por fonte operacional real, preservando os contratos atuais de backend analytics, incidents/alerts e painel.

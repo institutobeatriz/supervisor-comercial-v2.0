@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-09T17:27:29.457Z",
+  "generatedAt": "2026-03-09T18:58:07.537Z",
   "status": "warn",
   "source": "backend_first_compat",
   "summary": {
@@ -30,10 +30,10 @@
     "ownerCoveragePct": 100,
     "unassignedOwners": 0,
     "breachedEscalations": 0,
-    "analyticsPoints": 4,
+    "analyticsPoints": 6,
     "incidentsTracked": 1,
     "alertsTracked": 0,
-    "historyPoints": 4,
+    "historyPoints": 6,
     "compatibilityMode": "materialized_from_backend_first"
   },
   "teams": [
@@ -108,7 +108,7 @@
       },
       "presentInSource": true,
       "owner": null,
-      "ownerSource": "unassigned",
+      "ownerSource": null,
       "ownerRuleId": null,
       "ownerAssignedAt": null,
       "ownerTimezone": "America/Sao_Paulo",
@@ -125,7 +125,7 @@
   "alerts": [],
   "analytics": {
     "current": {
-      "generatedAt": "2026-03-09T17:27:29.536Z",
+      "generatedAt": "2026-03-09T18:58:07.602Z",
       "environment": "development",
       "recordsTracked": 1,
       "activeRecords": 0,
@@ -168,10 +168,10 @@
         }
       }
     },
-    "totalEntries": 4
+    "totalEntries": 6
   },
   "links": {
-    "backendReportGeneratedAt": "2026-03-09T17:27:29.536Z",
-    "backendStoreGeneratedAt": "2026-03-09T17:27:29.536Z"
+    "backendReportGeneratedAt": "2026-03-09T18:58:07.602Z",
+    "backendStoreGeneratedAt": "2026-03-09T18:58:07.602Z"
   }
 }

@@ -15,7 +15,7 @@
 - [x] Fase 38: revalidar painel/live em browser/headless e CI local apos a reducao das excecoes de CSP
 
 ## Prioridade media
-- [ ] Republicar a Fase 38 no repo standalone canonico e confirmar GitHub Actions remota
+- [x] Republicar a Fase 38 no repo standalone canonico e confirmar GitHub Actions remota
 - [ ] Decidir se `backend/analytics` deve aparecer diretamente na UI executiva do painel
 - [ ] Avaliar se a extracao futura para um git root proprio ainda traz ganho operacional relevante apos a Fase 37
 
@@ -25,7 +25,6 @@
 
 ## Bugs / riscos abertos
 - ownership de on-call ainda depende de `rotation/calendar` locais
-- o repo canonico de CI remoto ainda nao recebeu a Fase 38
 - `docs/fullcycle-connectors-observability-live-governance.md` continua sendo artefato gerado e muda a cada execucao da rotina live
 - o repo canonico de CI remoto segue separado do git root principal do workspace
 
@@ -42,4 +41,4 @@
 - [x] listar arquivos alterados
 - [x] registrar testes executados
 - [x] registrar pendencias e proximo passo exato
-- [ ] criar commit WIP focado apenas no andamento atual
+- [x] criar commit WIP focado apenas no andamento atual
