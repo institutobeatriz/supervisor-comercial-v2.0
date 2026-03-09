@@ -17,7 +17,7 @@ const D = readPanelData();
     const esc = (value) => String(toText(value)).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     const tone = (value) => { const raw = lower(value); if (['critical', 'error', 'fail', 'fatal'].includes(raw)) return 'critical'; if (['warning', 'warn', 'degraded'].includes(raw)) return 'warning'; return 'info'; };
     const periods = { '15m': 900000, '1h': 3600000, '6h': 21600000, '24h': 86400000, '7d': 604800000, all: Number.POSITIVE_INFINITY };
-    const state = { incidents: [], alerts: [], events: [], slaHistory: [], incidentSummary: null, alertSummary: null, slaSummary: null, backendReport: null, teams: [], sse: null, lastEventAt: null, lastRefreshAt: null, refreshTimer: null, refreshInFlight: false, pendingRefresh: false, authSkipLogged: false, sseSkipLogged: false };
+    const state = { incidents: [], alerts: [], events: [], slaHistory: [], incidentSummary: null, alertSummary: null, slaSummary: null, backendSummary: null, backendReport: null, teams: [], sse: null, lastEventAt: null, lastRefreshAt: null, refreshTimer: null, refreshInFlight: false, pendingRefresh: false, authSkipLogged: false, sseSkipLogged: false };
     let filterDebounce = null;
 
     function log(message) {
@@ -95,6 +95,12 @@ const D = readPanelData();
     function normalizeSla(raw) {
       return { timestamp: raw?.timestamp || raw?.generatedAt || null, environment: lower(raw?.environment || D?.summary?.defaultEnvironment || 'unknown') || 'unknown', status: lower(raw?.status || 'unknown') || 'unknown', availabilityPct: num(raw?.availabilityPct), worstLatencyMs: num(raw?.worstLatencyMs), observedPayloadAgeMinutes: num(raw?.observedPayloadAgeMinutes), blockingViolations: num(raw?.blockingViolations) };
     }
+    function operationalView() {
+      return state.backendSummary?.operationalSources || state.backendReport?.report?.operationalSources || D?.operationalSources || null;
+    }
+    function operationalSource(key) {
+      return operationalView()?.sources?.[key] || null;
+    }
     function mergeEvent(raw) {
       const item = normalizeEvent(raw);
       const key = item.id || [item.timestamp, item.source, item.type, item.code, item.message].join('::');
@@ -125,14 +131,23 @@ const D = readPanelData();
       const incidentSummary = state.incidentSummary?.summary || {};
       const alertSummary = state.alertSummary?.summary || {};
       const latestSla = state.slaHistory[0] || normalizeSla(state.slaSummary?.latest || {});
+      const operational = operationalView();
+      const opOverall = operational?.overall || {};
+      const opState = operationalSource('incidentAutomation');
+      const opSnapshot = operationalSource('itsmSnapshot');
       const cards = [
-        ['Backend status', state.backendReport?.report?.status || state.incidentSummary?.status || D?.summary?.backendStatus || 'unknown', 'route store + backend report'],
+        ['Backend status', state.backendSummary?.status || state.backendReport?.report?.status || state.incidentSummary?.status || D?.summary?.backendStatus || 'unknown', 'route store + backend report'],
         ['Stream status', D?.summary?.streamStatus || 'unknown', 'SSE timeline contract'],
+        ['Operational workload', opOverall?.workloadState || D?.summary?.operationalWorkloadState || 'unknown', 'active vs idle'],
+        ['Operational freshness', opOverall?.freshnessState || D?.summary?.operationalFreshnessState || 'unknown', 'source health'],
+        ['Actionability', opOverall?.actionabilityState || D?.summary?.operationalActionabilityState || 'unknown', 'ready vs degraded'],
         ['Open incidents', incidentSummary.openEntries ?? D?.summary?.openIncidents ?? 0, 'dedicated backend'],
         ['Critical incidents', incidentSummary.criticalOpenEntries ?? D?.summary?.openCriticalIncidents ?? 0, 'open / critical'],
         ['Active alerts', alertSummary.activeEntries ?? D?.summary?.activeAlerts ?? 0, 'dedicated backend'],
         ['Critical alerts', alertSummary.criticalActiveEntries ?? D?.summary?.activeCriticalAlerts ?? 0, 'active / critical'],
         ['Teams tracked', state.teams.length || D?.summary?.teams || 0, 'team routing'],
+        ['State age', opState?.ageMinutes !== null && opState?.ageMinutes !== undefined ? opState.ageMinutes + ' min' : 'n/a', 'incident automation'],
+        ['Snapshot age', opSnapshot?.ageMinutes !== null && opSnapshot?.ageMinutes !== undefined ? opSnapshot.ageMinutes + ' min' : 'n/a', 'itsm snapshot'],
         ['Visible timeline', filteredEvents().length, 'after local period filter'],
         ['Visible incidents', filteredIncidents().length, 'server filter + local period'],
         ['Visible alerts', filteredAlerts().length, 'server filter + local period'],
@@ -172,14 +187,26 @@ const D = readPanelData();
       const incidentSummary = state.incidentSummary?.summary || {};
       const alertSummary = state.alertSummary?.summary || {};
       const latestSla = state.slaHistory[0] || state.slaSummary?.latest || {};
-      const cards = [['Open incidents', incidentSummary.openEntries ?? 0], ['Resolved incidents', incidentSummary.resolvedEntries ?? 0], ['Active alerts', alertSummary.activeEntries ?? 0], ['Resolved alerts', alertSummary.resolvedEntries ?? 0], ['SLA blocking', latestSla?.blockingViolations ?? 'n/a'], ['Cursor', D?.summary?.streamCursor ?? 'n/a']];
+      const operational = operationalView();
+      const opOverall = operational?.overall || {};
+      const opFullcycle = operationalSource('fullcycleReport');
+      const cards = [
+        ['Open incidents', incidentSummary.openEntries ?? 0],
+        ['Resolved incidents', incidentSummary.resolvedEntries ?? 0],
+        ['Active alerts', alertSummary.activeEntries ?? 0],
+        ['Resolved alerts', alertSummary.resolvedEntries ?? 0],
+        ['SLA blocking', latestSla?.blockingViolations ?? 'n/a'],
+        ['Cursor', D?.summary?.streamCursor ?? 'n/a'],
+        ['Source freshness', opOverall?.freshnessState || 'unknown'],
+        ['Fullcycle age', opFullcycle?.ageMinutes !== null && opFullcycle?.ageMinutes !== undefined ? opFullcycle.ageMinutes + ' min' : 'n/a'],
+      ];
       q('postureGrid').innerHTML = cards.map((item) => '<div class="mini-card"><b>' + esc(item[0]) + '</b><span>' + esc(item[1]) + '</span></div>').join('');
       q('teamList').innerHTML = state.teams.length ? state.teams.map((item) => '<span class="team-chip">' + esc(item) + '</span>').join('') : '<span class="team-chip">no teams loaded</span>';
     }
     function renderHero() {
       q('generatedAt').textContent = toText(D?.generatedAt);
       q('gateStatus').textContent = toText(D?.status).toUpperCase();
-      q('backendStatusHero').textContent = toText(state.backendReport?.report?.status || state.incidentSummary?.status || D?.summary?.backendStatus).toUpperCase();
+      q('backendStatusHero').textContent = toText(state.backendSummary?.status || state.backendReport?.report?.status || state.incidentSummary?.status || D?.summary?.backendStatus).toUpperCase();
       q('streamStatusHero').textContent = toText(D?.summary?.streamStatus).toUpperCase();
       q('lastRefreshLabel').textContent = state.lastRefreshAt || 'n/a';
       q('lastEventBadge').className = badgeClass(state.lastEventAt ? 'info' : 'warning');
@@ -237,25 +264,28 @@ const D = readPanelData();
           fetchJson(new URL('/api/observability/connectors/alerts/summary', base), config),
           fetchJson(alertUrl.toString(), config),
           fetchJson(new URL('/api/observability/connectors/api-sla/summary', base), config),
+          fetchJson(new URL('/api/observability/connectors/backend/summary', base), config),
           (config.role === 'executive' || config.role === 'admin') ? fetchJson(new URL('/api/observability/connectors/api-sla/history?limit=500', base), config) : Promise.resolve({ status: 0, data: null }),
           (config.role === 'executive' || config.role === 'admin') ? fetchJson(new URL('/api/observability/connectors/backend/report', base), config) : Promise.resolve({ status: 0, data: null }),
         ];
-        const [incidentSummaryRes, incidentsRes, alertSummaryRes, alertsRes, slaSummaryRes, slaHistoryRes, backendReportRes] = await Promise.all(requests);
+        const [incidentSummaryRes, incidentsRes, alertSummaryRes, alertsRes, slaSummaryRes, backendSummaryRes, slaHistoryRes, backendReportRes] = await Promise.all(requests);
         if (incidentSummaryRes.status !== 200) throw new Error('incidents/summary status=' + incidentSummaryRes.status);
         if (incidentsRes.status !== 200) throw new Error('incidents status=' + incidentsRes.status);
         if (alertSummaryRes.status !== 200) throw new Error('alerts/summary status=' + alertSummaryRes.status);
         if (alertsRes.status !== 200) throw new Error('alerts status=' + alertsRes.status);
         if (slaSummaryRes.status !== 200) throw new Error('api-sla/summary status=' + slaSummaryRes.status);
+        if (backendSummaryRes.status !== 200) throw new Error('backend/summary status=' + backendSummaryRes.status);
         state.incidentSummary = incidentSummaryRes.data || null;
         state.alertSummary = alertSummaryRes.data || null;
         state.slaSummary = slaSummaryRes.data || null;
+        state.backendSummary = backendSummaryRes.data || null;
         state.backendReport = backendReportRes.status === 200 ? backendReportRes.data : null;
         state.incidents = Array.isArray(incidentsRes.data?.entries) ? incidentsRes.data.entries : [];
         state.alerts = Array.isArray(alertsRes.data?.entries) ? alertsRes.data.entries : [];
         state.slaHistory = slaHistoryRes.status === 200 && Array.isArray(slaHistoryRes.data?.entries) ? slaHistoryRes.data.entries.map(normalizeSla).sort((a, b) => (parseTime(b.timestamp) || 0) - (parseTime(a.timestamp) || 0)) : (state.slaSummary?.latest ? [normalizeSla(state.slaSummary.latest)] : []);
         state.lastRefreshAt = new Date().toISOString();
         render();
-        log('backend refresh ok incidents=' + state.incidents.length + ' alerts=' + state.alerts.length + ' sla=' + state.slaHistory.length + ' role=' + config.role);
+        log('backend refresh ok incidents=' + state.incidents.length + ' alerts=' + state.alerts.length + ' sla=' + state.slaHistory.length + ' role=' + config.role + ' op=' + (state.backendSummary?.operationalSources?.overall?.actionabilityState || 'unknown'));
       } catch (error) {
         log('backend refresh error ' + (error instanceof Error ? error.message : String(error)));
       } finally {

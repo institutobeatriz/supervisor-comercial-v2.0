@@ -1,6 +1,6 @@
 # Fullcycle Connectors Observability Backend
 
-- Generated at: 2026-03-09T19:06:59.343Z
+- Generated at: 2026-03-09T19:35:13.551Z
 - Status: WARN
 - Environment: development
 - Stream status: unknown
@@ -27,7 +27,7 @@
 | Unassigned owners | 0 |
 | Owner coverage % | 100 |
 | Breached escalations | 0 |
-| Analytics history points | 8 |
+| Analytics history points | 10 |
 
 ## Teams
 
@@ -51,6 +51,8 @@
 
 | Timestamp | Coverage % | Open incidents | Active alerts | Breached escalations |
 |---|---:|---:|---:|---:|
+| 2026-03-09T19:35:13.551Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T19:29:33.472Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T19:06:59.343Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T18:58:25.253Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T18:58:07.602Z | 100 | 0 | 0 | 0 |
@@ -64,3 +66,23 @@
 
 - [BLOCKING] alert_report_unavailable: alert report unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\logs\monitoring\fullcycle-connector-observability-alerting-report.json
 - [BLOCKING] api_sla_history_unavailable: api sla history unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\logs\monitoring\fullcycle-connector-observability-api-sla-history.json
+
+## Operational Source Health
+
+| Signal | Value |
+|---|---|
+| Workload state | idle |
+| Freshness state | missing |
+| Actionability | idle_gap |
+| Healthy sources | 0 |
+| Stale sources | 2 |
+| Missing sources | 1 |
+| Unknown sources | 0 |
+
+### Sources
+
+| Source | Loaded | Freshness | Age (min) | Max Age (min) | Timestamp | Required when active |
+|---|---|---|---:|---:|---|---|
+| Incident automation state | yes | stale | 1117.48 | 30 | 2026-03-09T00:57:44.829Z | yes |
+| ITSM snapshot | no | missing | n/a | 30 | n/a | no |
+| Fullcycle report | yes | stale | 1117.48 | 60 | 2026-03-09T00:57:44.829Z | no |

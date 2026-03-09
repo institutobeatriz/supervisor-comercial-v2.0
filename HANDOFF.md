@@ -16,86 +16,78 @@
 ## Estado atual
 - Responsavel anterior: Codex
 - Data do handoff: 2026-03-09
-- Ultima fase concluida: Fase 38
-- Proxima fase liberada: Fase 39
+- Ultima fase concluida: Fase 39
+- Proxima fase liberada: Fase 40
 - Fase em andamento: nenhuma
 
 ## O que foi concluido ate agora
-- Fases 0 a 38 concluidas e registradas na memoria oficial.
+- Fases 0 a 39 concluidas e registradas na memoria oficial.
 - A trilha live/backend-first continua validada localmente apos remocao de assets inline.
 - O painel realtime e o dashboard executivo interno passaram a operar com assets externos e CSP endurecida.
 - A Fase 38 ja foi propagada para o repo canonico de CI com PR e GitHub Actions verde.
+- A Fase 39 migrou o backend observability oficial para ownership operacional-first (`incident automation` + `snapshot` + `fullcycle`) e manteve compat/live/painel consistentes.
 
-## O que a Fase 38 entregou
-- Externalizacao de CSS/JS do painel realtime em `scripts/phase31-observability-panel-backend-template.html` + `scripts/assets/fullcycle-connectors-observability-ops-panel.*`.
-- Shell HTML com assets externos para a UI executiva original em `scripts/phase24-observability-layer.mjs` + `scripts/assets/fullcycle-connectors-observability.*`.
-- Dashboard legado materializado sem CSS inline em `scripts/phase35-observability-legacy-convergence.mjs` + `scripts/assets/fullcycle-connectors-observability-compat.css`.
-- Rotas internas de assets e CSP sem `unsafe-inline` em `apps/api/src/routes/observability.ts`.
-- Smoke/drills/governanca endurecidos em `scripts/ci-api-smoke.mjs`, `scripts/phase24-observability-drill.mjs`, `scripts/phase31-observability-panel-backend-integration-drill.mjs`, `scripts/phase33-observability-live-runtime-validation.mjs`, `scripts/phase34-observability-live-governance.mjs` e `scripts/phase38-observability-csp-hardening.mjs`.
+## O que a Fase 39 entregou
+- Backend oficial operacional-first em `scripts/phase39-observability-backend-operational-oncall.mjs`.
+- Drill pass/fail da fase em `scripts/phase39-observability-backend-operational-oncall-drill.mjs`.
+- Trilha live alinhada ao ownership operacional em `scripts/phase33-observability-live-runtime-validation.mjs`.
+- Compat legada atualizada para bootstrappingar a Fase 39 em `scripts/phase35-observability-legacy-convergence.mjs`.
+- Workflow/ambiente/documentacao atualizados em `package.json`, `.github/workflows/ci.yml`, `.env.example`, `README.md`, `docs/runbook-operacional.md` e `docs/monitoramento-externo.md`.
 
 ## Ultima entrega relevante
-### Fase 38
-- Evidencia oficial: `docs/analise-projeto/49-fase-38-validacao.md`
+### Fase 39
+- Evidencia oficial: `docs/analise-projeto/50-fase-39-validacao.md`
 - Memoria oficial atualizada: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Novo drill: `scripts/phase38-observability-csp-hardening.mjs`
-- Rotas/CSP: `apps/api/src/routes/observability.ts`
+- Novo backend oficial: `scripts/phase39-observability-backend-operational-oncall.mjs`
+- Novo drill: `scripts/phase39-observability-backend-operational-oncall-drill.mjs`
 - Repo standalone canonico:
-  - PR: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/3`
-  - CI run: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/actions/runs/22866594857`
-  - Commit standalone: `573bf52d86b7c699bbd4c79f5b6e68be7a5571d7`
+  - PR: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/6`
+  - CI run: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/actions/runs/22870167052`
+  - Commit standalone: `5e89ac71aee0c85e7a7a55044b7fed238bd6ef8a`
 
 ## Arquivos alterados na fase concluida
-- `apps/api/src/routes/observability.ts`
-- `scripts/observability-html-assets.mjs`
-- `scripts/phase24-observability-layer.mjs`
-- `scripts/phase24-observability-drill.mjs`
-- `scripts/phase31-observability-panel-backend-template.html`
-- `scripts/phase31-observability-panel-backend-integration.mjs`
-- `scripts/phase31-observability-panel-backend-integration-drill.mjs`
+- `scripts/phase39-observability-backend-operational-oncall.mjs`
+- `scripts/phase39-observability-backend-operational-oncall-drill.mjs`
 - `scripts/phase33-observability-live-runtime-validation.mjs`
-- `scripts/phase34-observability-live-governance.mjs`
 - `scripts/phase35-observability-legacy-convergence.mjs`
-- `scripts/phase38-observability-csp-hardening.mjs`
-- `scripts/assets/fullcycle-connectors-observability.css`
-- `scripts/assets/fullcycle-connectors-observability.js`
-- `scripts/assets/fullcycle-connectors-observability-ops-panel.css`
-- `scripts/assets/fullcycle-connectors-observability-ops-panel.js`
-- `scripts/assets/fullcycle-connectors-observability-compat.css`
-- `scripts/ci-api-smoke.mjs`
 - `package.json`
 - `.github/workflows/ci.yml`
+- `.env.example`
 - `README.md`
+- `docs/monitoramento-externo.md`
 - `docs/runbook-operacional.md`
-- `docs/analise-projeto/49-fase-38-validacao.md`
+- `docs/analise-projeto/50-fase-39-validacao.md`
 - `docs/analise-projeto/10-memoria-execucao-fases.md`
 - `HANDOFF.md`
 - `TODO_AI.md`
 
 ## O que esta funcionando
-- `npm run test:phase24`: OK
 - `npm run test:phase31`: OK
+- `npm run test:phase32`: OK
 - `npm run test:phase35`: OK
-- `npm run test:phase38`: OK
+- `npm run test:phase39`: OK
 - `npm run build -w @supervisor/api`: OK
+- `npm run test:phase33`: OK
 - `npm run test:phase34`: OK (`status=pass`, `contracts=21/21`)
 - `npm run monitor:fullcycle:observability:live`: OK (`status=pass`, `contracts=21/21`)
+- `npm run monitor:fullcycle:observability:backend`: `warn` local com `active=0`, `coverage=100%` e sem workload operacional ativo
 - Repo standalone:
-  - PR `#3` aberta com a correcao de CI da Fase 38
-  - GitHub Actions `22866594857`: OK (`success`)
+  - PR `#6` aberta com a correcao de CI da Fase 39
+  - GitHub Actions `22870167052`: OK (`success`)
 
 ## O que ainda nao foi fechado
-- A origem de on-call continua file-based (`rotation/calendar`).
-- `docs/fullcycle-connectors-observability-live-governance.md` continua sendo artefato gerado; se outra rotina live rodar depois, ele muda novamente.
+- A origem operacional oficial ainda depende de artefatos locais (`incident-automation-state`, `itsm-snapshot`, `fullcycle-report`), nao de um provider/servico dedicado.
+- `docs/fullcycle-connectors-observability-live-governance.md` e `docs/fullcycle-connectors-observability-compat.md` continuam sendo artefatos gerados; se outra rotina live/compat rodar depois, eles mudam novamente.
 
 ## Proximo passo exato
-Iniciar a Fase 39 com este recorte:
-1. substituir a origem file-based de on-call por fonte operacional real;
-2. preservar os contratos atuais de `backend/analytics`, `incidents/alerts` e painel;
-3. validar que owner coverage, escalations e dashboard continuam coerentes apos a troca da fonte.
+Iniciar a Fase 40 com este recorte:
+1. medir frescor/saude da fonte operacional (`incident automation`, `snapshot`, `fullcycle`);
+2. expor esse estado no backend/api/painel para distinguir `sem workload ativo` de `fonte operacional indisponivel`;
+3. decidir se a proxima etapa deve ler um provider externo diretamente ou continuar com materializacao local controlada.
 
 ## Hipotese principal da proxima fase
-- O maior gap estrutural restante na trilha backend/live nao e mais CSP/HTML, e sim a dependencia de `rotation/calendar` locais para ownership dinamico.
-- Se migrarmos isso para uma fonte operacional real sem quebrar os contratos atuais, reduzimos drift e aproximamos o fluxo de producao.
+- O maior gap estrutural restante nao e mais ownership file-based, e sim a observabilidade da propria fonte operacional.
+- Se distinguirmos claramente `no active workload` de `operational source stale/missing`, o backend/painel deixam de depender de inferencia manual em cenarios vazios.
 
 ## Como testar o estado atual
 ```bash
@@ -124,8 +116,8 @@ Leia primeiro:
 3. `HANDOFF.md`
 4. `TODO_AI.md`
 5. `docs/analise-projeto/10-memoria-execucao-fases.md`
-6. `docs/analise-projeto/49-fase-38-validacao.md`
+6. `docs/analise-projeto/50-fase-39-validacao.md`
 7. `docs/standalone-repo-flow.md`
 
 Objetivo:
-Continuar exatamente da Fase 39, sem refatoracao ampla desnecessaria e sem duplicar a memoria historica do projeto.
+Continuar exatamente da Fase 40, sem refatoracao ampla desnecessaria e sem duplicar a memoria historica do projeto.

@@ -1,6 +1,6 @@
 # Fullcycle Connectors Observability Compatibility
 
-- Generated at: 2026-03-09T18:58:07.537Z
+- Generated at: 2026-03-09T19:29:33.401Z
 - Status: PASS
 - Compatibility mode: materialized_from_backend_first
 - Backend status: warn
@@ -17,7 +17,7 @@
 - Teams tracked: 1
 - Incidents tracked: 1
 - Alerts tracked: 0
-- History points: 6
+- History points: 9
 
 ## Violations
 - none

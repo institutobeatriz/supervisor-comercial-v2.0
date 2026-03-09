@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-09T18:58:07.537Z",
+  "generatedAt": "2026-03-09T19:29:33.401Z",
   "status": "warn",
   "source": "backend_first_compat",
   "summary": {
@@ -30,10 +30,17 @@
     "ownerCoveragePct": 100,
     "unassignedOwners": 0,
     "breachedEscalations": 0,
-    "analyticsPoints": 6,
+    "analyticsPoints": 9,
+    "operationalWorkloadState": "idle",
+    "operationalFreshnessState": "missing",
+    "operationalActionabilityState": "idle_gap",
+    "operationalHealthySources": 0,
+    "operationalStaleSources": 2,
+    "operationalMissingSources": 1,
+    "operationalUnknownSources": 0,
     "incidentsTracked": 1,
     "alertsTracked": 0,
-    "historyPoints": 6,
+    "historyPoints": 9,
     "compatibilityMode": "materialized_from_backend_first"
   },
   "teams": [
@@ -125,7 +132,7 @@
   "alerts": [],
   "analytics": {
     "current": {
-      "generatedAt": "2026-03-09T18:58:07.602Z",
+      "generatedAt": "2026-03-09T19:29:33.549Z",
       "environment": "development",
       "recordsTracked": 1,
       "activeRecords": 0,
@@ -166,12 +173,65 @@
           "warningActive": 0,
           "infoActive": 0
         }
+      },
+      "operationalSources": {
+        "overall": {
+          "workloadState": "idle",
+          "freshnessState": "missing",
+          "actionabilityState": "idle_gap",
+          "healthySources": 0,
+          "staleSources": 2,
+          "missingSources": 1,
+          "unknownSources": 0,
+          "requiredSources": 0,
+          "requiredHealthySources": 0,
+          "activeRecords": 0,
+          "activeWorkloadPresent": false
+        },
+        "sources": {
+          "incidentAutomation": {
+            "key": "incidentAutomation",
+            "label": "Incident automation state",
+            "file": "C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\logs\\monitoring\\incident-automation-state.json",
+            "loaded": true,
+            "requiredWhenActive": false,
+            "maxAgeMinutes": 30,
+            "timestamp": "2026-03-09T00:57:44.829Z",
+            "ageMinutes": 1111.81,
+            "freshnessState": "stale",
+            "freshEnough": false
+          },
+          "itsmSnapshot": {
+            "key": "itsmSnapshot",
+            "label": "ITSM snapshot",
+            "file": "C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\logs\\monitoring\\itsm-snapshot.json",
+            "loaded": false,
+            "requiredWhenActive": false,
+            "maxAgeMinutes": 30,
+            "timestamp": null,
+            "ageMinutes": null,
+            "freshnessState": "missing",
+            "freshEnough": false
+          },
+          "fullcycleReport": {
+            "key": "fullcycleReport",
+            "label": "Fullcycle report",
+            "file": "C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\logs\\monitoring\\fullcycle-governance-report.json",
+            "loaded": true,
+            "requiredWhenActive": false,
+            "maxAgeMinutes": 60,
+            "timestamp": "2026-03-09T00:57:44.829Z",
+            "ageMinutes": 1111.81,
+            "freshnessState": "stale",
+            "freshEnough": false
+          }
+        }
       }
     },
-    "totalEntries": 6
+    "totalEntries": 9
   },
   "links": {
-    "backendReportGeneratedAt": "2026-03-09T18:58:07.602Z",
-    "backendStoreGeneratedAt": "2026-03-09T18:58:07.602Z"
+    "backendReportGeneratedAt": "2026-03-09T19:29:33.472Z",
+    "backendStoreGeneratedAt": "2026-03-09T19:29:33.472Z"
   }
 }

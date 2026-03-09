@@ -114,6 +114,7 @@ async function main() {
   const alertStatus = String(alertReport?.status || 'unknown').toLowerCase();
   const streamAgeMinutes = ageMin(streamReport?.generatedAt || streamState?.generatedAt, nowMs);
   const slaAgeMinutes = ageMin(slaHistory[slaHistory.length - 1]?.timestamp, nowMs);
+  const operationalSources = backendReport?.operationalSources || backendStore?.operationalSources || null;
   const unassignedRecords = [
     ...openIncidents.filter((x) => !String(x?.ownerTeam || x?.routing?.team || '').trim() || String(x?.ownerTeam || x?.routing?.team || '').toLowerCase() === 'unassigned').map((x) => `incident:${x?.id || 'unknown'}`),
     ...activeAlerts.filter((x) => !String(x?.ownerTeam || x?.routing?.team || '').trim() || String(x?.ownerTeam || x?.routing?.team || '').toLowerCase() === 'unassigned').map((x) => `alert:${x?.key || 'unknown'}`),
@@ -147,6 +148,12 @@ async function main() {
     alerts: alerts.length,
     activeAlerts: activeAlerts.length,
     activeCriticalAlerts: activeAlerts.filter((x) => sev(x?.severity) === 'critical').length,
+    operationalWorkloadState: operationalSources?.overall?.workloadState || 'unknown',
+    operationalFreshnessState: operationalSources?.overall?.freshnessState || 'unknown',
+    operationalActionabilityState: operationalSources?.overall?.actionabilityState || 'unknown',
+    operationalHealthySources: operationalSources?.overall?.healthySources ?? null,
+    operationalStaleSources: operationalSources?.overall?.staleSources ?? null,
+    operationalMissingSources: operationalSources?.overall?.missingSources ?? null,
     streamAgeMinutes,
     slaPoints: slaHistory.length,
     slaAgeMinutes,
@@ -160,6 +167,7 @@ async function main() {
     generatedAt: ts,
     status,
     summary,
+    operationalSources,
     api: { baseDefault: cfg.apiBaseDefault, defaultRole: 'operator', defaultLimit: Math.min(500, Math.max(50, Math.max(incidents.length, alerts.length, 200))) },
     ui: { autoConnect: cfg.autoConnect, refreshMs: cfg.refreshMs },
   }));

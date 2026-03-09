@@ -21,6 +21,7 @@ const REQUIRED_CHECKS = [
   'observability_incidents',
   'observability_alerts_summary',
   'observability_alerts',
+  'observability_backend_summary',
   'observability_backend_report',
   'observability_backend_analytics',
   'observability_realtime_panel',

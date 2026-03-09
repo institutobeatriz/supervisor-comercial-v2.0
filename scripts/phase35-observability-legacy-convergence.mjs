@@ -266,7 +266,7 @@ function renderDashboard(ts, legacyReport, legacyFeed, backendStore, backendDash
 async function main() {
   const ts = new Date().toISOString();
   const cfg = {
-    phase39Script: path.resolve(process.cwd(), 'scripts/phase39-observability-backend-operational-oncall.mjs'),
+    phase40Script: path.resolve(process.cwd(), 'scripts/phase40-observability-operational-source-health.mjs'),
     skipBackendBoot: envBool('FULLCYCLE_CONNECTOR_OBS_COMPAT_SKIP_BACKEND_BOOT', false),
     backendStoreFile: envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_STORE_FILE', path.resolve(process.cwd(), 'logs/monitoring/fullcycle-connector-observability-backend-store.json')),
     backendReportFile: envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_REPORT_FILE', path.resolve(process.cwd(), 'logs/monitoring/fullcycle-connector-observability-backend-report.json')),
@@ -295,12 +295,15 @@ async function main() {
     if (!Object.prototype.hasOwnProperty.call(process.env, 'FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SNAPSHOT')) {
       backendEnv.FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SNAPSHOT = 'false';
     }
+    if (!Object.prototype.hasOwnProperty.call(process.env, 'FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_REPORT')) {
+      backendEnv.FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_REPORT = 'false';
+    }
 
-    backendRun = await runNode(cfg.phase39Script, backendEnv);
+    backendRun = await runNode(cfg.phase40Script, backendEnv);
     if ((backendRun.status ?? 1) !== 0) {
       if (backendRun.stdout.trim()) process.stdout.write(backendRun.stdout);
       if (backendRun.stderr.trim()) process.stderr.write(backendRun.stderr);
-      throw new Error(`phase39 backend run failed with status=${backendRun.status}`);
+      throw new Error(`phase40 backend run failed with status=${backendRun.status}`);
     }
   }
 

@@ -541,6 +541,37 @@ export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // Relatorio consolidado do backend dedicado (executive+)
+  fastify.get('/observability/connectors/backend/summary', async (request, reply) => {
+    if (!(await requireAccess(request, reply, 'operator'))) return;
+    if (!(await fileExists(cfg.backendStoreFile))) {
+      return reply.code(503).send({
+        error: 'Observability backend summary unavailable',
+        file: cfg.backendStoreFile,
+      });
+    }
+
+    const [store, report, analytics] = await Promise.all([
+      readJson(cfg.backendStoreFile, {}),
+      readJson(cfg.backendReportFile, null),
+      readJson(cfg.backendAnalyticsFile, null),
+    ]);
+    const entries = Array.isArray(analytics?.entries) ? analytics.entries : [];
+
+    return {
+      role: getProvidedRole(request),
+      generatedAt: store?.generatedAt || report?.generatedAt || analytics?.generatedAt || null,
+      status: store?.status || report?.status || 'unknown',
+      summary: store?.summary || report?.summary || {},
+      oncall: store?.oncall || null,
+      operationalSources: report?.operationalSources || store?.operationalSources || analytics?.current?.operationalSources || null,
+      analytics: {
+        current: analytics?.current || null,
+        totalEntries: entries.length,
+      },
+    };
+  });
+
+  // Relatorio consolidado do backend dedicado (executive+)
   fastify.get('/observability/connectors/backend/report', async (request, reply) => {
     if (!(await requireAccess(request, reply, 'executive'))) return;
     if (!(await fileExists(cfg.backendReportFile))) {

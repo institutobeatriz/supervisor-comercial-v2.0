@@ -805,18 +805,23 @@ Controles:
 15. `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_DYNAMIC_OWNER`
 16. `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SOURCE`
 17. `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SNAPSHOT`
-18. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_TIMEZONE`
-19. `FULLCYCLE_CONNECTOR_OBS_BACKEND_MIN_OWNER_COVERAGE_PCT`
-20. `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_MAX_ENTRIES`
+18. `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_REPORT`
+19. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_MAX_AGE_MIN`
+20. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_MAX_AGE_MIN`
+21. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_MAX_AGE_MIN`
+22. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_TIMEZONE`
+23. `FULLCYCLE_CONNECTOR_OBS_BACKEND_MIN_OWNER_COVERAGE_PCT`
+24. `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_MAX_ENTRIES`
 
 Endpoints internos adicionais:
 1. `GET /api/observability/connectors/incidents/summary` (`operator+`)
 2. `GET /api/observability/connectors/incidents` (`operator+`)
 3. `GET /api/observability/connectors/alerts/summary` (`operator+`)
 4. `GET /api/observability/connectors/alerts` (`operator+`)
-5. `GET /api/observability/connectors/backend/report` (`executive+`)
-6. `GET /api/observability/connectors/backend/analytics` (`executive+`)
-7. `GET /api/observability/connectors/backend/dashboard` (`executive+`)
+5. `GET /api/observability/connectors/backend/summary` (`operator+`)
+6. `GET /api/observability/connectors/backend/report` (`executive+`)
+7. `GET /api/observability/connectors/backend/analytics` (`executive+`)
+8. `GET /api/observability/connectors/backend/dashboard` (`executive+`)
 
 Drill da fase:
 ```bash
@@ -866,6 +871,25 @@ CI (Fase 39):
 2. `monitor:fullcycle:observability:backend` (gate oficial operacional-first);
 3. `test:phase33` / `test:phase34` para validar a trilha live consumindo a mesma origem operacional.
 
+## Saude/frescor da fonte operacional (Fase 40)
+Endurecer a leitura operacional com semantica explicita de workload e freshness:
+```bash
+npm run test:phase40
+npm run monitor:fullcycle:observability:backend
+```
+
+Capacidades adicionais:
+1. classifica `incident automation`, `itsm snapshot` e `fullcycle report` como `healthy`, `stale`, `missing` ou `unknown`;
+2. expõe `workloadState`, `freshnessState` e `actionabilityState` em `backend/store`, `backend/report`, `backend/analytics` e `/api/observability/connectors/backend/summary`;
+3. diferencia claramente `sem workload ativo` de `fonte operacional indisponivel` no painel backend-first;
+4. recompila `@supervisor/api` antes da validacao live para evitar drift entre `src` e `dist`;
+5. endurece smoke/live/CI para incluir `backend/summary` e os novos sinais operacionais.
+
+CI (Fase 40):
+1. `test:phase40` (drill `healthy/stale/missing`);
+2. `monitor:fullcycle:observability:backend` (gate oficial com source health);
+3. `test:phase33` / `test:phase34` validando `backend/summary` e painel com estado operacional.
+
 ## Validacao live da API interna + painel headless (Fase 33)
 Executar validacao runtime real da camada de observabilidade:
 ```bash
@@ -891,7 +915,7 @@ Capacidades:
 4. roda o smoke live cobrindo endpoints observability expandidos;
 5. valida o painel em Edge/Chrome headless via CDP;
 6. registra screenshot, DOM e log do browser para auditoria;
-7. consulta `/api/observability/connectors/backend/analytics` como prova executiva final.
+7. consulta `/api/observability/connectors/backend/summary` e `/backend/analytics` como prova operacional/executiva final.
 
 Variaveis principais:
 1. `FULLCYCLE_CONNECTOR_OBS_LIVE_API_HOST`
@@ -966,7 +990,7 @@ Capacidades adicionais:
 1. usa `/api/observability/connectors/incidents/summary` e `/incidents` como fonte principal de incidentes;
 2. usa `/api/observability/connectors/alerts/summary` e `/alerts` como fonte principal de alertas;
 3. usa `/api/observability/connectors/api-sla/summary` para `operator` e `/api-sla/history` para `executive/admin`;
-4. usa `/api/observability/connectors/backend/report` para enriquecer a postura operacional em perfis executivos;
+4. usa `/api/observability/connectors/backend/summary` para enriquecer a postura operacional em `operator+` e `/backend/report` para detalhe executivo;
 5. elimina bootstrap local de eventos/SLA embutido no HTML e expõe filtro por equipe.
 
 Controles adicionais:

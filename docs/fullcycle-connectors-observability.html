@@ -10,7 +10,7 @@
   <div class="wrap">
     <section class="hero">
       <h1>Observability Connectors Executive Dashboard</h1>
-      <div class="meta">Generated at <strong>2026-03-09T18:58:07.537Z</strong> | Source <strong>backend_first_compat</strong></div>
+      <div class="meta">Generated at <strong>2026-03-09T19:29:33.401Z</strong> | Source <strong>backend_first_compat</strong></div>
     </section>
 
     <section class="grid">
@@ -50,10 +50,17 @@
   &quot;ownerCoveragePct&quot;: 100,
   &quot;unassignedOwners&quot;: 0,
   &quot;breachedEscalations&quot;: 0,
-  &quot;analyticsPoints&quot;: 6,
+  &quot;analyticsPoints&quot;: 9,
+  &quot;operationalWorkloadState&quot;: &quot;idle&quot;,
+  &quot;operationalFreshnessState&quot;: &quot;missing&quot;,
+  &quot;operationalActionabilityState&quot;: &quot;idle_gap&quot;,
+  &quot;operationalHealthySources&quot;: 0,
+  &quot;operationalStaleSources&quot;: 2,
+  &quot;operationalMissingSources&quot;: 1,
+  &quot;operationalUnknownSources&quot;: 0,
   &quot;incidentsTracked&quot;: 1,
   &quot;alertsTracked&quot;: 0,
-  &quot;historyPoints&quot;: 6,
+  &quot;historyPoints&quot;: 9,
   &quot;compatibilityMode&quot;: &quot;materialized_from_backend_first&quot;
 }</pre>
     </section>
@@ -74,7 +81,7 @@
       <h2>Backend Dashboard Snapshot</h2>
       <pre># Fullcycle Connectors Observability Backend
 
-- Generated at: 2026-03-09T18:58:07.602Z
+- Generated at: 2026-03-09T19:29:33.549Z
 - Status: WARN
 - Environment: development
 - Stream status: unknown
@@ -101,7 +108,7 @@
 | Unassigned owners | 0 |
 | Owner coverage % | 100 |
 | Breached escalations | 0 |
-| Analytics history points | 6 |
+| Analytics history points | 9 |
 
 ## Teams
 
@@ -125,6 +132,9 @@
 
 | Timestamp | Coverage % | Open incidents | Active alerts | Breached escalations |
 |---|---:|---:|---:|---:|
+| 2026-03-09T19:29:33.549Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T19:06:59.343Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T18:58:25.253Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T18:58:07.602Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T18:55:50.855Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T17:27:29.536Z | 100 | 0 | 0 | 0 |
@@ -136,6 +146,26 @@
 
 - [BLOCKING] alert_report_unavailable: alert report unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\logs\monitoring\fullcycle-connector-observability-alerting-report.json
 - [BLOCKING] api_sla_history_unavailable: api sla history unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\logs\monitoring\fullcycle-connector-observability-api-sla-history.json
+
+## Operational Source Health
+
+| Signal | Value |
+|---|---|
+| Workload state | idle |
+| Freshness state | missing |
+| Actionability | idle_gap |
+| Healthy sources | 0 |
+| Stale sources | 2 |
+| Missing sources | 1 |
+| Unknown sources | 0 |
+
+### Sources
+
+| Source | Loaded | Freshness | Age (min) | Max Age (min) | Timestamp | Required when active |
+|---|---|---|---:|---:|---|---|
+| Incident automation state | yes | stale | 1111.81 | 30 | 2026-03-09T00:57:44.829Z | no |
+| ITSM snapshot | no | missing | n/a | 30 | n/a | no |
+| Fullcycle report | yes | stale | 1111.81 | 60 | 2026-03-09T00:57:44.829Z | no |
 </pre>
     </section>
   </div>

@@ -3,7 +3,7 @@
 ## Atualizacao
 - Data: 2026-03-09 (America/Sao_Paulo)
 - Responsavel: Orquestracao tecnica (software house premium)
-- Fonte de verdade: este arquivo + evidencias em `11-fase-0-baseline.md` ate `49-fase-38-validacao.md`
+- Fonte de verdade: este arquivo + evidencias em `11-fase-0-baseline.md` ate `50-fase-39-validacao.md`
 
 ## Status por fase
 
@@ -48,6 +48,7 @@
 | Fase 36 - GitHub Actions real e fechamento da trilha live | CONCLUIDA | 2026-03-09 | 2026-03-09 | `47-fase-36-validacao.md` | Repo standalone publicado + CI real verde + correcoes de runner limpo para live/backend/painel |
 | Fase 37 - Automacao do repo standalone e fluxo canonico de PR | CONCLUIDA | 2026-03-09 | 2026-03-09 | `48-fase-37-validacao.md` | Sync declarativo + drift check + publish automatizado em branch/PR `codex/` com GitHub Actions real verde |
 | Fase 38 - Hardening de CSP/assets dos dashboards internos | CONCLUIDA | 2026-03-09 | 2026-03-09 | `49-fase-38-validacao.md` | Assets externos no dashboard/painel, CSP sem `unsafe-inline`, smoke/live endurecidos e compat dashboard alinhado |
+| Fase 39 - Ownership operacional do backend observability | CONCLUIDA | 2026-03-09 | 2026-03-09 | `50-fase-39-validacao.md` | Backend oficial migra para incident-automation/snapshot/fullcycle, drill pass/fail dedicado e CI remoto verde |
 
 ## Log de checkpoints
 
@@ -1975,6 +1976,54 @@ Riscos residuais:
 
 Proxima fase liberada:
 1. Fase 39 - substituir a origem file-based de on-call por fonte operacional real, preservando os contratos atuais de backend analytics, incidents/alerts e painel.
+
+### 2026-03-09 - Checkpoint 41 (Fase 39 concluida)
+Itens executados:
+1. Backend observability operacional-first oficializado:
+- criado `scripts/phase39-observability-backend-operational-oncall.mjs`;
+- `monitor:fullcycle:observability:backend` passa a apontar para a Fase 39;
+- ownership oficial passa a priorizar `incident-automation-state`, `itsm-snapshot` e `fullcycle-report`.
+2. Compatibilidade e live alinhadas:
+- `scripts/phase35-observability-legacy-convergence.mjs` passa a bootstrappingar a Fase 39;
+- `scripts/phase33-observability-live-runtime-validation.mjs` publica fixtures/aliases operacionais explicitos e consome a Fase 39.
+3. Qualidade da trilha operacional endurecida:
+- criado `scripts/phase39-observability-backend-operational-oncall-drill.mjs`;
+- removida duplicidade de analytics por execucao;
+- edge case `active=0` deixou de derrubar a gate oficial por `operational_roster_unavailable`.
+4. Pipeline/documentacao atualizados:
+- `package.json`, `.github/workflows/ci.yml`, `.env.example`, `README.md`, `docs/runbook-operacional.md` e `docs/monitoramento-externo.md`.
+5. Evidencia formal consolidada:
+- criado `50-fase-39-validacao.md`.
+
+Validacao tecnica deste checkpoint:
+1. Sintaxe:
+- `node --check scripts/phase39-observability-backend-operational-oncall.mjs` => sucesso;
+- `node --check scripts/phase39-observability-backend-operational-oncall-drill.mjs` => sucesso;
+- `node --check scripts/phase35-observability-legacy-convergence.mjs` => sucesso;
+- `node --check scripts/phase33-observability-live-runtime-validation.mjs` => sucesso.
+2. Drills/regressoes locais:
+- `npm run test:phase31` => sucesso;
+- `npm run test:phase32` => sucesso;
+- `npm run test:phase35` => sucesso;
+- `npm run test:phase33` => sucesso;
+- `npm run test:phase34` => sucesso (`contracts=21/21`);
+- `npm run test:phase39` => sucesso.
+3. Build/gates locais:
+- `npm run build -w @supervisor/api` => sucesso;
+- `npm run monitor:fullcycle:observability:backend` => `warn` com `active=0`, `coverage=100%`;
+- `npm run monitor:fullcycle:observability:live` => sucesso (`contracts=21/21`).
+4. Validacao remota no repo standalone:
+- PR `#6`: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/6`;
+- GitHub Actions run `22870167052` => `success`;
+- commit standalone: `5e89ac71aee0c85e7a7a55044b7fed238bd6ef8a`.
+
+Riscos residuais:
+1. a fonte operacional oficial ainda depende de artefatos locais (`incident-automation-state`, `itsm-snapshot`, `fullcycle-report`);
+2. a trilha live operacional agora trabalha com `trackedTeams=1` no fixture oficial;
+3. o repo canonico de CI remoto continua separado do git root principal do workspace.
+
+Proxima fase liberada:
+1. Fase 40 - endurecer saude/frescor da fonte operacional e expor esse estado na API/painel para separar `sem workload ativo` de `fonte operacional indisponivel`.
 
 ## Backlog ativo (referencia curta)
 

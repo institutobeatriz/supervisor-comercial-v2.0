@@ -371,6 +371,25 @@ const checks = [
     ],
   },
   {
+    name: 'observability_backend_summary',
+    path: '/api/observability/connectors/backend/summary',
+    statuses: [200, 503],
+    kind: 'json',
+    headers: {
+      'x-admin-key': ADMIN_KEY,
+      'x-observability-role': 'operator',
+    },
+    validators: [
+      ({ data }) => {
+        const errors = validateJsonObject(data, ['role', 'status', 'summary', 'operationalSources', 'analytics']);
+        pushIf(errors, isObject(data?.summary), 'summary must be object');
+        pushIf(errors, data?.operationalSources === null || isObject(data?.operationalSources), 'operationalSources must be object or null');
+        pushIf(errors, isObject(data?.analytics), 'analytics must be object');
+        return errors;
+      },
+    ],
+  },
+  {
     name: 'observability_backend_report',
     path: '/api/observability/connectors/backend/report',
     statuses: [200, 503],
@@ -383,6 +402,7 @@ const checks = [
       ({ data }) => {
         const errors = validateJsonObject(data, ['role', 'report']);
         pushIf(errors, isObject(data?.report), 'report must be object');
+        pushIf(errors, data?.report?.operationalSources === null || isObject(data?.report?.operationalSources), 'report.operationalSources must be object or null');
         return errors;
       },
     ],
@@ -402,6 +422,7 @@ const checks = [
         pushIf(errors, Array.isArray(data?.entries), 'entries must be array');
         pushIf(errors, Number.isFinite(data?.totalEntries), 'totalEntries must be numeric');
         pushIf(errors, data?.current === null || isObject(data?.current), 'current must be object or null');
+        pushIf(errors, data?.current?.operationalSources === null || isObject(data?.current?.operationalSources), 'current.operationalSources must be object or null');
         return errors;
       },
     ],

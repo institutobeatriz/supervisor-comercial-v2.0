@@ -286,6 +286,13 @@ npm run monitor:fullcycle:observability:backend
 ```
 O comando oficial do backend passa a consumir `INCIDENT_AUTOMATION_STATE_FILE`, `ITSM_SNAPSHOT_FILE` e `FULLCYCLE_REPORT_FILE` (ou aliases `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_*`), preserva owner manual quando aplicavel, recalcula coverage/escalations e publica o historico final em `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE`.
 
+Saude/frescor da fonte operacional (Fase 40):
+```bash
+npm run test:phase40
+npm run monitor:fullcycle:observability:backend
+```
+O backend oficial passa a classificar `incident automation`, `itsm snapshot` e `fullcycle report` como `healthy`, `stale`, `missing` ou `unknown`, expondo `workloadState`, `freshnessState` e `actionabilityState` em `backend/store`, `backend/report`, `backend/analytics` e no painel para separar explicitamente `sem workload ativo` de `fonte operacional indisponivel`.
+
 Validacao live da API interna + painel headless (Fase 33):
 ```bash
 npm run test:phase33
@@ -293,7 +300,7 @@ npm run test:phase33
 Capacidades:
 1. gera fixtures controladas do backend/painel;
 2. sobe Postgres `pgvector` e Redis temporarios via Docker quando `FULLCYCLE_CONNECTOR_OBS_LIVE_BOOT_DOCKER_INFRA=true`;
-3. inicializa a API buildada em porta dedicada;
+3. recompila `@supervisor/api` antes do boot live para evitar drift entre `src` e `dist`, e inicializa a API buildada em porta dedicada;
 4. executa `scripts/ci-api-smoke.mjs` contra a API live;
 5. valida o painel em Edge/Chrome headless via CDP, com screenshot, DOM e logs;
 6. consulta `/api/observability/connectors/backend/analytics` como validacao executiva final.
@@ -646,6 +653,10 @@ Backend dedicado de incidents/alerts:
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_DYNAMIC_OWNER`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SOURCE`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SNAPSHOT`
+- `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_REPORT`
+- `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_MAX_AGE_MIN`
+- `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_MAX_AGE_MIN`
+- `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_MAX_AGE_MIN`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_TIMEZONE`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_MIN_OWNER_COVERAGE_PCT`
 - `FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_MAX_ENTRIES`
