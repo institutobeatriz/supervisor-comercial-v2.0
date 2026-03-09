@@ -1895,8 +1895,9 @@ Validacao tecnica deste checkpoint:
 - branch publicada: `codex/phase37-standalone-sync-20260309163524`;
 - PR aberta: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/1`;
 - run inicial verde: `22863865053`;
-- run final verde apos sincronizar o runbook: `22863997083`;
-- head final validado: `6c21625ead3ce17d64db1310946c477463e037c9`.
+- run intermediario verde apos sincronizar o runbook: `22863997083`;
+- run final verde apos sincronizar handoff/memoria/evidencia: `22864219627`;
+- head final validado: `6588f0c2d2bc3615b3bd02b49ab48817c7dcbbab`.
 
 Evidencia:
 1. `48-fase-37-validacao.md`.
@@ -1908,7 +1909,7 @@ Evidencia:
 7. `logs/monitoring/standalone-export-sync-report.json`.
 8. `logs/monitoring/standalone-export-publish-report.json`.
 9. PR `#1` do repo standalone.
-10. GitHub Actions run `22863997083`.
+10. GitHub Actions run `22864219627`.
 
 Riscos residuais:
 1. o repo canonico de CI remoto continua separado do git root principal deste workspace;

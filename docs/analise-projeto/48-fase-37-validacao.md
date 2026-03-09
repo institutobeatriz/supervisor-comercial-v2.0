@@ -34,7 +34,7 @@ Enquanto este projeto continuar dentro do repo guarda-chuva local, o repo standa
 3. `node --check scripts/phase37-standalone-sync-drill.mjs` => OK
 4. `npm run test:phase37` => OK
 5. `npm run standalone:sync` => OK
-6. `npm run standalone:sync:check` => OK (`copy=0`, `delete=0`, `unchanged=396`)
+6. `npm run standalone:sync:check` => OK (`copy=0`, `delete=0`, `unchanged=397`)
 7. `npm run lint` => OK
 8. `npm run build` => OK
 
@@ -47,18 +47,23 @@ Enquanto este projeto continuar dentro do repo guarda-chuva local, o repo standa
 ### Commits publicados no standalone
 1. `0e93a0389095523517ac4e30ac4ab2e69485f771` `chore(ci): automate standalone sync flow`
 2. `6c21625ead3ce17d64db1310946c477463e037c9` `chore(ci): automate standalone sync flow`
+3. `6588f0c2d2bc3615b3bd02b49ab48817c7dcbbab` `chore(ci): automate standalone sync flow`
 
 ### GitHub Actions reais
 1. Run inicial da PR:
 - Run: `22863865053`
 - URL: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/actions/runs/22863865053`
 - Status: `success`
-2. Run final apos sincronizar o runbook:
+2. Run apos sincronizar o runbook:
 - Run: `22863997083`
 - URL: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/actions/runs/22863997083`
 - Status: `success`
+3. Run final apos sincronizar handoff/memoria/evidencia:
+- Run: `22864219627`
+- URL: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/actions/runs/22864219627`
+- Status: `success`
 - Workflow: `CI`
-- Head SHA: `6c21625ead3ce17d64db1310946c477463e037c9`
+- Head SHA: `6588f0c2d2bc3615b3bd02b49ab48817c7dcbbab`
 
 ## Evidencia objetiva
 1. `logs/monitoring/standalone-export-sync-report.json`

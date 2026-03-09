@@ -33,7 +33,7 @@
 - Drill local do sync em `scripts/phase37-standalone-sync-drill.mjs`.
 - Fluxo operacional documentado em `docs/standalone-repo-flow.md`.
 - PR canonica aberta no repo standalone: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/1`.
-- GitHub Actions verde no run final `22863997083` com head `6c21625ead3ce17d64db1310946c477463e037c9`.
+- GitHub Actions verde no run final `22864219627` com head `6588f0c2d2bc3615b3bd02b49ab48817c7dcbbab`.
 
 ## Ultima entrega relevante
 ### Fase 37
@@ -62,11 +62,11 @@
 ## O que esta funcionando
 - `npm run test:phase37`: OK
 - `npm run standalone:sync`: OK
-- `npm run standalone:sync:check`: OK (`copy=0`, `delete=0`, `unchanged=396`)
+- `npm run standalone:sync:check`: OK (`copy=0`, `delete=0`, `unchanged=397`)
 - `npm run lint`: OK
 - `npm run build`: OK
 - PR aberta no repo standalone: `#1`
-- GitHub Actions final: `22863997083` => `success`
+- GitHub Actions final: `22864219627` => `success`
 - Repo standalone local alinhado com drift zero apos o sync final
 
 ## O que ainda nao foi fechado
@@ -95,7 +95,7 @@ npm run build
 npm run standalone:publish
 
 gh pr view 1 --repo institutobeatriz/supervisor-comercial-v2.0
-gh run view 22863997083 --repo institutobeatriz/supervisor-comercial-v2.0
+gh run view 22864219627 --repo institutobeatriz/supervisor-comercial-v2.0
 ```
 
 ## Observacoes importantes
