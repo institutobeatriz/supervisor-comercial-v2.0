@@ -42,6 +42,22 @@ function safeArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
+let cachedWebSocketCtor = typeof globalThis.WebSocket === 'function' ? globalThis.WebSocket : null;
+
+async function resolveWebSocketCtor() {
+  if (cachedWebSocketCtor) return cachedWebSocketCtor;
+  try {
+    const wsModule = await import('ws');
+    cachedWebSocketCtor = wsModule.WebSocket || wsModule.default || null;
+  } catch {}
+
+  if (!cachedWebSocketCtor) {
+    throw new Error('WebSocket unavailable (install dependency "ws" or use a Node runtime with global WebSocket)');
+  }
+
+  return cachedWebSocketCtor;
+}
+
 async function ensureDir(dirPath) {
   await fs.mkdir(dirPath, { recursive: true });
 }
@@ -532,11 +548,12 @@ class CdpClient {
 
   async connect() {
     const opened = createDeferred();
-    this.socket = new WebSocket(this.wsUrl);
-    this.socket.addEventListener('open', () => opened.resolve());
-    this.socket.addEventListener('error', (event) => opened.reject(new Error(`cdp websocket error: ${event.message || 'unknown'}`)));
-    this.socket.addEventListener('message', (event) => {
-      const payload = JSON.parse(String(event.data));
+    const WebSocketCtor = await resolveWebSocketCtor();
+    this.socket = new WebSocketCtor(this.wsUrl);
+
+    const handleMessage = (message) => {
+      const rawData = message?.data ?? message;
+      const payload = JSON.parse(Buffer.isBuffer(rawData) ? rawData.toString('utf-8') : String(rawData));
       if (payload.id && this.pending.has(payload.id)) {
         const pending = this.pending.get(payload.id);
         this.pending.delete(payload.id);
@@ -545,7 +562,18 @@ class CdpClient {
         return;
       }
       this.handleEvent(payload);
-    });
+    };
+
+    if (typeof this.socket.addEventListener === 'function') {
+      this.socket.addEventListener('open', () => opened.resolve());
+      this.socket.addEventListener('error', (event) => opened.reject(new Error(`cdp websocket error: ${event.message || event.error?.message || 'unknown'}`)));
+      this.socket.addEventListener('message', handleMessage);
+    } else {
+      this.socket.on('open', () => opened.resolve());
+      this.socket.on('error', (error) => opened.reject(new Error(`cdp websocket error: ${error?.message || 'unknown'}`)));
+      this.socket.on('message', handleMessage);
+    }
+
     await opened.promise;
   }
 
