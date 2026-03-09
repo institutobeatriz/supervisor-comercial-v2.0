@@ -4,6 +4,24 @@ Sistema de monitoramento shadow de conversas WhatsApp com IA para análise comer
 
 > **Shadow Monitoring:** O sistema NÃO envia mensagens. Apenas observa, analisa e gera insights.
 
+## Fluxo Canonico de CI/PR
+
+Este projeto ainda vive dentro de um repo guarda-chuva local. O fluxo oficial de GitHub Actions fica no repo standalone publicado em `.export-repo`.
+
+- Workspace de desenvolvimento: `C:/Users/user/.openclaw/workspace/supervisor-comercial`
+- Repo standalone local: `C:/Users/user/.openclaw/workspace/supervisor-comercial/.export-repo`
+- Repo remoto de CI: `https://github.com/institutobeatriz/supervisor-comercial-v2.0`
+- Documento operacional: `docs/standalone-repo-flow.md`
+
+Comandos oficiais da Fase 37:
+
+```bash
+npm run test:phase37
+npm run standalone:sync
+npm run standalone:sync:check
+npm run standalone:publish
+```
+
 ## Arquitetura
 
 ```
@@ -331,6 +349,10 @@ npm run test:phase32      # Drill do backend com owner dinamico on-call + analyt
 npm run test:phase33      # Validacao live da API interna + painel headless + analytics executivo
 npm run test:phase34      # Governanca live recorrente (CI-friendly) com contrato estruturado + browser/headless
 npm run test:phase35      # Convergencia da trilha legada de observability a partir do backend-first (summary/feed/history/dashboard)
+npm run test:phase37      # Drill da automacao de sync/publicacao do repo standalone
+npm run standalone:sync   # Sincroniza este workspace com `.export-repo`
+npm run standalone:sync:check # Falha se houver drift entre workspace e `.export-repo`
+npm run standalone:publish # Sincroniza, cria branch `codex/`, sobe para GitHub e abre PR com watch de CI
 npm run monitor:check     # Mesmo comando (uso operacional)
 npm run monitor:chaos     # Alias operacional dos chaos drills
 npm run monitor:reliability # Sumário de confiabilidade operacional
