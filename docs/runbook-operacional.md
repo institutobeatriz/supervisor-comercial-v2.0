@@ -9,6 +9,17 @@ Este runbook define o procedimento oficial de operacao para API, worker, filas, 
 - API local: `npm run dev:api` ou `npm run start:api`.
 - Worker local: `npm run dev:worker` ou `npm run start:worker`.
 - Infra local (somente Postgres/Redis): `npm run local:infra`.
+- Sync do repo standalone: `npm run standalone:sync`.
+- Check de drift do standalone: `npm run standalone:sync:check`.
+- Publicacao canonica em branch/PR do standalone: `npm run standalone:publish`.
+
+## Repo standalone canonico
+Enquanto este projeto continuar dentro do repo guarda-chuva local, o fluxo oficial de GitHub Actions e PR remotos deve usar `.export-repo`.
+
+- Workspace principal: `C:/Users/user/.openclaw/workspace/supervisor-comercial`
+- Repo standalone local: `C:/Users/user/.openclaw/workspace/supervisor-comercial/.export-repo`
+- Repo remoto: `https://github.com/institutobeatriz/supervisor-comercial-v2.0`
+- Guia detalhado: `docs/standalone-repo-flow.md`
 
 ## Modos de operacao
 
