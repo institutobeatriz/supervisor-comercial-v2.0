@@ -437,6 +437,8 @@ jobs:
         run: npm run monitor:fullcycle:observability:backend
 
       - name: Connector observability backend-first panel gate
+        env:
+          FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_TEAMS: "0"
         run: npm run monitor:fullcycle:observability:panel
 
       - name: On-call executive dashboard snapshot

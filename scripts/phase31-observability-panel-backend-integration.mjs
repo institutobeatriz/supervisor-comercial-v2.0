@@ -80,7 +80,7 @@ async function main() {
     requireBackendPass: envBool('FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_BACKEND_PASS', true),
     requireTeamRouting: envBool('FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_TEAM_ROUTING', true),
     minSlaPoints: Math.max(1, envInt('FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_SLA_POINTS', 5)),
-    minTeams: Math.max(1, envInt('FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_TEAMS', 1)),
+    minTeams: Math.max(0, envInt('FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_TEAMS', 1)),
     maxStreamAgeMinutes: Math.max(1, envInt('FULLCYCLE_CONNECTOR_OBS_PANEL_MAX_STREAM_AGE_MIN', 240)),
     maxSlaAgeMinutes: Math.max(1, envInt('FULLCYCLE_CONNECTOR_OBS_PANEL_MAX_SLA_AGE_MIN', 240)),
   };
