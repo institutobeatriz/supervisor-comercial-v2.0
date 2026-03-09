@@ -3,7 +3,7 @@
 ## Atualizacao
 - Data: 2026-03-09 (America/Sao_Paulo)
 - Responsavel: Orquestracao tecnica (software house premium)
-- Fonte de verdade: este arquivo + evidencias em `11-fase-0-baseline.md` ate `46-fase-35-validacao.md`
+- Fonte de verdade: este arquivo + evidencias em `11-fase-0-baseline.md` ate `50-fase-39-validacao.md`
 
 ## Status por fase
 
@@ -45,6 +45,10 @@
 | Fase 33 - Validacao live da observabilidade backend-first | CONCLUIDA | 2026-03-09 | 2026-03-09 | `44-fase-33-validacao.md` | Smoke live + painel headless + correcao de CSP/runtime real da trilha backend-first |
 | Fase 34 - Governanca live recorrente da observabilidade | CONCLUIDA | 2026-03-09 | 2026-03-09 | `45-fase-34-validacao.md` | Wrapper oficial CI-friendly + smoke estruturado com contrato + gate runtime recorrente da trilha live |
 | Fase 35 - Convergencia da observabilidade legada | CONCLUIDA | 2026-03-09 | 2026-03-09 | `46-fase-35-validacao.md` | Materializacao runtime da trilha legada + endpoints 200 no gate live + compatibilidade backend-first |
+| Fase 36 - GitHub Actions real e fechamento da trilha live | CONCLUIDA | 2026-03-09 | 2026-03-09 | `47-fase-36-validacao.md` | Repo standalone publicado + CI real verde + correcoes de runner limpo para live/backend/painel |
+| Fase 37 - Automacao do repo standalone e fluxo canonico de PR | CONCLUIDA | 2026-03-09 | 2026-03-09 | `48-fase-37-validacao.md` | Sync declarativo + drift check + publish automatizado em branch/PR `codex/` com GitHub Actions real verde |
+| Fase 38 - Hardening de CSP/assets dos dashboards internos | CONCLUIDA | 2026-03-09 | 2026-03-09 | `49-fase-38-validacao.md` | Assets externos no dashboard/painel, CSP sem `unsafe-inline`, smoke/live endurecidos e compat dashboard alinhado |
+| Fase 39 - Ownership operacional do backend observability | CONCLUIDA | 2026-03-09 | 2026-03-09 | `50-fase-39-validacao.md` | Backend oficial migra para incident-automation/snapshot/fullcycle, drill pass/fail dedicado e CI remoto verde |
 
 ## Log de checkpoints
 
@@ -1794,6 +1798,232 @@ Riscos residuais:
 
 Proxima fase liberada:
 1. Fase 36 - validar a trilha live/compat em runner GitHub real e reduzir o ruido de autenticacao inicial do painel, consolidando o gate como referencia final de CI.
+
+### 2026-03-09 - Checkpoint 38 (Fase 36 concluida)
+Itens executados:
+1. Publicacao real no GitHub em repo standalone:
+- criado e usado `C:/Users/user/.openclaw/workspace/supervisor-comercial/.export-repo`;
+- remoto operacional: `https://github.com/institutobeatriz/supervisor-comercial-v2.0`.
+2. Preflight GitHub operacionalizado:
+- acesso do viewer `gushiprata-web` confirmado com `WRITE`;
+- documento atualizado em `docs/fullcycle-connectors-observability-github-preflight.md`.
+3. Correcao de CI sob `NODE_ENV=production`:
+- `.github/workflows/ci.yml` ajustado para `npm ci --include=dev`.
+4. Correcao do runtime live no runner Linux:
+- `scripts/phase33-observability-live-runtime-validation.mjs` passou a usar fallback para `ws` quando `globalThis.WebSocket` nao existir;
+- `package.json` e `package-lock.json` atualizados com a dependencia `ws`.
+5. Correcao de bootstrap para runner limpo:
+- gate backend da Fase 32 no workflow passou a usar `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_INCIDENTS=false`;
+- idem para `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_ALERT_REPORT=false`;
+- idem para `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_API_SLA_HISTORY=false`.
+6. Correcao da gate final do painel:
+- `scripts/phase31-observability-panel-backend-integration.mjs` agora aceita `FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_TEAMS=0`;
+- workflow CI configurado para usar `FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_TEAMS=0` apenas na gate final do painel backend-first.
+7. Evidencia formal consolidada:
+- criado `47-fase-36-validacao.md`.
+
+Validacao tecnica deste checkpoint:
+1. Validacao local/standalone:
+- `.export-repo`: `npm ci`, `npm run lint`, `npm run typecheck`, `npm run build`, `npm run test:phase31`, `npm run test:phase32`, `npm run test:phase33`, `npm run test:phase34`, `npm run test:phase35` => sucesso.
+2. Validacoes pontuais:
+- `node --check scripts/phase33-observability-live-runtime-validation.mjs` => sucesso;
+- `node --check scripts/phase31-observability-panel-backend-integration.mjs` => sucesso;
+- replay do artefato do run `22862753144` com `FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_TEAMS=0` => sucesso (`status=pass`).
+3. Runs GitHub Actions executados:
+- `22861947340` => falha por devDependencies ausentes no install;
+- `22862059342` => falha por bootstrap da Fase 35 em runner limpo;
+- `22862224498` => falha por `WebSocket is not defined` no `phase33`;
+- `22862538783` => falha na gate backend da Fase 32 por incidents file ausente;
+- `22862753144` => falha na gate final do painel por `minTeams=1`;
+- `22862899577` => sucesso ponta a ponta.
+4. Resultado final do run verde `22862899577`:
+- workflow `CI` => sucesso;
+- artefato final `5833128348`;
+- live governance: `status=pass`, `smokeOk=28`, `smokeFail=0`, `contractValidated=20`, `contractFail=0`, `requiredChecks=18/18`, `browserPanelConnection=connected`, `analyticsStatus=200`;
+- backend gate: `status=pass`, `ownerCoveragePct=100`, `teamsTracked=0`, `violations=0`;
+- panel gate: `status=pass`, `teams=0`, `slaPoints=1`, `violations=0`.
+
+Evidencia:
+1. `47-fase-36-validacao.md`.
+2. `docs/fullcycle-connectors-observability-github-preflight.md`.
+3. `.github/workflows/ci.yml`.
+4. `scripts/phase31-observability-panel-backend-integration.mjs`.
+5. `scripts/phase33-observability-live-runtime-validation.mjs`.
+6. `package.json`.
+7. `package-lock.json`.
+8. `tmp-gh-artifacts/run-22862899577/reliability-artifacts`.
+
+Riscos residuais:
+1. a sincronizacao entre este workspace e `.export-repo` ainda e manual.
+2. os dashboards HTML internos continuam com assets inline e dependem de CSP route-scoped.
+3. a integracao de on-call permanece file-based.
+4. o repositorio canonico do projeto ainda precisa ser formalizado para evitar drift entre o repo guarda-chuva local e o repo standalone publicado.
+
+Proxima fase liberada:
+1. Fase 37 - automatizar a sincronizacao/publicacao entre o workspace e `.export-repo`, formalizando o fluxo canonico de CI/PR do projeto.
+
+### 2026-03-09 - Checkpoint 39 (Fase 37 concluida)
+Itens executados:
+1. Fluxo canonico do repo standalone formalizado:
+- criado `config/standalone-export.json` como fonte declarativa do export;
+- documentado em `docs/standalone-repo-flow.md`;
+- `README.md`, `PROJECT_RULES.md` e `docs/runbook-operacional.md` atualizados para a nova operacao.
+2. Automacao de sincronizacao criada:
+- novo script `scripts/phase37-standalone-sync.mjs`;
+- sincroniza workspace -> `.export-repo` com exclusoes explicitas;
+- suporta modo `--check` para falhar quando houver drift.
+3. Automacao de publicacao criada:
+- novo script `scripts/phase37-standalone-publish.mjs`;
+- cria/usa branch `codex/...`, faz `git add/commit/push` no standalone e abre PR no repo remoto;
+- coleta relatorio JSON/audit trail para o fluxo de entrega.
+4. Validacao local da automacao:
+- novo drill `scripts/phase37-standalone-sync-drill.mjs`;
+- `package.json` atualizado com `test:phase37`, `standalone:sync`, `standalone:sync:check` e `standalone:publish`.
+5. Decisao operacional consolidada:
+- enquanto este projeto nao for extraido para um git root proprio, o repo `institutobeatriz/supervisor-comercial-v2.0` passa a ser o repositorio canonico de CI remoto.
+
+Validacao tecnica deste checkpoint:
+1. Sintaxe:
+- `node --check scripts/phase37-standalone-sync.mjs` => sucesso;
+- `node --check scripts/phase37-standalone-publish.mjs` => sucesso;
+- `node --check scripts/phase37-standalone-sync-drill.mjs` => sucesso.
+2. Validacao local:
+- `npm run test:phase37` => sucesso;
+- `npm run standalone:sync` => sucesso;
+- `npm run standalone:sync:check` => sucesso (`copy=0`, `delete=0`, `unchanged=396`);
+- `npm run lint` => sucesso;
+- `npm run build` => sucesso.
+3. Validacao remota em branch/PR:
+- branch publicada: `codex/phase37-standalone-sync-20260309163524`;
+- PR aberta: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/1`;
+- run inicial verde: `22863865053`;
+- run intermediario verde apos sincronizar o runbook: `22863997083`;
+- run final verde apos sincronizar handoff/memoria/evidencia: `22864219627`;
+- head final validado: `6588f0c2d2bc3615b3bd02b49ab48817c7dcbbab`.
+
+Evidencia:
+1. `48-fase-37-validacao.md`.
+2. `config/standalone-export.json`.
+3. `scripts/phase37-standalone-sync.mjs`.
+4. `scripts/phase37-standalone-publish.mjs`.
+5. `scripts/phase37-standalone-sync-drill.mjs`.
+6. `docs/standalone-repo-flow.md`.
+7. `logs/monitoring/standalone-export-sync-report.json`.
+8. `logs/monitoring/standalone-export-publish-report.json`.
+9. PR `#1` do repo standalone.
+10. GitHub Actions run `22864219627`.
+
+Riscos residuais:
+1. o repo canonico de CI remoto continua separado do git root principal deste workspace;
+2. dashboards HTML internos ainda usam assets inline e dependem de CSP route-scoped permissivo;
+3. a origem de on-call segue file-based.
+
+Proxima fase liberada:
+1. Fase 38 - externalizar assets inline dos dashboards internos, endurecer CSP e reduzir a superficie de excecao das rotas HTML de observabilidade.
+
+### 2026-03-09 - Checkpoint 40 (Fase 38 concluida)
+Itens executados:
+1. Externalizacao dos dashboards HTML internos:
+- `scripts/phase31-observability-panel-backend-template.html` passou a referenciar CSS/JS externos e bootstrap via `<template>`;
+- `scripts/phase31-observability-panel-backend-integration.mjs` agora publica assets ao lado do HTML final;
+- `scripts/phase24-observability-layer.mjs` passou a gerar shell HTML com assets externos para a UI executiva original;
+- `scripts/phase35-observability-legacy-convergence.mjs` deixou de reintroduzir CSS inline no dashboard legado materializado.
+2. Assets dedicados publicados:
+- `scripts/assets/fullcycle-connectors-observability.css`;
+- `scripts/assets/fullcycle-connectors-observability.js`;
+- `scripts/assets/fullcycle-connectors-observability-ops-panel.css`;
+- `scripts/assets/fullcycle-connectors-observability-ops-panel.js`;
+- `scripts/assets/fullcycle-connectors-observability-compat.css`.
+3. Hardening da API interna:
+- `apps/api/src/routes/observability.ts` removeu `unsafe-inline` de `style-src` e `script-src`;
+- criadas rotas internas de assets para `dashboard` e `realtime/panel`;
+- smoke/contract da trilha live passa a validar CSP e assets externos.
+4. Governanca e drills:
+- `scripts/ci-api-smoke.mjs` endurecido com checks de HTML shell/asset/CSP;
+- `scripts/phase24-observability-drill.mjs` e `scripts/phase31-observability-panel-backend-integration-drill.mjs` atualizados;
+- criado `scripts/phase38-observability-csp-hardening.mjs`;
+- `package.json` e `.github/workflows/ci.yml` atualizados com `test:phase38`.
+5. Higiene do runtime live:
+- `scripts/phase33-observability-live-runtime-validation.mjs` passou a limpar o diretório de artefatos antes da execução para evitar falso positivo por asset stale.
+
+Validacao tecnica deste checkpoint:
+1. Sintaxe:
+- `node --check scripts/phase24-observability-layer.mjs` => sucesso;
+- `node --check scripts/phase31-observability-panel-backend-integration.mjs` => sucesso;
+- `node --check scripts/phase35-observability-legacy-convergence.mjs` => sucesso;
+- `node --check scripts/ci-api-smoke.mjs` => sucesso;
+- `node --check scripts/phase33-observability-live-runtime-validation.mjs` => sucesso;
+- `node --check scripts/phase38-observability-csp-hardening.mjs` => sucesso.
+2. Drills e gates:
+- `npm run test:phase24` => sucesso;
+- `npm run test:phase31` => sucesso;
+- `npm run test:phase35` => sucesso;
+- `npm run test:phase38` => sucesso;
+- `npm run test:phase34` => sucesso (`status=pass`, `contracts=21/21`);
+- `npm run monitor:fullcycle:observability:live` => sucesso (`status=pass`, `contracts=21/21`).
+3. Build:
+- `npm run build -w @supervisor/api` => sucesso.
+4. Publicacao/CI remoto no repo standalone:
+- `node scripts/phase37-standalone-publish.mjs --watch-ci --commit-message "fix(ci): materialize observability panel shell before smoke" --pr-title "fix(ci): materialize observability panel shell before smoke" --watch-timeout-ms 1800000` => sucesso;
+- PR `#3`: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/3`;
+- GitHub Actions run `22866594857` => `success`;
+- commit standalone: `573bf52d86b7c699bbd4c79f5b6e68be7a5571d7`.
+
+Riscos residuais:
+1. a origem de on-call continua file-based (`rotation/calendar`) apesar do hardening da camada HTML/CSP;
+2. `docs/fullcycle-connectors-observability-live-governance.md` segue sendo artefato gerado e pode divergir se a rotina live for executada fora do fluxo de fechamento da fase;
+3. o repo canonico de CI remoto continua separado do git root principal do workspace, exigindo sincronizacao explicita.
+
+Proxima fase liberada:
+1. Fase 39 - substituir a origem file-based de on-call por fonte operacional real, preservando os contratos atuais de backend analytics, incidents/alerts e painel.
+
+### 2026-03-09 - Checkpoint 41 (Fase 39 concluida)
+Itens executados:
+1. Backend observability operacional-first oficializado:
+- criado `scripts/phase39-observability-backend-operational-oncall.mjs`;
+- `monitor:fullcycle:observability:backend` passa a apontar para a Fase 39;
+- ownership oficial passa a priorizar `incident-automation-state`, `itsm-snapshot` e `fullcycle-report`.
+2. Compatibilidade e live alinhadas:
+- `scripts/phase35-observability-legacy-convergence.mjs` passa a bootstrappingar a Fase 39;
+- `scripts/phase33-observability-live-runtime-validation.mjs` publica fixtures/aliases operacionais explicitos e consome a Fase 39.
+3. Qualidade da trilha operacional endurecida:
+- criado `scripts/phase39-observability-backend-operational-oncall-drill.mjs`;
+- removida duplicidade de analytics por execucao;
+- edge case `active=0` deixou de derrubar a gate oficial por `operational_roster_unavailable`.
+4. Pipeline/documentacao atualizados:
+- `package.json`, `.github/workflows/ci.yml`, `.env.example`, `README.md`, `docs/runbook-operacional.md` e `docs/monitoramento-externo.md`.
+5. Evidencia formal consolidada:
+- criado `50-fase-39-validacao.md`.
+
+Validacao tecnica deste checkpoint:
+1. Sintaxe:
+- `node --check scripts/phase39-observability-backend-operational-oncall.mjs` => sucesso;
+- `node --check scripts/phase39-observability-backend-operational-oncall-drill.mjs` => sucesso;
+- `node --check scripts/phase35-observability-legacy-convergence.mjs` => sucesso;
+- `node --check scripts/phase33-observability-live-runtime-validation.mjs` => sucesso.
+2. Drills/regressoes locais:
+- `npm run test:phase31` => sucesso;
+- `npm run test:phase32` => sucesso;
+- `npm run test:phase35` => sucesso;
+- `npm run test:phase33` => sucesso;
+- `npm run test:phase34` => sucesso (`contracts=21/21`);
+- `npm run test:phase39` => sucesso.
+3. Build/gates locais:
+- `npm run build -w @supervisor/api` => sucesso;
+- `npm run monitor:fullcycle:observability:backend` => `warn` com `active=0`, `coverage=100%`;
+- `npm run monitor:fullcycle:observability:live` => sucesso (`contracts=21/21`).
+4. Validacao remota no repo standalone:
+- PR `#6`: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/6`;
+- GitHub Actions run `22870167052` => `success`;
+- commit standalone: `5e89ac71aee0c85e7a7a55044b7fed238bd6ef8a`.
+
+Riscos residuais:
+1. a fonte operacional oficial ainda depende de artefatos locais (`incident-automation-state`, `itsm-snapshot`, `fullcycle-report`);
+2. a trilha live operacional agora trabalha com `trackedTeams=1` no fixture oficial;
+3. o repo canonico de CI remoto continua separado do git root principal do workspace.
+
+Proxima fase liberada:
+1. Fase 40 - endurecer saude/frescor da fonte operacional e expor esse estado na API/painel para separar `sem workload ativo` de `fonte operacional indisponivel`.
 
 ## Backlog ativo (referencia curta)
 

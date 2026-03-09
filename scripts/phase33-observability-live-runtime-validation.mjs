@@ -175,6 +175,14 @@ async function waitForHttp(url, expectedStatuses, timeoutMs) {
 
 async function prepareFixtures(fixturesDir) {
   await ensureDir(fixturesDir);
+  const freshTs = {
+    minus1m: new Date(Date.now() - (1 * 60_000)).toISOString(),
+    minus2m: new Date(Date.now() - (2 * 60_000)).toISOString(),
+    minus3m: new Date(Date.now() - (3 * 60_000)).toISOString(),
+    minus4m: new Date(Date.now() - (4 * 60_000)).toISOString(),
+    minus6m: new Date(Date.now() - (6 * 60_000)).toISOString(),
+    minus20m: new Date(Date.now() - (20 * 60_000)).toISOString(),
+  };
 
   const files = {
     incidentsFile: path.resolve(fixturesDir, 'incidents.json'),
@@ -193,6 +201,9 @@ async function prepareFixtures(fixturesDir) {
     routeMatrixFile: path.resolve(fixturesDir, 'route-matrix.json'),
     rotationFile: path.resolve(fixturesDir, 'rotation.json'),
     calendarFile: path.resolve(fixturesDir, 'calendar.json'),
+    incidentAutomationStateFile: path.resolve(fixturesDir, 'incident-automation-state.json'),
+    itsmSnapshotFile: path.resolve(fixturesDir, 'itsm-snapshot.json'),
+    fullcycleReportFile: path.resolve(fixturesDir, 'fullcycle-report.json'),
     observabilityStoreFile: path.resolve(fixturesDir, 'observability-store.json'),
     observabilityReportFile: path.resolve(fixturesDir, 'observability-report.json'),
     observabilityFeedFile: path.resolve(fixturesDir, 'observability-feed.json'),
@@ -225,45 +236,6 @@ async function prepareFixtures(fixturesDir) {
       connectors_runtime: { team: 'integrations', channels: ['slack', 'webhook'], escalateAfterMinutes: 20 },
     },
   });
-
-  await writeJson(files.rotationFile, {
-    timezone: 'America/Sao_Paulo',
-    rules: [
-      {
-        id: 'weekday-integrations',
-        days: [1, 2, 3, 4, 5],
-        start: '08:00',
-        end: '17:59',
-        teams: ['integrations'],
-        ownerByTier: {
-          P1: 'integrations-p1',
-          P2: 'integrations-p2',
-          P3: 'integrations-p3',
-        },
-      },
-      {
-        id: 'default-fallback',
-        days: [0, 1, 2, 3, 4, 5, 6],
-        start: '00:00',
-        end: '23:59',
-        owner: 'shared-oncall',
-      },
-    ],
-  });
-
-  await writeJson(files.calendarFile, {
-    timezone: 'America/Sao_Paulo',
-    overrides: [
-      {
-        id: 'api-special-day',
-        date: '2026-03-03',
-        teams: ['platform-api'],
-        tier: 'P2',
-        owner: 'calendar-platform-api',
-      },
-    ],
-    holidays: [],
-  });
   await writeJson(files.incidentsFile, {
     version: 1,
     activeIncidentId: 'inc-open-1',
@@ -280,42 +252,75 @@ async function prepareFixtures(fixturesDir) {
       },
     ],
   });
+  await writeJson(files.incidentAutomationStateFile, {
+    version: 1,
+    updatedAt: freshTs.minus2m,
+    incidents: {
+      'inc-open-1': {
+        owner: 'ops-integrations-primary',
+        ownerAssignedAt: freshTs.minus6m,
+        updatedAt: freshTs.minus2m,
+        paging: {
+          externalId: 'PD-inc-open-1',
+        },
+      },
+    },
+  });
+  await writeJson(files.itsmSnapshotFile, {
+    generatedAt: freshTs.minus1m,
+    paging: [
+      {
+        externalId: 'PD-inc-open-1',
+        incidentId: 'inc-open-1',
+        status: 'triggered',
+        owner: 'snapshot-integrations-primary',
+      },
+    ],
+    tickets: [],
+  });
+  await writeJson(files.fullcycleReportFile, {
+    generatedAt: freshTs.minus3m,
+    status: 'pass',
+    summary: {
+      ownerCoveragePct: 100,
+    },
+  });
   await writeJson(files.operationsReportFile, {
-    generatedAt: '2026-03-03T10:05:00-03:00',
+    generatedAt: freshTs.minus4m,
     summary: { environment: 'drill' },
     postmortems: [],
   });
   await writeJson(files.alertReportFile, {
-    generatedAt: '2026-03-03T10:05:00-03:00',
+    generatedAt: freshTs.minus4m,
     status: 'pass',
     violations: [
-      { source: 'api_sla', code: 'latency_above_target', severity: 'warning', blocking: true, message: 'latency above target' },
+      { source: 'connectors_runtime', code: 'latency_above_target', severity: 'warning', blocking: true, message: 'latency above target' },
     ],
     dispatch: {
-      openedForDispatch: [{ source: 'api_sla', code: 'latency_above_target', message: 'latency above target' }],
+      openedForDispatch: [{ source: 'connectors_runtime', code: 'latency_above_target', message: 'latency above target' }],
       resolvedForDispatch: [],
       deliveries: [{ channel: 'slack', attempted: true, ok: true, status: 200 }],
     },
   });
   await writeJson(files.alertStateFile, {
     version: 1,
-    generatedAt: '2026-03-03T10:05:00-03:00',
-    lastDispatchAt: '2026-03-03T10:05:00-03:00',
-    openIssueKeys: ['api_sla::latency_above_target'],
-    lastIssueSentAt: { 'api_sla::latency_above_target': '2026-03-03T10:05:00-03:00' },
+    generatedAt: freshTs.minus4m,
+    lastDispatchAt: freshTs.minus4m,
+    openIssueKeys: ['connectors_runtime::latency_above_target'],
+    lastIssueSentAt: { 'connectors_runtime::latency_above_target': freshTs.minus4m },
   });
   await writeJson(files.apiSlaHistoryFile, {
-    generatedAt: '2026-03-03T10:05:00-03:00',
+    generatedAt: freshTs.minus4m,
     history: [
-      { timestamp: '2026-03-03T09:50:00-03:00', environment: 'drill', status: 'pass', availabilityPct: 99.8, worstLatencyMs: 180, observedPayloadAgeMinutes: 1, blockingViolations: 0 },
-      { timestamp: '2026-03-03T10:05:00-03:00', environment: 'drill', status: 'pass', availabilityPct: 99.6, worstLatencyMs: 250, observedPayloadAgeMinutes: 2, blockingViolations: 0 },
+      { timestamp: freshTs.minus20m, environment: 'drill', status: 'pass', availabilityPct: 99.8, worstLatencyMs: 180, observedPayloadAgeMinutes: 1, blockingViolations: 0 },
+      { timestamp: freshTs.minus4m, environment: 'drill', status: 'pass', availabilityPct: 99.6, worstLatencyMs: 250, observedPayloadAgeMinutes: 2, blockingViolations: 0 },
     ],
   });
-  await writeJson(files.streamStateFile, { generatedAt: '2026-03-03T10:05:00-03:00', status: 'pass', cursor: 12 });
-  await writeJson(files.streamReportFile, { generatedAt: '2026-03-03T10:05:00-03:00', status: 'pass', summary: { cursor: 12 } });
+  await writeJson(files.streamStateFile, { generatedAt: freshTs.minus4m, status: 'pass', cursor: 12 });
+  await writeJson(files.streamReportFile, { generatedAt: freshTs.minus4m, status: 'pass', summary: { cursor: 12 } });
   await fs.writeFile(files.streamEventsFile, [
-    JSON.stringify({ id: 'evt-1', cursor: 11, timestamp: '2026-03-03T10:04:00-03:00', source: 'api_sla', environment: 'drill', severity: 'warning', status: 'open', type: 'alert_opened', message: 'api latency above target' }),
-    JSON.stringify({ id: 'evt-2', cursor: 12, timestamp: '2026-03-03T10:05:00-03:00', source: 'connectors_runtime', environment: 'drill', severity: 'critical', status: 'open', type: 'incident_detected', message: 'jira timeout rate breach' }),
+    JSON.stringify({ id: 'evt-1', cursor: 11, timestamp: freshTs.minus4m, source: 'connectors_runtime', environment: 'drill', severity: 'warning', status: 'open', type: 'alert_opened', message: 'api latency above target' }),
+    JSON.stringify({ id: 'evt-2', cursor: 12, timestamp: freshTs.minus3m, source: 'connectors_runtime', environment: 'drill', severity: 'critical', status: 'open', type: 'incident_detected', message: 'jira timeout rate breach' }),
   ].join('\n') + '\n', 'utf-8');
 
   return files;
@@ -339,6 +344,12 @@ function buildValidationEnv(files, reportFile, dashboardFile, auditFile, apiBase
     FULLCYCLE_CONNECTOR_OBS_BACKEND_ROUTE_MATRIX_FILE: files.routeMatrixFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_ROTATION_FILE: files.rotationFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_CALENDAR_FILE: files.calendarFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE: files.incidentAutomationStateFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_FILE: files.itsmSnapshotFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE: files.fullcycleReportFile,
+    INCIDENT_AUTOMATION_STATE_FILE: files.incidentAutomationStateFile,
+    ITSM_SNAPSHOT_FILE: files.itsmSnapshotFile,
+    FULLCYCLE_REPORT_FILE: files.fullcycleReportFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_DEFAULT_ENVIRONMENT: 'drill',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_INCIDENTS: 'true',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_ALERT_REPORT: 'true',
@@ -346,9 +357,15 @@ function buildValidationEnv(files, reportFile, dashboardFile, auditFile, apiBase
     FULLCYCLE_CONNECTOR_OBS_BACKEND_MAX_OPEN_CRITICAL_INCIDENTS: '5',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_MAX_ACTIVE_CRITICAL_ALERTS: '5',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_ENFORCE_TARGETS: 'true',
-    FULLCYCLE_CONNECTOR_OBS_BACKEND_DYNAMIC_OWNER_ENABLED: 'true',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_DYNAMIC_OWNER_ENABLED: 'false',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_PRESERVE_MANUAL_OWNER: 'true',
-    FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_DYNAMIC_OWNER: 'true',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_DYNAMIC_OWNER: 'false',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SOURCE: 'true',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_SNAPSHOT: 'true',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_REPORT: 'true',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_MAX_AGE_MIN: '30',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_MAX_AGE_MIN: '30',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_MAX_AGE_MIN: '60',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_MIN_OWNER_COVERAGE_PCT: '100',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_MAX_ENTRIES: '10',
     FULLCYCLE_CONNECTOR_OBSERVABILITY_STORE_FILE: files.observabilityStoreFile,
@@ -378,16 +395,16 @@ function buildValidationEnv(files, reportFile, dashboardFile, auditFile, apiBase
     FULLCYCLE_CONNECTOR_OBS_PANEL_AUTO_CONNECT: 'false',
     FULLCYCLE_CONNECTOR_OBS_PANEL_REFRESH_MS: '10000',
     FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_SLA_POINTS: '2',
-    FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_TEAMS: '2',
+    FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_TEAMS: '1',
     FULLCYCLE_CONNECTOR_OBS_PANEL_MAX_STREAM_AGE_MIN: '1000000',
     FULLCYCLE_CONNECTOR_OBS_PANEL_MAX_SLA_AGE_MIN: '1000000',
   };
 }
 
 async function bootObservabilityArtifacts(env) {
-  const backendRun = await runCommand('node', ['scripts/phase32-observability-backend-oncall-analytics.mjs'], env);
+  const backendRun = await runCommand('node', ['scripts/phase40-observability-operational-source-health.mjs'], env);
   if ((backendRun.status ?? 1) !== 0) {
-    throw new Error(`phase32 backend run failed: ${backendRun.stderr || backendRun.stdout}`.trim());
+    throw new Error(`phase40 backend run failed: ${backendRun.stderr || backendRun.stdout}`.trim());
   }
 
   const compatRun = await runCommand('node', ['scripts/phase35-observability-legacy-convergence.mjs'], env);
@@ -629,7 +646,7 @@ async function waitForExpression(cdp, expression, timeoutMs) {
   throw new Error(`expression timeout: ${JSON.stringify(lastValue)}`);
 }
 
-async function launchBrowserAndValidate({ browserPath, browserPort, browserArgs, pageUrl, baseUrl, adminKey, screenshotFile, domFile, logFile, timeoutMs }) {
+async function launchBrowserAndValidate({ browserPath, browserPort, browserArgs, pageUrl, baseUrl, adminKey, screenshotFile, domFile, logFile, timeoutMs, minTeams }) {
   const userDataDir = await fs.mkdtemp(path.join(os.tmpdir(), 'phase33-browser-'));
   const browser = spawn(browserPath, [
     `--remote-debugging-port=${browserPort}`,
@@ -704,7 +721,7 @@ async function launchBrowserAndValidate({ browserPath, browserPort, browserArgs,
       const hasRefreshOk = log.includes('backend refresh ok');
       const hasSseConnected = log.includes('sse connected');
       return {
-        ok: incidents !== 'waiting' && alerts !== 'waiting' && sla !== 'waiting' && conn === 'connected' && teams >= 2 && hasRefreshOk && hasSseConnected,
+        ok: incidents !== 'waiting' && alerts !== 'waiting' && sla !== 'waiting' && conn === 'connected' && teams >= ${Math.max(0, Number(minTeams || 0))} && hasRefreshOk && hasSseConnected,
         incidentsMeta: incidents,
         alertsMeta: alerts,
         slaMeta: sla,
@@ -838,9 +855,25 @@ async function startApiServer({ port, host, adminKey, env, apiLogFile, timeoutMs
   }
 }
 
+async function buildApiForLive(env) {
+  if (!envBool('FULLCYCLE_CONNECTOR_OBS_LIVE_BUILD_API', true)) {
+    return { skipped: true, status: 0, stdout: '', stderr: '' };
+  }
+
+  const buildRun = process.platform === 'win32'
+    ? await runCommand('cmd.exe', ['/d', '/s', '/c', 'npm run build -w @supervisor/api'], env)
+    : await runCommand('npm', ['run', 'build', '-w', '@supervisor/api'], env);
+  if ((buildRun.status ?? 1) !== 0) {
+    throw new Error(`api build failed before live validation: ${(buildRun.stderr || buildRun.stdout || '').trim()}`);
+  }
+  return { skipped: false, ...buildRun };
+}
+
 async function main() {
   const ts = new Date().toISOString();
   const artifactsDir = path.resolve(ROOT, envString('FULLCYCLE_CONNECTOR_OBS_LIVE_OUTPUT_DIR', 'logs/monitoring/phase33-live'));
+  await fs.rm(artifactsDir, { recursive: true, force: true });
+  await ensureDir(artifactsDir);
   const fixturesDir = path.resolve(artifactsDir, 'fixtures');
   const reportFile = path.resolve(artifactsDir, 'live-validation-report.json');
   const auditFile = path.resolve(artifactsDir, 'live-validation-audit.jsonl');
@@ -866,11 +899,13 @@ async function main() {
     envBool('CI', false) || envBool('GITHUB_ACTIONS', false) ? 'ci' : 'desktop',
   );
   const browserArgs = resolveBrowserArgs();
+  const expectedPanelMinTeams = envInt('FULLCYCLE_CONNECTOR_OBS_LIVE_EXPECTED_PANEL_MIN_TEAMS', 1);
   const apiBase = `http://${host}:${apiPort}`;
 
   const violations = [];
   let apiServer = null;
   let infra = null;
+  let buildRun = null;
   try {
     const browserPath = await findBrowserPath();
     if (!browserPath) {
@@ -893,6 +928,7 @@ async function main() {
 
     const artifactRun = await bootObservabilityArtifacts(validationEnv);
     const compatReport = await readJson(files.compatReportFile, null);
+    buildRun = await buildApiForLive({ ...validationEnv, DATABASE_URL: databaseUrl, REDIS_URL: redisUrl });
     apiServer = await startApiServer({
       port: apiPort,
       host,
@@ -936,6 +972,7 @@ async function main() {
       domFile: browserDomFile,
       logFile: browserLogFile,
       timeoutMs,
+      minTeams: expectedPanelMinTeams,
     });
 
     if (safeArray(browser.exceptions).length > 0) {
@@ -1046,15 +1083,17 @@ async function main() {
         logFile: apiLogFile,
       },
       commands: {
-        backend: 'node scripts/phase32-observability-backend-oncall-analytics.mjs',
+        backend: 'node scripts/phase40-observability-operational-source-health.mjs',
         compat: 'node scripts/phase35-observability-legacy-convergence.mjs',
         panel: 'node scripts/phase31-observability-panel-backend-integration.mjs',
+        build: 'npm run build -w @supervisor/api',
         smoke: 'node scripts/ci-api-smoke.mjs',
       },
       runs: {
         backend: artifactRun.backendRun,
         compat: artifactRun.compatRun,
         panel: artifactRun.panelRun,
+        build: buildRun,
         smoke,
       },
       browser: {

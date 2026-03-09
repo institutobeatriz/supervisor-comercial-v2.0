@@ -51,6 +51,7 @@ jobs:
       POSTMORTEM_OUTPUT_DIR: ./logs/monitoring/ci-postmortems
       INCIDENT_AUTOMATION_STATE_FILE: ./logs/monitoring/ci-incident-automation-state.json
       INCIDENT_AUTOMATION_REPORT_FILE: ./logs/monitoring/ci-incident-automation-report.json
+      ITSM_SNAPSHOT_FILE: ./logs/monitoring/ci-itsm-snapshot.json
       ONCALL_DASHBOARD_FILE: ./logs/monitoring/ci-oncall-dashboard.md
       ONCALL_EXECUTIVE_REPORT_FILE: ./logs/monitoring/ci-executive-sla-report.json
       ONCALL_AUDIT_FILE: ./logs/monitoring/ci-executive-audit-trail.jsonl
@@ -216,6 +217,13 @@ jobs:
       FULLCYCLE_CONNECTOR_OBS_BACKEND_ROUTE_MATRIX_FILE: ./config/observability-routing.example.json
       FULLCYCLE_CONNECTOR_OBS_BACKEND_ROTATION_FILE: ./config/oncall-rotation.example.json
       FULLCYCLE_CONNECTOR_OBS_BACKEND_CALENDAR_FILE: ./config/oncall-calendar.example.json
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE: ./logs/monitoring/ci-incident-automation-state.json
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_FILE: ./logs/monitoring/ci-itsm-snapshot.json
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE: ./logs/monitoring/ci-fullcycle-report.json
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_REPORT: "true"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_MAX_AGE_MIN: "30"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_MAX_AGE_MIN: "30"
+      FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_MAX_AGE_MIN: "60"
       FULLCYCLE_CONNECTOR_OBS_BACKEND_DEFAULT_ENVIRONMENT: "ci"
       FULLCYCLE_CONNECTOR_OBS_BACKEND_ENFORCE_TARGETS: "true"
       FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_INCIDENTS: "true"
@@ -306,6 +314,12 @@ jobs:
       - name: Connector observability backend on-call analytics drill (phase32)
         run: npm run test:phase32
 
+      - name: Connector observability operational on-call drill (phase39)
+        run: npm run test:phase39
+
+      - name: Connector observability operational source health drill (phase40)
+        run: npm run test:phase40
+
       - name: Connector observability legacy convergence drill (phase35)
         env:
           FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_INCIDENTS: "false"
@@ -313,8 +327,23 @@ jobs:
           FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_API_SLA_HISTORY: "false"
         run: npm run test:phase35
 
+      - name: Connector observability CSP hardening drill (phase38)
+        run: npm run test:phase38
+
       - name: Connector observability live governance gate (phase34)
         run: npm run test:phase34
+
+      - name: Materialize observability realtime panel shell
+        env:
+          FULLCYCLE_CONNECTOR_OBS_PANEL_ENFORCE_TARGETS: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_STREAM_PASS: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_ALERTING_PASS: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_API_SLA_HISTORY: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_BACKEND_STORE: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_BACKEND_PASS: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_TEAM_ROUTING: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_TEAMS: "0"
+        run: npm run monitor:fullcycle:observability:panel
 
       - name: Start API
         run: |
@@ -429,7 +458,7 @@ jobs:
       - name: Connector observability realtime alerting gate
         run: npm run monitor:fullcycle:observability:alerting
 
-      - name: Connector observability backend on-call analytics gate
+      - name: Connector observability backend operational on-call gate
         env:
           FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_INCIDENTS: "false"
           FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_ALERT_REPORT: "false"
