@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { escapeHtmlJson, publishHtmlAssets } from './observability-html-assets.mjs';
 
 function envBool(name, fallback) {
   const raw = process.env[name];
@@ -332,104 +333,14 @@ function renderHtmlDashboard({ generatedAt, summary, environmentOverview, connec
     status,
     violations,
   };
-  const safeData = JSON.stringify(data).replace(/</g, '\\u003c');
+  const safeData = escapeHtmlJson(data);
   return `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Connector Observability Console</title>
-  <style>
-    :root {
-      --bg: #f4f6ef;
-      --panel: #ffffff;
-      --ink: #182321;
-      --muted: #5c6e69;
-      --ok: #1f7a47;
-      --warn: #a66800;
-      --fail: #a51e2d;
-      --line: #d6ddd9;
-      --chip: #ebf0ed;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
-      background: radial-gradient(circle at 15% 0%, #f8fbf6 0%, #f1f5ef 42%, #e9eee8 100%);
-      color: var(--ink);
-    }
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    .hero {
-      background: linear-gradient(120deg, #173931, #1f4f42);
-      color: #f4fbf8;
-      border-radius: 18px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 14px 32px rgba(24, 35, 33, 0.18);
-    }
-    .hero h1 { margin: 0 0 8px; font-size: 24px; }
-    .meta { color: #cfe2da; font-size: 13px; }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px;
-    }
-    .card .label { color: var(--muted); font-size: 12px; }
-    .card .value { font-size: 24px; font-weight: 700; margin-top: 2px; }
-    .section {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-    .section h2 { margin: 0 0 10px; font-size: 16px; }
-    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
-    select, button {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 6px 10px;
-      background: #fff;
-      color: var(--ink);
-      font: inherit;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    th, td {
-      border-bottom: 1px solid var(--line);
-      padding: 8px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th { color: var(--muted); font-weight: 600; }
-    .chip {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: var(--chip);
-      font-size: 12px;
-    }
-    .status-pass { color: var(--ok); font-weight: 700; }
-    .status-warn { color: var(--warn); font-weight: 700; }
-    .status-fail { color: var(--fail); font-weight: 700; }
-    .vlist { margin: 0; padding-left: 18px; }
-    .vlist li { margin: 4px 0; }
-    @media (max-width: 780px) {
-      .hero h1 { font-size: 20px; }
-      .card .value { font-size: 20px; }
-      table { font-size: 12px; }
-    }
-  </style>
+  <link rel="stylesheet" href="./assets/fullcycle-connectors-observability.css" />
 </head>
 <body>
   <div class="wrap">
@@ -472,118 +383,8 @@ function renderHtmlDashboard({ generatedAt, summary, environmentOverview, connec
     </section>
   </div>
 
-  <script>
-    const DATA = ${safeData};
-
-    function renderStatusChip(value) {
-      const key = String(value || 'unknown').toLowerCase();
-      const css = key === 'pass' ? 'status-pass' : (key === 'fail' ? 'status-fail' : 'status-warn');
-      return '<span class="' + css + '">' + key.toUpperCase() + '</span>';
-    }
-
-    function toCell(value) {
-      if (value === null || value === undefined || value === '') return 'n/a';
-      return String(value);
-    }
-
-    function renderEnvironmentTable() {
-      const table = document.getElementById('env-table');
-      const rows = DATA.environmentOverview || [];
-      let html = '<thead><tr><th>Environment</th><th>Last Snapshot</th><th>Runtime</th><th>Readiness</th><th>Active Incident</th><th>Connectors</th></tr></thead><tbody>';
-      if (!rows.length) {
-        html += '<tr><td colspan="6">No environment snapshots</td></tr>';
-      } else {
-        for (const row of rows) {
-          html += '<tr>'
-            + '<td><span class="chip">' + toCell(row.environment) + '</span></td>'
-            + '<td>' + toCell(row.timestamp) + '</td>'
-            + '<td>' + renderStatusChip(row.runtimeStatus) + '</td>'
-            + '<td>' + renderStatusChip(row.readinessStatus) + '</td>'
-            + '<td>' + (row.activeIncidentId ? toCell(row.activeIncidentId) : 'none') + '</td>'
-            + '<td>' + toCell(row.connectorsCount) + '</td>'
-            + '</tr>';
-        }
-      }
-      html += '</tbody>';
-      table.innerHTML = html;
-    }
-
-    function renderFilterOptions() {
-      const select = document.getElementById('env-filter');
-      const envs = (DATA.environmentOverview || []).map((x) => x.environment);
-      const options = ['all', ...envs];
-      select.innerHTML = options.map((env) => '<option value="' + env + '">' + env.toUpperCase() + '</option>').join('');
-      select.value = envs[0] || 'all';
-      select.addEventListener('change', () => renderConnectorTable(select.value));
-    }
-
-    function renderConnectorTable(env) {
-      const table = document.getElementById('connector-table');
-      const rows = DATA.connectorMatrix || [];
-      let html = '<thead><tr><th>Connector</th><th>Provider</th><th>Channel</th><th>Success %</th><th>Timeout %</th><th>HTTP Error %</th><th>P95 ms</th><th>Contract Errors</th></tr></thead><tbody>';
-      if (!rows.length) {
-        html += '<tr><td colspan="8">No connectors tracked</td></tr>';
-      } else {
-        for (const row of rows) {
-          const data = env === 'all'
-            ? Object.values(row.byEnvironment || {})[0]
-            : (row.byEnvironment || {})[env];
-          if (!data && env !== 'all') continue;
-          html += '<tr>'
-            + '<td>' + toCell(row.key) + '</td>'
-            + '<td>' + toCell(row.provider) + '</td>'
-            + '<td>' + toCell(row.channel) + '</td>'
-            + '<td>' + toCell(data?.successRatePct) + '</td>'
-            + '<td>' + toCell(data?.timeoutRatePct) + '</td>'
-            + '<td>' + toCell(data?.httpErrorRatePct) + '</td>'
-            + '<td>' + toCell(data?.latencyWorstP95Ms) + '</td>'
-            + '<td>' + toCell(data?.contractErrors) + '</td>'
-            + '</tr>';
-        }
-      }
-      html += '</tbody>';
-      table.innerHTML = html;
-    }
-
-    function renderCorrelationTable() {
-      const table = document.getElementById('corr-table');
-      const rows = DATA.correlations || [];
-      let html = '<thead><tr><th>Incident</th><th>Status</th><th>Severity</th><th>Resolved At</th><th>Postmortem</th><th>Age (h)</th><th>SLA Breach</th></tr></thead><tbody>';
-      if (!rows.length) {
-        html += '<tr><td colspan="7">No connector incidents tracked</td></tr>';
-      } else {
-        for (const row of rows) {
-          html += '<tr>'
-            + '<td>' + toCell(row.incidentId) + '</td>'
-            + '<td>' + toCell(row.status) + '</td>'
-            + '<td>' + toCell(row.severity) + '</td>'
-            + '<td>' + toCell(row.resolvedAt) + '</td>'
-            + '<td>' + (row.postmortemExists ? 'linked' : 'missing') + '</td>'
-            + '<td>' + toCell(row.ageHours) + '</td>'
-            + '<td>' + (row.postmortemSlaBreached ? '<span class="status-fail">YES</span>' : 'no') + '</td>'
-            + '</tr>';
-        }
-      }
-      html += '</tbody>';
-      table.innerHTML = html;
-    }
-
-    function renderViolations() {
-      const ul = document.getElementById('violations');
-      const rows = DATA.violations || [];
-      if (!rows.length) {
-        ul.innerHTML = '<li>none</li>';
-        return;
-      }
-      ul.innerHTML = rows.map((item) => '<li><strong>' + toCell(item.code) + '</strong>: ' + toCell(item.message) + '</li>').join('');
-    }
-
-    renderEnvironmentTable();
-    renderFilterOptions();
-    renderConnectorTable(document.getElementById('env-filter').value || 'all');
-    renderCorrelationTable();
-    renderViolations();
-  </script>
+  <template id="connector-observability-data">${safeData}</template>
+  <script src="./assets/fullcycle-connectors-observability.js"></script>
 </body>
 </html>`;
 }
@@ -741,6 +542,19 @@ async function main() {
       violations,
     }),
   );
+  await publishHtmlAssets({
+    htmlFile: cfg.observabilityDashboardFile,
+    assets: [
+      {
+        sourceFile: 'scripts/assets/fullcycle-connectors-observability.css',
+        fileName: 'fullcycle-connectors-observability.css',
+      },
+      {
+        sourceFile: 'scripts/assets/fullcycle-connectors-observability.js',
+        fileName: 'fullcycle-connectors-observability.js',
+      },
+    ],
+  });
 
   const auditEntry = {
     timestamp: ts,
@@ -773,3 +587,4 @@ main().catch((error) => {
   console.error(`Unexpected phase24 observability layer failure: ${error instanceof Error ? error.stack || error.message : String(error)}`);
   process.exit(1);
 });
+

@@ -40,6 +40,31 @@ function validateJsonObject(payload, requiredKeys) {
   return errors;
 }
 
+function validateStrictHtmlShell({ response, text, requiredAssets = [], requiredMarkers = [], requiredTemplates = [] }) {
+  const errors = [];
+  const csp = response?.headers?.get('content-security-policy') || '';
+
+  pushIf(errors, text.includes('<html'), 'html tag expected');
+  pushIf(errors, /observability/i.test(text), 'observability marker expected');
+  pushIf(errors, !/<style[\s>]/i.test(text), 'inline style tag must be absent');
+  pushIf(errors, !/<script(?![^>]*\bsrc=)[^>]*>/i.test(text), 'inline script tag must be absent');
+  pushIf(errors, csp.includes("style-src 'self'"), "csp must restrict style-src to 'self'");
+  pushIf(errors, csp.includes("script-src 'self'"), "csp must restrict script-src to 'self'");
+  pushIf(errors, !csp.includes("'unsafe-inline'"), "csp must not include 'unsafe-inline'");
+
+  for (const asset of requiredAssets) {
+    pushIf(errors, text.includes(asset), `asset reference missing: ${asset}`);
+  }
+  for (const marker of requiredMarkers) {
+    pushIf(errors, text.includes(marker), `marker missing: ${marker}`);
+  }
+  for (const templateId of requiredTemplates) {
+    pushIf(errors, text.includes(`id="${templateId}"`), `template missing: ${templateId}`);
+  }
+
+  return errors;
+}
+
 const checks = [
   {
     name: 'health',
@@ -155,10 +180,30 @@ const checks = [
       'x-observability-role': 'executive',
     },
     validators: [
-      ({ text }) => {
+      ({ response, text }) => validateStrictHtmlShell({
+        response,
+        text,
+        requiredAssets: [
+          './assets/fullcycle-connectors-observability-compat.css',
+        ],
+        requiredMarkers: [
+          'Observability Connectors Executive Dashboard',
+          'Backend Dashboard Snapshot',
+        ],
+      }),
+    ],
+  },
+  {
+    name: 'observability_dashboard_asset_css',
+    path: '/api/observability/connectors/assets/fullcycle-connectors-observability-compat.css',
+    statuses: [200],
+    kind: 'text',
+    validators: [
+      ({ text, contentType }) => {
         const errors = [];
-        pushIf(errors, text.includes('<html'), 'html tag expected');
-        pushIf(errors, /observability/i.test(text), 'observability marker expected');
+        pushIf(errors, String(contentType || '').includes('text/css'), 'content-type must be text/css');
+        pushIf(errors, text.includes('.hero'), 'dashboard css marker expected');
+        pushIf(errors, text.includes('.grid'), 'dashboard layout marker expected');
         return errors;
       },
     ],
@@ -371,11 +416,47 @@ const checks = [
       'x-observability-role': 'operator',
     },
     validators: [
-      ({ text }) => {
+      ({ response, text }) => validateStrictHtmlShell({
+        response,
+        text,
+        requiredAssets: [
+          './assets/fullcycle-connectors-observability-ops-panel.css',
+          './assets/fullcycle-connectors-observability-ops-panel.js',
+        ],
+        requiredMarkers: [
+          'Observability Backend Ops Panel',
+          'activityLog',
+          'incidentsMeta',
+        ],
+        requiredTemplates: ['phase31-panel-data'],
+      }),
+    ],
+  },
+  {
+    name: 'observability_realtime_panel_asset_css',
+    path: '/api/observability/connectors/realtime/assets/fullcycle-connectors-observability-ops-panel.css',
+    statuses: [200],
+    kind: 'text',
+    validators: [
+      ({ text, contentType }) => {
         const errors = [];
-        pushIf(errors, text.includes('Observability Backend Ops Panel'), 'panel title expected');
-        pushIf(errors, text.includes('activityLog'), 'activityLog element expected');
-        pushIf(errors, text.includes('incidentsMeta'), 'incidentsMeta marker expected');
+        pushIf(errors, String(contentType || '').includes('text/css'), 'content-type must be text/css');
+        pushIf(errors, text.includes('.hero-meta'), 'panel css marker expected');
+        return errors;
+      },
+    ],
+  },
+  {
+    name: 'observability_realtime_panel_asset_js',
+    path: '/api/observability/connectors/realtime/assets/fullcycle-connectors-observability-ops-panel.js',
+    statuses: [200],
+    kind: 'text',
+    validators: [
+      ({ text, contentType }) => {
+        const errors = [];
+        pushIf(errors, String(contentType || '').includes('javascript'), 'content-type must be javascript');
+        pushIf(errors, text.includes('readPanelData'), 'panel js bootstrap expected');
+        pushIf(errors, text.includes('Connect SSE'), 'panel js should retain UI strings');
         return errors;
       },
     ],

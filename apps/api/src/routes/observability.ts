@@ -212,11 +212,38 @@ function applyDashboardHtmlHeaders(reply: any) {
       "frame-ancestors 'none'",
       "img-src 'self' data:",
       "font-src 'self' data:",
-      "style-src 'self' 'unsafe-inline'",
-      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self'",
+      "script-src 'self'",
       "connect-src 'self' http: https: ws: wss:",
     ].join('; '),
   );
+}
+
+function getStaticAssetType(assetName: string): string | null {
+  if (assetName.endsWith('.css')) return 'text/css; charset=utf-8';
+  if (assetName.endsWith('.js')) return 'application/javascript; charset=utf-8';
+  return null;
+}
+
+async function serveDashboardAsset(reply: any, htmlFile: string, assetName: string, allowedAssets: string[]) {
+  const safeName = path.basename(String(assetName || '').trim());
+  if (!safeName || safeName !== assetName || !allowedAssets.includes(safeName)) {
+    return reply.code(404).send({ error: 'Asset not found', asset: assetName });
+  }
+
+  const assetType = getStaticAssetType(safeName);
+  if (!assetType) {
+    return reply.code(404).send({ error: 'Unsupported asset type', asset: safeName });
+  }
+
+  const assetFile = path.resolve(path.dirname(htmlFile), 'assets', safeName);
+  if (!(await fileExists(assetFile))) {
+    return reply.code(503).send({ error: 'Asset unavailable', asset: safeName, file: assetFile });
+  }
+
+  reply.header('cache-control', 'no-store');
+  reply.header('x-content-type-options', 'nosniff');
+  return reply.type(assetType).send(await fs.readFile(assetFile, 'utf-8'));
 }
 
 export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
@@ -346,6 +373,17 @@ export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
     applyDashboardHtmlHeaders(reply);
     return reply.type('text/html').send(html);
   });
+
+  fastify.get('/observability/connectors/assets/:asset', async (request: any, reply) => serveDashboardAsset(
+    reply,
+    cfg.dashboardFile,
+    String(request.params?.asset || ''),
+    [
+      'fullcycle-connectors-observability-compat.css',
+      'fullcycle-connectors-observability.css',
+      'fullcycle-connectors-observability.js',
+    ],
+  ));
 
   // Sumario de SLA historico da API interna (operator+)
   fastify.get('/observability/connectors/api-sla/summary', async (request, reply) => {
@@ -566,6 +604,16 @@ export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
     applyDashboardHtmlHeaders(reply);
     return reply.type('text/html').send(html);
   });
+
+  fastify.get('/observability/connectors/realtime/assets/:asset', async (request: any, reply) => serveDashboardAsset(
+    reply,
+    cfg.panelDashboardFile,
+    String(request.params?.asset || ''),
+    [
+      'fullcycle-connectors-observability-ops-panel.css',
+      'fullcycle-connectors-observability-ops-panel.js',
+    ],
+  ));
 
   // Stream SSE interno para monitoramento executivo/operacional em tempo real
   fastify.get('/observability/connectors/stream', async (request, reply) => {
