@@ -192,6 +192,7 @@ async function main() {
   const backendDashboardFile = path.resolve(DRILL_DIR, 'backend-dashboard.md');
   const backendAuditFile = path.resolve(DRILL_DIR, 'backend-audit.jsonl');
   const backendAnalyticsFile = path.resolve(DRILL_DIR, 'backend-analytics.json');
+  const contractFile = path.resolve(DRILL_DIR, 'operational-provider.json');
   const routeMatrixFile = path.resolve(DRILL_DIR, 'route-matrix.json');
   const missingRotationFile = path.resolve(DRILL_DIR, 'rotation-missing.json');
   const missingCalendarFile = path.resolve(DRILL_DIR, 'calendar-missing.json');
@@ -205,6 +206,7 @@ async function main() {
     backendDashboardFile,
     backendAuditFile,
     backendAnalyticsFile,
+    contractFile,
     missingRotationFile,
     missingCalendarFile,
     automationStateFile,
@@ -225,6 +227,7 @@ async function main() {
     FULLCYCLE_CONNECTOR_OBS_BACKEND_DASHBOARD_FILE: backendDashboardFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_AUDIT_FILE: backendAuditFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE: backendAnalyticsFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE: contractFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_ROUTE_MATRIX_FILE: routeMatrixFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_ROTATION_FILE: missingRotationFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_CALENDAR_FILE: missingCalendarFile,
@@ -242,6 +245,9 @@ async function main() {
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_MAX_AGE_MIN: '30',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_MAX_AGE_MIN: '30',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_MAX_AGE_MIN: '60',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_MODE: 'materialized_contract',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_MATERIALIZE: 'true',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_ALLOW_LEGACY_FALLBACK: 'false',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_MIN_OWNER_COVERAGE_PCT: '100',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_MAX_ENTRIES: '10',
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE: automationStateFile,

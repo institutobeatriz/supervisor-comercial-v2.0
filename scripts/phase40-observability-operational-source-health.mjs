@@ -134,20 +134,24 @@ function buildSourceStatus({
   key,
   label,
   file,
+  loaded,
+  timestamp,
   payload,
   timestampKeys,
   maxAgeMinutes,
   requiredWhenActive,
   nowMs,
 }) {
-  const loaded = Boolean(payload && typeof payload === 'object');
-  const timestamp = timestampFrom(payload, timestampKeys);
-  const freshness = classifyFreshness(loaded, timestamp, maxAgeMinutes, nowMs);
+  const loadedValue = typeof loaded === 'boolean'
+    ? loaded
+    : Boolean(payload && typeof payload === 'object');
+  const timestampValue = String(timestamp || '').trim() || timestampFrom(payload, timestampKeys);
+  const freshness = classifyFreshness(loadedValue, timestampValue, maxAgeMinutes, nowMs);
   return {
     key,
     label,
     file,
-    loaded,
+    loaded: loadedValue,
     requiredWhenActive,
     maxAgeMinutes,
     timestamp: freshness.timestamp,
@@ -324,6 +328,7 @@ async function main() {
     ? previousEntries.slice(0, -1)
     : previousEntries;
 
+  const providerMeta = baseReport?.operationalProvider || baseReport?.inputs?.operationalProvider || baseStore?.operationalProvider || baseStore?.oncall?.operationalProvider || null;
   const operationalStateFile = String(baseReport?.config?.operationalStateFile || baseStore?.oncall?.operationalStateFile || '').trim();
   const snapshotFile = String(baseReport?.config?.snapshotFile || baseStore?.oncall?.snapshotFile || '').trim();
   const fullcycleReportFile = String(baseReport?.config?.fullcycleReportFile || baseStore?.oncall?.fullcycleReportFile || '').trim();
@@ -331,11 +336,15 @@ async function main() {
   const requireSnapshot = Boolean(baseReport?.config?.requireSnapshot);
   const maxAnalyticsEntries = Math.max(10, envInt('FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_MAX_ENTRIES', Number(baseReport?.config?.maxAnalyticsEntries || 400)));
 
-  const [operationalState, snapshot, fullcycleReport] = await Promise.all([
-    readJson(operationalStateFile, null),
-    readJson(snapshotFile, null),
-    readJson(fullcycleReportFile, null),
-  ]);
+  const shouldReadLegacyFiles = !providerMeta?.sources;
+  const [operationalState, snapshot, fullcycleReport] = shouldReadLegacyFiles
+    ? await Promise.all([
+      readJson(operationalStateFile, null),
+      readJson(snapshotFile, null),
+      readJson(fullcycleReportFile, null),
+    ])
+    : [null, null, null];
+  const providerSources = providerMeta?.sources || {};
 
   const incidents = safeArray(baseStore.incidents);
   const alerts = safeArray(baseStore.alerts);
@@ -348,7 +357,9 @@ async function main() {
     buildSourceStatus({
       key: 'incidentAutomation',
       label: 'Incident automation state',
-      file: operationalStateFile,
+      file: String(providerSources?.incidentAutomation?.file || operationalStateFile).trim(),
+      loaded: typeof providerSources?.incidentAutomation?.loaded === 'boolean' ? providerSources.incidentAutomation.loaded : undefined,
+      timestamp: providerSources?.incidentAutomation?.timestamp || null,
       payload: operationalState,
       timestampKeys: ['updatedAt', 'generatedAt', 'timestamp'],
       maxAgeMinutes: cfg.stateMaxAgeMinutes,
@@ -358,7 +369,9 @@ async function main() {
     buildSourceStatus({
       key: 'itsmSnapshot',
       label: 'ITSM snapshot',
-      file: snapshotFile,
+      file: String(providerSources?.itsmSnapshot?.file || snapshotFile).trim(),
+      loaded: typeof providerSources?.itsmSnapshot?.loaded === 'boolean' ? providerSources.itsmSnapshot.loaded : undefined,
+      timestamp: providerSources?.itsmSnapshot?.timestamp || null,
       payload: snapshot,
       timestampKeys: ['generatedAt', 'updatedAt', 'timestamp'],
       maxAgeMinutes: cfg.snapshotMaxAgeMinutes,
@@ -368,7 +381,9 @@ async function main() {
     buildSourceStatus({
       key: 'fullcycleReport',
       label: 'Fullcycle report',
-      file: fullcycleReportFile,
+      file: String(providerSources?.fullcycleReport?.file || fullcycleReportFile).trim(),
+      loaded: typeof providerSources?.fullcycleReport?.loaded === 'boolean' ? providerSources.fullcycleReport.loaded : undefined,
+      timestamp: providerSources?.fullcycleReport?.timestamp || null,
       payload: fullcycleReport,
       timestampKeys: ['generatedAt', 'updatedAt', 'timestamp'],
       maxAgeMinutes: cfg.reportMaxAgeMinutes,
@@ -412,6 +427,14 @@ async function main() {
   const currentAnalytics = {
     ...prevAnalytics.current,
     operationalSources: health,
+    operationalProvider: providerMeta
+      ? {
+        mode: providerMeta.mode,
+        contractLoaded: providerMeta.contractLoaded,
+        contractVersion: providerMeta.contractVersion,
+        contractSchema: providerMeta.contractSchema,
+      }
+      : null,
   };
   const analyticsEntry = {
     timestamp: ts,
@@ -438,6 +461,13 @@ async function main() {
       missingSources: health.overall.missingSources,
       unknownSources: health.overall.unknownSources,
     },
+    operationalProvider: providerMeta
+      ? {
+        mode: providerMeta.mode,
+        contractLoaded: providerMeta.contractLoaded,
+        contractVersion: providerMeta.contractVersion,
+      }
+      : null,
   };
   const analytics = {
     ...prevAnalytics,
@@ -457,6 +487,7 @@ async function main() {
       current: currentAnalytics,
       historyPoints: analytics.entries.length,
     },
+    operationalProvider: providerMeta,
     operationalSources: health,
     oncall: {
       ...(baseStore.oncall || {}),
@@ -464,6 +495,7 @@ async function main() {
       workloadState: health.overall.workloadState,
       freshnessState: health.overall.freshnessState,
       actionabilityState: health.overall.actionabilityState,
+      operationalProvider: providerMeta,
     },
   };
 
@@ -487,6 +519,8 @@ async function main() {
       operationalStateMaxAgeMinutes: cfg.stateMaxAgeMinutes,
       operationalSnapshotMaxAgeMinutes: cfg.snapshotMaxAgeMinutes,
       operationalReportMaxAgeMinutes: cfg.reportMaxAgeMinutes,
+      operationalContractFile: providerMeta?.contractFile || null,
+      operationalProviderMode: providerMeta?.mode || null,
       sourceMode: 'operational_source_health',
     },
     inputs: {
@@ -496,7 +530,9 @@ async function main() {
         itsmSnapshot: sources[1],
         fullcycleReport: sources[2],
       },
+      operationalProvider: providerMeta,
     },
+    operationalProvider: providerMeta,
     operationalSources: health,
     violations,
   };

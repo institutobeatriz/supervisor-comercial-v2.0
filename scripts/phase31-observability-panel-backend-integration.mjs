@@ -115,6 +115,7 @@ async function main() {
   const streamAgeMinutes = ageMin(streamReport?.generatedAt || streamState?.generatedAt, nowMs);
   const slaAgeMinutes = ageMin(slaHistory[slaHistory.length - 1]?.timestamp, nowMs);
   const operationalSources = backendReport?.operationalSources || backendStore?.operationalSources || null;
+  const operationalProvider = backendReport?.operationalProvider || backendStore?.operationalProvider || backendStore?.oncall?.operationalProvider || null;
   const unassignedRecords = [
     ...openIncidents.filter((x) => !String(x?.ownerTeam || x?.routing?.team || '').trim() || String(x?.ownerTeam || x?.routing?.team || '').toLowerCase() === 'unassigned').map((x) => `incident:${x?.id || 'unknown'}`),
     ...activeAlerts.filter((x) => !String(x?.ownerTeam || x?.routing?.team || '').trim() || String(x?.ownerTeam || x?.routing?.team || '').toLowerCase() === 'unassigned').map((x) => `alert:${x?.key || 'unknown'}`),
@@ -168,6 +169,7 @@ async function main() {
     status,
     summary,
     operationalSources,
+    operationalProvider,
     api: { baseDefault: cfg.apiBaseDefault, defaultRole: 'operator', defaultLimit: Math.min(500, Math.max(50, Math.max(incidents.length, alerts.length, 200))) },
     ui: { autoConnect: cfg.autoConnect, refreshMs: cfg.refreshMs },
   }));

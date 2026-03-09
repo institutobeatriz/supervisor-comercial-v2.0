@@ -381,10 +381,30 @@ const checks = [
     },
     validators: [
       ({ data }) => {
-        const errors = validateJsonObject(data, ['role', 'status', 'summary', 'operationalSources', 'analytics']);
+        const errors = validateJsonObject(data, ['role', 'status', 'summary', 'operationalProvider', 'operationalSources', 'analytics']);
         pushIf(errors, isObject(data?.summary), 'summary must be object');
+        pushIf(errors, data?.operationalProvider === null || isObject(data?.operationalProvider), 'operationalProvider must be object or null');
         pushIf(errors, data?.operationalSources === null || isObject(data?.operationalSources), 'operationalSources must be object or null');
         pushIf(errors, isObject(data?.analytics), 'analytics must be object');
+        return errors;
+      },
+    ],
+  },
+  {
+    name: 'observability_backend_provider',
+    path: '/api/observability/connectors/backend/provider',
+    statuses: [200, 503],
+    kind: 'json',
+    headers: {
+      'x-admin-key': ADMIN_KEY,
+      'x-observability-role': 'operator',
+    },
+    validators: [
+      ({ data }) => {
+        const errors = validateJsonObject(data, ['role', 'provider']);
+        pushIf(errors, isObject(data?.provider), 'provider must be object');
+        pushIf(errors, String(data?.provider?.providerMode || '').trim().length > 0, 'provider.providerMode expected');
+        pushIf(errors, Number.isFinite(Number(data?.provider?.version)), 'provider.version must be numeric');
         return errors;
       },
     ],
@@ -402,6 +422,7 @@ const checks = [
       ({ data }) => {
         const errors = validateJsonObject(data, ['role', 'report']);
         pushIf(errors, isObject(data?.report), 'report must be object');
+        pushIf(errors, data?.report?.operationalProvider === null || isObject(data?.report?.operationalProvider), 'report.operationalProvider must be object or null');
         pushIf(errors, data?.report?.operationalSources === null || isObject(data?.report?.operationalSources), 'report.operationalSources must be object or null');
         return errors;
       },
@@ -422,6 +443,7 @@ const checks = [
         pushIf(errors, Array.isArray(data?.entries), 'entries must be array');
         pushIf(errors, Number.isFinite(data?.totalEntries), 'totalEntries must be numeric');
         pushIf(errors, data?.current === null || isObject(data?.current), 'current must be object or null');
+        pushIf(errors, data?.current?.operationalProvider === null || isObject(data?.current?.operationalProvider), 'current.operationalProvider must be object or null');
         pushIf(errors, data?.current?.operationalSources === null || isObject(data?.current?.operationalSources), 'current.operationalSources must be object or null');
         return errors;
       },

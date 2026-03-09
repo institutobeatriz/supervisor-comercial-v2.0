@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { loadOperationalProvider } from './observability-operational-provider.mjs';
 
 function envBool(name, fallback) {
   const raw = process.env[name];
@@ -257,12 +258,20 @@ function summarizeOwnership(records) {
   };
 }
 
-function buildAnalytics({ ts, environment, incidents, alerts, teams, prevAnalytics }) {
+function buildAnalytics({ ts, environment, incidents, alerts, teams, prevAnalytics, providerMeta }) {
   const openIncidents = incidents.filter((item) => item.status !== 'resolved');
   const activeAlerts = alerts.filter((item) => item.status !== 'resolved');
   const allActive = [...openIncidents, ...activeAlerts];
   const ownership = summarizeOwnership(allActive);
   const breachedEscalations = allActive.filter((item) => item?.escalation?.breached).length;
+  const operationalProvider = {
+    mode: providerMeta?.mode || 'unknown',
+    contractLoaded: Boolean(providerMeta?.contractLoaded),
+    contractVersion: providerMeta?.contractVersion || null,
+    contractSchema: providerMeta?.contractSchema || null,
+    loadedSources: Number(providerMeta?.summary?.loadedSources || 0),
+    missingSources: Number(providerMeta?.summary?.missingSources || 0),
+  };
   const severity = {
     incidents: {
       criticalOpen: openIncidents.filter((item) => item.severity === 'critical').length,
@@ -284,6 +293,7 @@ function buildAnalytics({ ts, environment, incidents, alerts, teams, prevAnalyti
     ownerCoveragePct: ownership.coveragePct,
     unassignedOwners: ownership.unassignedOwners,
     breachedEscalations,
+    operationalProvider,
     teams: teams.map((item) => ({
       team: item.team,
       openIncidents: item.openIncidents,
@@ -307,6 +317,7 @@ function buildAnalytics({ ts, environment, incidents, alerts, teams, prevAnalyti
     bySource: ownership.bySource,
     byTeam: teams,
     severity,
+    operationalProvider,
   };
 
   return {
@@ -333,6 +344,9 @@ function buildDashboard({ ts, status, summary, teams, incidents, alerts, analyti
     '## On-call Source',
     '',
     `- Source mode: ${oncall.sourceMode}`,
+    `- Provider mode: ${oncall.operationalProvider?.mode || 'unknown'}`,
+    `- Contract loaded: ${oncall.operationalProvider?.contractLoaded ? 'yes' : 'no'}`,
+    `- Contract version: ${oncall.operationalProvider?.contractVersion || 'n/a'}`,
     `- Operational state loaded: ${oncall.operationalStateLoaded ? 'yes' : 'no'}`,
     `- Snapshot loaded: ${oncall.snapshotLoaded ? 'yes' : 'no'}`,
     `- Direct operational owners: ${oncall.directAssignments}`,
@@ -509,6 +523,10 @@ async function main() {
     backendDashboardFile: process.env.FULLCYCLE_CONNECTOR_OBS_BACKEND_DASHBOARD_FILE || path.resolve(process.cwd(), 'docs/fullcycle-connectors-observability-backend.md'),
     backendAuditFile: process.env.FULLCYCLE_CONNECTOR_OBS_BACKEND_AUDIT_FILE || path.resolve(process.cwd(), 'logs/monitoring/fullcycle-connector-observability-backend-audit.jsonl'),
     backendAnalyticsFile: process.env.FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE || path.resolve(process.cwd(), 'logs/monitoring/fullcycle-connector-observability-backend-analytics.json'),
+    providerMode: envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_MODE', 'materialized_contract'),
+    contractFile: envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE', path.resolve(process.cwd(), 'logs/monitoring/fullcycle-connector-observability-operational-provider.json')),
+    materializeContract: envBool('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_MATERIALIZE', true),
+    allowLegacyFallback: envBool('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_ALLOW_LEGACY_FALLBACK', false),
     automationStateFile: process.env.FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE || process.env.INCIDENT_AUTOMATION_STATE_FILE || path.resolve(process.cwd(), 'logs/monitoring/incident-automation-state.json'),
     snapshotFile: process.env.FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_FILE || process.env.ITSM_SNAPSHOT_FILE || path.resolve(process.cwd(), 'logs/monitoring/itsm-snapshot.json'),
     fullcycleReportFile: process.env.FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE || process.env.FULLCYCLE_REPORT_FILE || path.resolve(process.cwd(), 'logs/monitoring/fullcycle-governance-report.json'),
@@ -535,15 +553,27 @@ async function main() {
     throw new Error(`phase32 backend baseline failed with status=${phase32Run.status}`);
   }
 
-  const [baseStore, baseReport, prevAnalytics, automationState, snapshot, fullcycleReport] = await Promise.all([
+  const [baseStore, baseReport, prevAnalytics] = await Promise.all([
     readJson(cfg.backendStoreFile, null),
     readJson(cfg.backendReportFile, null),
     readJson(cfg.backendAnalyticsFile, { entries: [] }),
-    readJson(cfg.automationStateFile, null),
-    readJson(cfg.snapshotFile, null),
-    readJson(cfg.fullcycleReportFile, null),
   ]);
   if (!baseStore || !baseReport) throw new Error('phase39 backend prerequisites missing after baseline run');
+  const provider = await loadOperationalProvider({
+    ts,
+    providerMode: cfg.providerMode,
+    materializeContract: cfg.materializeContract,
+    allowLegacyFallback: cfg.allowLegacyFallback,
+    contractFile: cfg.contractFile,
+    automationStateFile: cfg.automationStateFile,
+    snapshotFile: cfg.snapshotFile,
+    fullcycleReportFile: cfg.fullcycleReportFile,
+    materializedBy: 'phase39-observability-backend-operational-oncall',
+  });
+  const automationState = provider.automationState;
+  const snapshot = provider.snapshot;
+  const fullcycleReport = provider.fullcycleReport;
+  const providerMeta = provider.meta;
   const baselineGeneratedAt = String(baseStore.generatedAt || '');
   const previousEntries = safeArray(prevAnalytics?.entries);
   const sanitizedPrevEntries = previousEntries.length > 0
@@ -627,6 +657,7 @@ async function main() {
     alerts,
     teams,
     prevAnalytics: { ...prevAnalytics, entries: sanitizedPrevEntries },
+    providerMeta,
   });
   analytics.entries = analytics.entries.slice(-cfg.maxAnalyticsEntries);
 
@@ -636,9 +667,16 @@ async function main() {
   const hasActiveRecords = activeRecords.length > 0;
 
   const violations = safeArray(baseReport.violations).map((item) => ({ ...item }));
-  const operationalStateLoaded = Boolean(automationState && typeof automationState === 'object');
-  const snapshotLoaded = Boolean(snapshot && typeof snapshot === 'object');
-  const fullcycleLoaded = Boolean(fullcycleReport && typeof fullcycleReport === 'object');
+  const operationalStateLoaded = Boolean(providerMeta?.sources?.incidentAutomation?.loaded);
+  const snapshotLoaded = Boolean(providerMeta?.sources?.itsmSnapshot?.loaded);
+  const fullcycleLoaded = Boolean(providerMeta?.sources?.fullcycleReport?.loaded);
+  if (cfg.providerMode === 'materialized_contract' && hasActiveRecords && !providerMeta?.contractLoaded) {
+    violations.push({
+      code: 'operational_contract_unavailable',
+      blocking: true,
+      message: `operational contract unavailable at ${cfg.contractFile}${providerMeta?.loadError ? ` (${providerMeta.loadError})` : ''}`,
+    });
+  }
   if (cfg.requireOperationalSource && hasActiveRecords && !operationalStateLoaded && !snapshotLoaded) violations.push({ code: 'operational_oncall_source_unavailable', blocking: true, message: `operational state unavailable at ${cfg.automationStateFile} and snapshot unavailable at ${cfg.snapshotFile}` });
   if (cfg.requireSnapshot && hasActiveRecords && !snapshotLoaded) violations.push({ code: 'operational_snapshot_unavailable', blocking: true, message: `snapshot unavailable at ${cfg.snapshotFile}` });
   if (cfg.requireOperationalSource && hasActiveRecords && directEntries.length === 0) violations.push({ code: 'operational_roster_unavailable', blocking: true, message: 'no direct operational owner evidence was found to build the roster' });
@@ -654,6 +692,9 @@ async function main() {
     unassignedOwners: ownership.unassignedOwners,
     breachedEscalations: analytics.current.breachedEscalations,
     analyticsPoints: analytics.entries.length,
+    operationalProviderMode: providerMeta?.mode || 'unknown',
+    operationalContractLoaded: Boolean(providerMeta?.contractLoaded),
+    operationalLoadedSources: Number(providerMeta?.summary?.loadedSources || 0),
   };
 
   const store = {
@@ -665,6 +706,7 @@ async function main() {
     teams,
     incidents,
     alerts,
+    operationalProvider: providerMeta,
     analytics: { current: analytics.current, historyPoints: analytics.entries.length },
     oncall: {
       dynamicOwnerEnabled: true,
@@ -672,7 +714,7 @@ async function main() {
       defaultOwnerConfigured: false,
       rotationLoaded: false,
       calendarLoaded: false,
-      sourceMode: 'operational_state',
+      sourceMode: providerMeta?.sourceMode || 'operational_state',
       operationalStateFile: cfg.automationStateFile,
       operationalStateLoaded,
       snapshotFile: cfg.snapshotFile,
@@ -684,6 +726,7 @@ async function main() {
       rosterEntries: roster.exactCount,
       teamFallbackEntries: roster.teamCount,
       timezone: cfg.operationalTimezone,
+      operationalProvider: providerMeta,
     },
   };
 
@@ -700,11 +743,14 @@ async function main() {
       operationalStateFile: cfg.automationStateFile,
       snapshotFile: cfg.snapshotFile,
       fullcycleReportFile: cfg.fullcycleReportFile,
+      operationalContractFile: cfg.contractFile,
+      operationalProviderMode: providerMeta?.mode || 'unknown',
+      materializeOperationalProvider: cfg.materializeContract,
       requireOperationalSource: cfg.requireOperationalSource,
       requireSnapshot: cfg.requireSnapshot,
       minOwnerCoveragePct: cfg.minOwnerCoveragePct,
       maxAnalyticsEntries: cfg.maxAnalyticsEntries,
-      sourceMode: 'operational_state',
+      sourceMode: providerMeta?.sourceMode || 'operational_state',
     },
     inputs: {
       ...(baseReport.inputs || {}),
@@ -714,7 +760,9 @@ async function main() {
       directAssignments: directEntries.length,
       rosterEntries: roster.exactCount,
       teamFallbackEntries: roster.teamCount,
+      operationalProvider: providerMeta,
     },
+    operationalProvider: providerMeta,
     violations,
   };
 
@@ -722,13 +770,13 @@ async function main() {
   await writeJson(cfg.backendReportFile, report);
   await writeJson(cfg.backendAnalyticsFile, analytics);
   await writeText(cfg.backendDashboardFile, buildDashboard({ ts, status, summary, teams, incidents, alerts, analytics, violations, oncall: store.oncall }));
-  await appendLine(cfg.backendAuditFile, JSON.stringify({ timestamp: ts, source: 'phase39-observability-backend-operational-oncall', status, summary, ownership, oncall: store.oncall, violations }));
+  await appendLine(cfg.backendAuditFile, JSON.stringify({ timestamp: ts, source: 'phase39-observability-backend-operational-oncall', status, summary, ownership, oncall: store.oncall, operationalProvider: providerMeta, violations }));
 
   console.log(`Observability backend store: ${cfg.backendStoreFile}`);
   console.log(`Observability backend report: ${cfg.backendReportFile}`);
   console.log(`Observability backend analytics: ${cfg.backendAnalyticsFile}`);
   console.log(`Observability backend dashboard: ${cfg.backendDashboardFile}`);
-  console.log(`[OBS-BACKEND-OPS] status=${status} coverage=${ownership.coveragePct}% direct=${directEntries.length} roster=${roster.exactCount} active=${analytics.current.activeRecords}`);
+  console.log(`[OBS-BACKEND-OPS] status=${status} provider=${providerMeta?.mode || 'unknown'} contract=${providerMeta?.contractLoaded ? 'ready' : 'missing'} coverage=${ownership.coveragePct}% direct=${directEntries.length} roster=${roster.exactCount} active=${analytics.current.activeRecords}`);
 
   if (status === 'fail') {
     for (const item of blockingViolations) console.error(`[OBS-BACKEND-OPS] ${item.code}: ${item.message}`);

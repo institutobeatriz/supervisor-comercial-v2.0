@@ -3,7 +3,7 @@
 ## Atualizacao
 - Data: 2026-03-09 (America/Sao_Paulo)
 - Responsavel: Orquestracao tecnica (software house premium)
-- Fonte de verdade: este arquivo + evidencias em `11-fase-0-baseline.md` ate `50-fase-39-validacao.md`
+- Fonte de verdade: este arquivo + evidencias em `11-fase-0-baseline.md` ate `51-fase-40-validacao.md`
 
 ## Status por fase
 
@@ -49,6 +49,7 @@
 | Fase 37 - Automacao do repo standalone e fluxo canonico de PR | CONCLUIDA | 2026-03-09 | 2026-03-09 | `48-fase-37-validacao.md` | Sync declarativo + drift check + publish automatizado em branch/PR `codex/` com GitHub Actions real verde |
 | Fase 38 - Hardening de CSP/assets dos dashboards internos | CONCLUIDA | 2026-03-09 | 2026-03-09 | `49-fase-38-validacao.md` | Assets externos no dashboard/painel, CSP sem `unsafe-inline`, smoke/live endurecidos e compat dashboard alinhado |
 | Fase 39 - Ownership operacional do backend observability | CONCLUIDA | 2026-03-09 | 2026-03-09 | `50-fase-39-validacao.md` | Backend oficial migra para incident-automation/snapshot/fullcycle, drill pass/fail dedicado e CI remoto verde |
+| Fase 40 - Saude e frescor da fonte operacional | CONCLUIDA | 2026-03-09 | 2026-03-09 | `51-fase-40-validacao.md` | Backend oficial passa a expor `workloadState`/`freshnessState`/`actionabilityState`, painel/API usam `backend/summary` e CI remoto verde |
 
 ## Log de checkpoints
 
@@ -2024,6 +2025,61 @@ Riscos residuais:
 
 Proxima fase liberada:
 1. Fase 40 - endurecer saude/frescor da fonte operacional e expor esse estado na API/painel para separar `sem workload ativo` de `fonte operacional indisponivel`.
+
+### 2026-03-09 - Checkpoint 42 (Fase 40 concluida)
+Itens executados:
+1. Source health operacional oficializado:
+- criado `scripts/phase40-observability-operational-source-health.mjs`;
+- `monitor:fullcycle:observability:backend` passa a apontar para a Fase 40;
+- `backend/store`, `backend/report` e `backend/analytics` passam a publicar `workloadState`, `freshnessState` e `actionabilityState`.
+2. Drill dedicado da fase:
+- criado `scripts/phase40-observability-operational-source-health-drill.mjs`;
+- validado `healthy`, `stale` e `missing idle`;
+- backend distingue explicitamente `idle` de `idle_gap`.
+3. API/painel/live alinhados:
+- criado `GET /api/observability/connectors/backend/summary` em `apps/api/src/routes/observability.ts`;
+- painel backend-first passa a consumir `backend/summary` para `operator+` e refletir source health em `scripts/assets/fullcycle-connectors-observability-ops-panel.js`;
+- `scripts/phase31-observability-panel-backend-integration.mjs`, `scripts/phase33-observability-live-runtime-validation.mjs`, `scripts/phase34-observability-live-governance.mjs`, `scripts/phase35-observability-legacy-convergence.mjs` e `scripts/ci-api-smoke.mjs` foram atualizados para o novo contrato.
+4. Runtime live endurecido:
+- `phase33` recompila `@supervisor/api` antes de subir a API live;
+- smoke/governanca passam a exigir `backend/summary`;
+- fixtures live passam a gerar timestamps operacionais frescos.
+5. Pipeline/documentacao atualizados:
+- `package.json`, `.github/workflows/ci.yml`, `.env.example`, `README.md`, `docs/runbook-operacional.md` e `docs/monitoramento-externo.md`;
+- evidencia formal consolidada em `51-fase-40-validacao.md`.
+
+Validacao tecnica deste checkpoint:
+1. Sintaxe:
+- `node --check scripts/phase40-observability-operational-source-health.mjs` => sucesso;
+- `node --check scripts/phase40-observability-operational-source-health-drill.mjs` => sucesso;
+- `node --check scripts/phase33-observability-live-runtime-validation.mjs` => sucesso;
+- `node --check scripts/phase35-observability-legacy-convergence.mjs` => sucesso;
+- `node --check scripts/phase31-observability-panel-backend-integration.mjs` => sucesso;
+- `node --check scripts/ci-api-smoke.mjs` => sucesso;
+- `node --check scripts/assets/fullcycle-connectors-observability-ops-panel.js` => sucesso.
+2. Drills/regressoes locais:
+- `npm run test:phase39` => sucesso;
+- `npm run test:phase40` => sucesso;
+- `npm run test:phase31` => sucesso;
+- `npm run test:phase35` => sucesso;
+- `npm run test:phase33` => sucesso;
+- `npm run test:phase34` => sucesso (`contracts=22/22`).
+3. Build/gates locais:
+- `npm run build -w @supervisor/api` => sucesso;
+- `npm run monitor:fullcycle:observability:backend` => `warn` com `workload=idle`, `freshness=missing`, `action=idle_gap`, `active=0`;
+- `npm run monitor:fullcycle:observability:live` => sucesso (`contracts=22/22`).
+4. Validacao remota no repo standalone:
+- PR `#7`: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/7`;
+- GitHub Actions run `22871354963` => `success`;
+- commit standalone: `c429967e4dd081fee08095550583106db93fb9aa`.
+
+Riscos residuais:
+1. a origem operacional continua baseada em artefatos locais materializados, nao em provider externo dedicado;
+2. o painel agora diferencia `idle` de `idle_gap`, mas a estrategia de ingestao operacional definitiva ainda nao foi decidida;
+3. o repo canonico de CI remoto continua separado do git root principal do workspace.
+
+Proxima fase liberada:
+1. Fase 41 - decidir e implementar o proximo passo da ingestao operacional: provider externo dedicado ou materializacao controlada com contrato/versionamento proprio.
 
 ## Backlog ativo (referencia curta)
 

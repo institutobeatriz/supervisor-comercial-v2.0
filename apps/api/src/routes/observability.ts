@@ -261,6 +261,7 @@ export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
     backendReportFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_REPORT_FILE', 'logs/monitoring/fullcycle-connector-observability-backend-report.json'),
     backendDashboardFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_DASHBOARD_FILE', 'docs/fullcycle-connectors-observability-backend.md'),
     backendAnalyticsFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE', 'logs/monitoring/fullcycle-connector-observability-backend-analytics.json'),
+    backendOperationalContractFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE', 'logs/monitoring/fullcycle-connector-observability-operational-provider.json'),
     streamStateFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_STREAM_STATE_FILE', 'logs/monitoring/fullcycle-connector-observability-stream-state.json'),
     streamEventsFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_STREAM_EVENTS_FILE', 'logs/monitoring/fullcycle-connector-observability-stream-events.jsonl'),
     streamReportFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_STREAM_REPORT_FILE', 'logs/monitoring/fullcycle-connector-observability-realtime-report.json'),
@@ -563,11 +564,29 @@ export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
       status: store?.status || report?.status || 'unknown',
       summary: store?.summary || report?.summary || {},
       oncall: store?.oncall || null,
+      operationalProvider: report?.operationalProvider || store?.operationalProvider || store?.oncall?.operationalProvider || analytics?.current?.operationalProvider || null,
       operationalSources: report?.operationalSources || store?.operationalSources || analytics?.current?.operationalSources || null,
       analytics: {
         current: analytics?.current || null,
         totalEntries: entries.length,
       },
+    };
+  });
+
+  // Provider/contrato canonico da ingestao operacional (operator+)
+  fastify.get('/observability/connectors/backend/provider', async (request, reply) => {
+    if (!(await requireAccess(request, reply, 'operator'))) return;
+    if (!(await fileExists(cfg.backendOperationalContractFile))) {
+      return reply.code(503).send({
+        error: 'Observability backend provider unavailable',
+        file: cfg.backendOperationalContractFile,
+      });
+    }
+    const provider = await readJson(cfg.backendOperationalContractFile, {});
+    return {
+      role: getProvidedRole(request),
+      generatedAt: provider?.generatedAt || null,
+      provider,
     };
   });
 

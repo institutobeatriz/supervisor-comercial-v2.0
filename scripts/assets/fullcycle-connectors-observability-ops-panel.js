@@ -98,6 +98,9 @@ const D = readPanelData();
     function operationalView() {
       return state.backendSummary?.operationalSources || state.backendReport?.report?.operationalSources || D?.operationalSources || null;
     }
+    function providerView() {
+      return state.backendSummary?.operationalProvider || state.backendReport?.report?.operationalProvider || D?.operationalProvider || null;
+    }
     function operationalSource(key) {
       return operationalView()?.sources?.[key] || null;
     }
@@ -132,11 +135,13 @@ const D = readPanelData();
       const alertSummary = state.alertSummary?.summary || {};
       const latestSla = state.slaHistory[0] || normalizeSla(state.slaSummary?.latest || {});
       const operational = operationalView();
+      const provider = providerView();
       const opOverall = operational?.overall || {};
       const opState = operationalSource('incidentAutomation');
       const opSnapshot = operationalSource('itsmSnapshot');
       const cards = [
         ['Backend status', state.backendSummary?.status || state.backendReport?.report?.status || state.incidentSummary?.status || D?.summary?.backendStatus || 'unknown', 'route store + backend report'],
+        ['Operational provider', provider?.mode || 'unknown', 'contract v' + (provider?.contractVersion || 'n/a')],
         ['Stream status', D?.summary?.streamStatus || 'unknown', 'SSE timeline contract'],
         ['Operational workload', opOverall?.workloadState || D?.summary?.operationalWorkloadState || 'unknown', 'active vs idle'],
         ['Operational freshness', opOverall?.freshnessState || D?.summary?.operationalFreshnessState || 'unknown', 'source health'],

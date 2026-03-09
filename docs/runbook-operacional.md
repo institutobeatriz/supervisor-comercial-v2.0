@@ -293,6 +293,23 @@ npm run monitor:fullcycle:observability:backend
 ```
 O backend oficial passa a classificar `incident automation`, `itsm snapshot` e `fullcycle report` como `healthy`, `stale`, `missing` ou `unknown`, expondo `workloadState`, `freshnessState` e `actionabilityState` em `backend/store`, `backend/report`, `backend/analytics` e no painel para separar explicitamente `sem workload ativo` de `fonte operacional indisponivel`.
 
+Provider operacional canonico (Fase 41):
+```bash
+npm run test:phase41
+npm run monitor:fullcycle:observability:backend
+```
+Decisao oficial:
+1. manter ingestao por materializacao controlada;
+2. formalizar o contrato versionado `fullcycle.observability.operational-provider.v1`;
+3. fazer backend/live/painel/smoke consumirem o provider canônico em vez da leitura direta dos tres artefatos brutos.
+
+Capacidades adicionais:
+1. materializa `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE`;
+2. publica dashboard executivo em `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_DASHBOARD_FILE`;
+3. permite replay a partir do contrato existente;
+4. expõe `GET /api/observability/connectors/backend/provider` para `operator+`;
+5. endurece smoke/live/CI para exigir o provider canônico.
+
 Validacao live da API interna + painel headless (Fase 33):
 ```bash
 npm run test:phase33
@@ -303,7 +320,8 @@ Capacidades:
 3. recompila `@supervisor/api` antes do boot live para evitar drift entre `src` e `dist`, e inicializa a API buildada em porta dedicada;
 4. executa `scripts/ci-api-smoke.mjs` contra a API live;
 5. valida o painel em Edge/Chrome headless via CDP, com screenshot, DOM e logs;
-6. consulta `/api/observability/connectors/backend/analytics` como validacao executiva final.
+6. consulta `/api/observability/connectors/backend/provider` e `/api/observability/connectors/backend/analytics` como validacao operacional/executiva final.
+7. usa containers Docker nomeados por execucao e limpeza por `label`, evitando conflito de rerun local em `phase33`/`phase34`.
 
 Artefatos da Fase 33:
 1. `logs/monitoring/phase33-live/live-validation-report.json`

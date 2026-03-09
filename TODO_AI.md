@@ -1,15 +1,18 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 39
-- Proxima fase liberada: Fase 40
+- Ultima fase concluida: Fase 40
+- Proxima fase liberada: Fase 41
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: backend observability oficial agora resolve owner por trilha operacional-first; o gap estrutural principal passou a ser a saude/frescor dessa fonte operacional
+- Estado atual: backend observability oficial agora publica `workloadState`, `freshnessState` e `actionabilityState`; o gap estrutural principal passou a ser a dependencia de artefatos operacionais locais
 
 ## Prioridade alta
-- [ ] Fase 40: medir frescor e saude da fonte operacional (`incident automation`, `itsm snapshot`, `fullcycle report`)
-- [ ] Fase 40: expor esse estado em `backend/report`, `backend/analytics` e painel para diferenciar `sem workload ativo` de `fonte operacional indisponivel`
-- [ ] Fase 40: validar cenarios `healthy/stale/missing` na trilha live, compat e CI remoto
+- [ ] Fase 41: decidir o caminho canonico da ingestao operacional (`provider externo` vs `materializacao controlada`)
+- [ ] Fase 41: preservar os sinais da Fase 40 (`idle`, `idle_gap`, freshness por fonte) no caminho novo
+- [ ] Fase 41: validar contrato/endpoints/painel depois da decisao estrutural da ingestao
+- [x] Fase 40: medir frescor e saude da fonte operacional (`incident automation`, `itsm snapshot`, `fullcycle report`)
+- [x] Fase 40: expor esse estado em `backend/report`, `backend/analytics` e painel para diferenciar `sem workload ativo` de `fonte operacional indisponivel`
+- [x] Fase 40: validar cenarios `healthy/stale/missing` na trilha live, compat e CI remoto
 - [x] Fase 39: substituir a origem file-based de on-call por fonte operacional-first
 - [x] Fase 39: preservar contratos atuais de `backend/analytics`, `incidents/alerts` e painel durante a troca da fonte
 - [x] Fase 39: validar owner coverage, escalations e UI apos integrar a fonte operacional
@@ -18,7 +21,7 @@
 - [x] Fase 38: revalidar painel/live em browser/headless e CI local apos a reducao das excecoes de CSP
 
 ## Prioridade media
-- [ ] Decidir se a Fase 40 deve continuar com materializacao local controlada ou iniciar leitura de provider externo dedicado
+- [ ] Definir contrato/versionamento oficial da coleta operacional, caso a Fase 41 mantenha materializacao local controlada
 - [ ] Decidir se `backend/analytics` deve aparecer diretamente na UI executiva do painel
 - [ ] Avaliar se a extracao futura para um git root proprio ainda traz ganho operacional relevante apos a Fase 37
 
@@ -28,13 +31,13 @@
 
 ## Bugs / riscos abertos
 - a origem operacional oficial ainda depende de artefatos locais (`incident-automation-state`, `itsm-snapshot`, `fullcycle-report`)
-- ainda nao existe telemetria explicita de frescor/staleness por fonte operacional na API/painel
+- ainda nao existe provider dedicado substituindo a materializacao local da fonte operacional
 - `docs/fullcycle-connectors-observability-live-governance.md` continua sendo artefato gerado e muda a cada execucao da rotina live
 - o repo canonico de CI remoto segue separado do git root principal do workspace
 
 ## Dividas tecnicas
-- substituir artefatos operacionais locais por provider/servico dedicado sem quebrar contratos atuais
-- adicionar semantica objetiva de `healthy/stale/missing` para a origem operacional no backend e no painel
+- substituir artefatos operacionais locais por provider/servico dedicado sem quebrar os sinais e contratos da Fase 40
+- formalizar contrato/versionamento da ingestao operacional para evitar drift entre produtores e consumidores
 - decidir o papel de longo prazo de `backend/analytics` na UI executiva
 - avaliar se o git root principal deve ser extraido no futuro ou se o fluxo standalone ja cobre a necessidade operacional
 - manter alinhados os contratos dos dashboards HTML internos com a trilha de compatibilidade real

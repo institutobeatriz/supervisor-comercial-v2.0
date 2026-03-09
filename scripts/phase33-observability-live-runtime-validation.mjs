@@ -204,6 +204,8 @@ async function prepareFixtures(fixturesDir) {
     incidentAutomationStateFile: path.resolve(fixturesDir, 'incident-automation-state.json'),
     itsmSnapshotFile: path.resolve(fixturesDir, 'itsm-snapshot.json'),
     fullcycleReportFile: path.resolve(fixturesDir, 'fullcycle-report.json'),
+    operationalContractFile: path.resolve(fixturesDir, 'operational-provider.json'),
+    operationalProviderDashboardFile: path.resolve(fixturesDir, 'operational-provider.md'),
     observabilityStoreFile: path.resolve(fixturesDir, 'observability-store.json'),
     observabilityReportFile: path.resolve(fixturesDir, 'observability-report.json'),
     observabilityFeedFile: path.resolve(fixturesDir, 'observability-feed.json'),
@@ -347,6 +349,11 @@ function buildValidationEnv(files, reportFile, dashboardFile, auditFile, apiBase
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE: files.incidentAutomationStateFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_FILE: files.itsmSnapshotFile,
     FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE: files.fullcycleReportFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE: files.operationalContractFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_DASHBOARD_FILE: files.operationalProviderDashboardFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_MODE: 'materialized_contract',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_MATERIALIZE: 'true',
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_ALLOW_LEGACY_FALLBACK: 'false',
     INCIDENT_AUTOMATION_STATE_FILE: files.incidentAutomationStateFile,
     ITSM_SNAPSHOT_FILE: files.itsmSnapshotFile,
     FULLCYCLE_REPORT_FILE: files.fullcycleReportFile,
@@ -402,9 +409,9 @@ function buildValidationEnv(files, reportFile, dashboardFile, auditFile, apiBase
 }
 
 async function bootObservabilityArtifacts(env) {
-  const backendRun = await runCommand('node', ['scripts/phase40-observability-operational-source-health.mjs'], env);
+  const backendRun = await runCommand('node', ['scripts/phase41-observability-operational-provider-contract.mjs'], env);
   if ((backendRun.status ?? 1) !== 0) {
-    throw new Error(`phase40 backend run failed: ${backendRun.stderr || backendRun.stdout}`.trim());
+    throw new Error(`phase41 backend run failed: ${backendRun.stderr || backendRun.stdout}`.trim());
   }
 
   const compatRun = await runCommand('node', ['scripts/phase35-observability-legacy-convergence.mjs'], env);
@@ -504,15 +511,60 @@ async function waitForContainer(commandArgs, matcher, timeoutMs) {
   throw new Error(`container readiness timeout for docker ${commandArgs.join(' ')} :: ${lastOutput}`);
 }
 
-async function startDockerInfra({ postgresPort, redisPort, timeoutMs }) {
-  const postgresName = 'phase33-observability-postgres';
-  const redisName = 'phase33-observability-redis';
+function sanitizeDockerToken(value, fallback) {
+  const normalized = String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9_.-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40);
+  return normalized || fallback;
+}
 
-  await runCommand('docker', ['rm', '-f', postgresName, redisName], {});
+async function listDockerContainersByLabel(labelKey, labelValue) {
+  const result = await runCommand('docker', [
+    'ps',
+    '-aq',
+    '--filter',
+    `label=${labelKey}=${labelValue}`,
+  ], {});
+  if ((result.status ?? 1) !== 0) return [];
+  return String(result.stdout || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+async function removeDockerContainers(namesOrIds = []) {
+  const targets = [...new Set(safeArray(namesOrIds).map((item) => String(item || '').trim()).filter(Boolean))];
+  if (targets.length === 0) return;
+  await runCommand('docker', ['rm', '-f', ...targets], {});
+}
+
+async function cleanupDockerInfra({ labelKey, labelValue, legacyNames = [] }) {
+  const labeled = await listDockerContainersByLabel(labelKey, labelValue);
+  await removeDockerContainers([...safeArray(legacyNames), ...labeled]);
+}
+
+async function startDockerInfra({ postgresPort, redisPort, timeoutMs }) {
+  const labelKey = 'com.supervisor.observability.live';
+  const labelValue = 'phase33';
+  const legacyNames = ['phase33-observability-postgres', 'phase33-observability-redis'];
+  const runToken = sanitizeDockerToken(
+    envString(
+      'FULLCYCLE_CONNECTOR_OBS_LIVE_DOCKER_RUN_TOKEN',
+      `${process.pid}-${Date.now()}`,
+    ),
+    'runtime',
+  );
+  const postgresName = `phase33-observability-postgres-${runToken}`;
+  const redisName = `phase33-observability-redis-${runToken}`;
+
+  await cleanupDockerInfra({ labelKey, labelValue, legacyNames });
 
   const pgRun = await runCommand('docker', [
     'run', '-d', '--rm',
     '--name', postgresName,
+    '--label', `${labelKey}=${labelValue}`,
     '-e', 'POSTGRES_USER=app',
     '-e', 'POSTGRES_PASSWORD=app',
     '-e', 'POSTGRES_DB=sales_supervisor',
@@ -526,12 +578,13 @@ async function startDockerInfra({ postgresPort, redisPort, timeoutMs }) {
   const redisRun = await runCommand('docker', [
     'run', '-d', '--rm',
     '--name', redisName,
+    '--label', `${labelKey}=${labelValue}`,
     '-p', `${redisPort}:6379`,
     'redis:7-alpine',
     'redis-server', '--appendonly', 'yes', '--maxmemory', '256mb', '--maxmemory-policy', 'noeviction',
   ], {});
   if ((redisRun.status ?? 1) !== 0) {
-    await runCommand('docker', ['rm', '-f', postgresName], {});
+    await cleanupDockerInfra({ labelKey, labelValue, legacyNames: [postgresName, redisName] });
     throw new Error(`docker redis failed: ${redisRun.stderr || redisRun.stdout}`.trim());
   }
 
@@ -541,10 +594,12 @@ async function startDockerInfra({ postgresPort, redisPort, timeoutMs }) {
   return {
     postgresName,
     redisName,
+    labelKey,
+    labelValue,
     databaseUrl: `postgresql://app:app@127.0.0.1:${postgresPort}/sales_supervisor`,
     redisUrl: `redis://127.0.0.1:${redisPort}`,
     async stop() {
-      await runCommand('docker', ['rm', '-f', postgresName, redisName], {});
+      await cleanupDockerInfra({ labelKey, labelValue, legacyNames: [postgresName, redisName] });
     },
   };
 }
@@ -1043,6 +1098,26 @@ async function main() {
         message: `backend analytics status=${analytics.status}`,
       });
     }
+    const provider = await fetchJson(`${apiServer.baseUrl}/api/observability/connectors/backend/provider`, {
+      headers: {
+        'x-admin-key': apiAdminKey,
+        'x-observability-role': 'operator',
+      },
+      timeoutMs: 10_000,
+    });
+    if (provider.status !== 200) {
+      violations.push({
+        code: 'backend_provider_endpoint_failed',
+        blocking: true,
+        message: `backend provider status=${provider.status}`,
+      });
+    } else if (provider.data?.provider?.providerMode !== 'materialized_contract') {
+      violations.push({
+        code: 'backend_provider_mode_unexpected',
+        blocking: true,
+        message: `backend provider mode=${provider.data?.provider?.providerMode || 'unknown'}`,
+      });
+    }
 
     const blockingViolations = violations.filter((item) => item.blocking);
     const status = blockingViolations.length > 0 ? 'fail' : 'pass';
@@ -1076,6 +1151,9 @@ async function main() {
         analyticsStatus: analytics.status,
         analyticsEntries: analytics.data?.totalEntries || 0,
         analyticsCoveragePct: analytics.data?.current?.ownerCoveragePct ?? null,
+        providerStatus: provider.status,
+        providerMode: provider.data?.provider?.providerMode || 'unknown',
+        providerContractVersion: provider.data?.provider?.version || null,
       },
       api: {
         health: apiServer.health,
@@ -1083,7 +1161,7 @@ async function main() {
         logFile: apiLogFile,
       },
       commands: {
-        backend: 'node scripts/phase40-observability-operational-source-health.mjs',
+        backend: 'node scripts/phase41-observability-operational-provider-contract.mjs',
         compat: 'node scripts/phase35-observability-legacy-convergence.mjs',
         panel: 'node scripts/phase31-observability-panel-backend-integration.mjs',
         build: 'npm run build -w @supervisor/api',
@@ -1105,6 +1183,10 @@ async function main() {
         exceptions: browser.exceptions,
         logEntries: browser.logEntries,
       },
+      providerEndpoint: {
+        status: provider.status,
+        payload: provider.data,
+      },
       analyticsEndpoint: {
         status: analytics.status,
         payload: analytics.data,
@@ -1117,6 +1199,8 @@ async function main() {
         panelReportFile,
         panelDashboardFile,
         panelAuditFile,
+        operationalContractFile: files.operationalContractFile,
+        operationalProviderDashboardFile: files.operationalProviderDashboardFile,
         compatReportFile: files.compatReportFile,
         compatDashboardFile: files.compatDashboardFile,
         compatAuditFile: files.compatAuditFile,

@@ -346,6 +346,9 @@ npm run test:phase29      # Drill do painel operacional interativo (SSE + API SL
 npm run test:phase30      # Drill do backend dedicado de incidents/alerts (consolidacao + roteamento por equipe)
 npm run test:phase31      # Drill do painel backend-first (incidents/alerts + SSE + SLA + filtros por equipe)
 npm run test:phase32      # Drill do backend com owner dinamico on-call + analytics historico
+npm run test:phase39      # Drill do backend observability com ownership operacional-first
+npm run test:phase40      # Drill de saude/frescor da fonte operacional (`healthy/stale/missing`)
+npm run test:phase41      # Contrato canonico versionado do provider operacional (materialize/replay/fail)
 npm run test:phase33      # Validacao live da API interna + painel headless + analytics executivo
 npm run test:phase34      # Governanca live recorrente (CI-friendly) com contrato estruturado + browser/headless
 npm run test:phase35      # Convergencia da trilha legada de observability a partir do backend-first (summary/feed/history/dashboard)
@@ -373,7 +376,7 @@ npm run monitor:fullcycle:productization # Productizacao com payload estavel par
 npm run monitor:fullcycle:observability:api # Gate da API interna (contrato de endpoint + RBAC/auth + freshness de payload)
 npm run monitor:fullcycle:observability:realtime # Motor de stream realtime + trilha de eventos + gate executivo
 npm run monitor:fullcycle:observability:alerting # Alerting proativo do realtime + historico SLA da API interna
-npm run monitor:fullcycle:observability:backend # Consolida incidents/alerts com ownership operacional-first + saude/frescor da fonte operacional + analytics historico
+npm run monitor:fullcycle:observability:backend # Consolida incidents/alerts com provider operacional canonico versionado + source health/freshness + analytics historico
 npm run monitor:fullcycle:observability:panel # Publica painel operacional backend-first (incidents/alerts + timeline realtime + SLA)
 npm run monitor:fullcycle:observability:compat # Materializa payload legado de observability a partir do backend-first
 npm run monitor:fullcycle:observability:live # Fluxo oficial das Fases 34/35: governanca live + contrato + painel headless + convergencia legada
@@ -387,6 +390,15 @@ As rotas HTML internas de observabilidade agora servem assets externos e CSP sem
 - `/api/observability/connectors/assets/*`
 - `/api/observability/connectors/realtime/panel`
 - `/api/observability/connectors/realtime/assets/*`
+
+### Provider operacional canonico
+
+A partir da Fase 41, o backend observability passa a trabalhar sobre um contrato versionado materializado:
+
+- endpoint `GET /api/observability/connectors/backend/provider`
+- schema `fullcycle.observability.operational-provider.v1`
+- arquivo default `logs/monitoring/fullcycle-connector-observability-operational-provider.json`
+- dashboard executivo `docs/fullcycle-connectors-observability-operational-provider.md`
 
 ## Operação (Runbook)
 
@@ -413,6 +425,7 @@ As rotas HTML internas de observabilidade agora servem assets externos e CSP sem
 - Dashboard de governanca live da observabilidade: `docs/fullcycle-connectors-observability-live-governance.md`
 - Dashboard operacional interativo realtime: `docs/fullcycle-connectors-observability-ops-panel.html`
 - Dashboard backend de incidents/alerts: `docs/fullcycle-connectors-observability-backend.md`
+- Dashboard do provider operacional canonico: `docs/fullcycle-connectors-observability-operational-provider.md`
 - Postmortems assistidos: `docs/postmortems/`
 - Postmortems de conectores: `docs/postmortems/connectors/`
 - Sync paging/ITSM: `scripts/phase14-itsm-paging-sync.mjs`

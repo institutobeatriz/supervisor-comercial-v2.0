@@ -1,6 +1,6 @@
 # Fullcycle Connectors Observability Backend
 
-- Generated at: 2026-03-09T19:35:13.551Z
+- Generated at: 2026-03-09T20:14:37.958Z
 - Status: WARN
 - Environment: development
 - Stream status: unknown
@@ -11,7 +11,10 @@
 
 ## On-call Source
 
-- Source mode: operational_state
+- Source mode: operational_contract
+- Provider mode: materialized_contract
+- Contract loaded: yes
+- Contract version: 1
 - Operational state loaded: yes
 - Snapshot loaded: no
 - Direct operational owners: 0
@@ -27,7 +30,7 @@
 | Unassigned owners | 0 |
 | Owner coverage % | 100 |
 | Breached escalations | 0 |
-| Analytics history points | 10 |
+| Analytics history points | 13 |
 
 ## Teams
 
@@ -51,16 +54,16 @@
 
 | Timestamp | Coverage % | Open incidents | Active alerts | Breached escalations |
 |---|---:|---:|---:|---:|
-| 2026-03-09T19:35:13.551Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T20:14:37.958Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T20:07:38.959Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T20:07:38.792Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T19:35:13.475Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T19:29:33.472Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T19:06:59.343Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T18:58:25.253Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T18:58:07.602Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T18:55:50.855Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T17:27:29.536Z | 100 | 0 | 0 | 0 |
-| 2026-03-09T14:34:19.351Z | 100 | 0 | 0 | 0 |
-| 2026-03-09T14:33:53.327Z | 100 | 0 | 0 | 0 |
-| 2026-03-09T14:33:04.082Z | 100 | 0 | 0 | 0 |
 
 ## Violations
 
@@ -83,6 +86,6 @@
 
 | Source | Loaded | Freshness | Age (min) | Max Age (min) | Timestamp | Required when active |
 |---|---|---|---:|---:|---|---|
-| Incident automation state | yes | stale | 1117.48 | 30 | 2026-03-09T00:57:44.829Z | yes |
+| Incident automation state | yes | stale | 1156.88 | 30 | 2026-03-09T00:57:44.829Z | yes |
 | ITSM snapshot | no | missing | n/a | 30 | n/a | no |
-| Fullcycle report | yes | stale | 1117.48 | 60 | 2026-03-09T00:57:44.829Z | no |
+| Fullcycle report | yes | stale | 1156.88 | 60 | 2026-03-09T00:57:44.829Z | no |

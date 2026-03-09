@@ -819,9 +819,10 @@ Endpoints internos adicionais:
 3. `GET /api/observability/connectors/alerts/summary` (`operator+`)
 4. `GET /api/observability/connectors/alerts` (`operator+`)
 5. `GET /api/observability/connectors/backend/summary` (`operator+`)
-6. `GET /api/observability/connectors/backend/report` (`executive+`)
-7. `GET /api/observability/connectors/backend/analytics` (`executive+`)
-8. `GET /api/observability/connectors/backend/dashboard` (`executive+`)
+6. `GET /api/observability/connectors/backend/provider` (`operator+`)
+7. `GET /api/observability/connectors/backend/report` (`executive+`)
+8. `GET /api/observability/connectors/backend/analytics` (`executive+`)
+9. `GET /api/observability/connectors/backend/dashboard` (`executive+`)
 
 Drill da fase:
 ```bash
@@ -890,6 +891,40 @@ CI (Fase 40):
 2. `monitor:fullcycle:observability:backend` (gate oficial com source health);
 3. `test:phase33` / `test:phase34` validando `backend/summary` e painel com estado operacional.
 
+## Provider operacional canonico (Fase 41)
+Formalizar a fronteira canônica entre coleta operacional e consumo runtime:
+```bash
+npm run test:phase41
+npm run monitor:fullcycle:observability:backend
+```
+
+Decisao arquitetural:
+1. manter a ingestao por materializacao controlada;
+2. formalizar o contrato versionado `fullcycle.observability.operational-provider.v1`;
+3. usar o provider materializado como fonte oficial para backend, painel, smoke, live e compatibilidade.
+
+Capacidades adicionais:
+1. materializa `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE`;
+2. publica dashboard executivo em `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_DASHBOARD_FILE`;
+3. permite replay a partir do contrato existente sem depender da leitura simultanea dos tres arquivos operacionais brutos;
+4. expõe `GET /api/observability/connectors/backend/provider` para `operator+`;
+5. adiciona metadata de provider em `backend/summary`, `backend/report`, `backend/analytics` e no painel backend-first;
+6. endurece smoke/live/CI para exigir provider canônico carregado.
+
+Variaveis principais adicionais:
+1. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE`
+2. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_DASHBOARD_FILE`
+3. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_MODE`
+4. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_MATERIALIZE`
+5. `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_ALLOW_LEGACY_FALLBACK`
+6. `FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_PROVIDER`
+
+CI (Fase 41):
+1. `test:phase41` (drill `materialize/replay/fail`);
+2. `monitor:fullcycle:observability:backend` (gate oficial do provider canônico);
+3. `test:phase33` / `test:phase34` validando `backend/provider` e live governance;
+4. smoke da API interna exigindo `/api/observability/connectors/backend/provider`.
+
 ## Validacao live da API interna + painel headless (Fase 33)
 Executar validacao runtime real da camada de observabilidade:
 ```bash
@@ -915,7 +950,7 @@ Capacidades:
 4. roda o smoke live cobrindo endpoints observability expandidos;
 5. valida o painel em Edge/Chrome headless via CDP;
 6. registra screenshot, DOM e log do browser para auditoria;
-7. consulta `/api/observability/connectors/backend/summary` e `/backend/analytics` como prova operacional/executiva final.
+7. consulta `/api/observability/connectors/backend/summary`, `/backend/provider` e `/backend/analytics` como prova operacional/executiva final.
 
 Variaveis principais:
 1. `FULLCYCLE_CONNECTOR_OBS_LIVE_API_HOST`
@@ -934,6 +969,7 @@ Variaveis principais:
 Observacoes:
 1. A fase encontrou e corrigiu um gap real de runtime: o `helmet` estava publicando CSP global que bloqueava os scripts inline dos dashboards HTML internos; a rota agora aplica CSP especifico por dashboard.
 2. A automacao headless fixa o filtro local `period=all` para evitar falso negativo quando o dataset controlado contem timestamps historicos.
+3. O bootstrap Docker live agora usa containers nomeados por execucao e limpeza por `label`, evitando conflito de rerun local em `phase33`/`phase34`.
 
 ## Governanca live recorrente da observabilidade (Fase 34)
 Executar o fluxo oficial CI-friendly da trilha live:

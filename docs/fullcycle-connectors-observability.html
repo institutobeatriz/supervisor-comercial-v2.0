@@ -10,7 +10,7 @@
   <div class="wrap">
     <section class="hero">
       <h1>Observability Connectors Executive Dashboard</h1>
-      <div class="meta">Generated at <strong>2026-03-09T19:29:33.401Z</strong> | Source <strong>backend_first_compat</strong></div>
+      <div class="meta">Generated at <strong>2026-03-09T20:07:38.759Z</strong> | Source <strong>backend_first_compat</strong></div>
     </section>
 
     <section class="grid">
@@ -50,7 +50,10 @@
   &quot;ownerCoveragePct&quot;: 100,
   &quot;unassignedOwners&quot;: 0,
   &quot;breachedEscalations&quot;: 0,
-  &quot;analyticsPoints&quot;: 9,
+  &quot;analyticsPoints&quot;: 12,
+  &quot;operationalProviderMode&quot;: &quot;materialized_contract&quot;,
+  &quot;operationalContractLoaded&quot;: true,
+  &quot;operationalLoadedSources&quot;: 2,
   &quot;operationalWorkloadState&quot;: &quot;idle&quot;,
   &quot;operationalFreshnessState&quot;: &quot;missing&quot;,
   &quot;operationalActionabilityState&quot;: &quot;idle_gap&quot;,
@@ -60,7 +63,7 @@
   &quot;operationalUnknownSources&quot;: 0,
   &quot;incidentsTracked&quot;: 1,
   &quot;alertsTracked&quot;: 0,
-  &quot;historyPoints&quot;: 9,
+  &quot;historyPoints&quot;: 12,
   &quot;compatibilityMode&quot;: &quot;materialized_from_backend_first&quot;
 }</pre>
     </section>
@@ -81,7 +84,7 @@
       <h2>Backend Dashboard Snapshot</h2>
       <pre># Fullcycle Connectors Observability Backend
 
-- Generated at: 2026-03-09T19:29:33.549Z
+- Generated at: 2026-03-09T20:07:39.036Z
 - Status: WARN
 - Environment: development
 - Stream status: unknown
@@ -92,7 +95,10 @@
 
 ## On-call Source
 
-- Source mode: operational_state
+- Source mode: operational_contract
+- Provider mode: materialized_contract
+- Contract loaded: yes
+- Contract version: 1
 - Operational state loaded: yes
 - Snapshot loaded: no
 - Direct operational owners: 0
@@ -108,7 +114,7 @@
 | Unassigned owners | 0 |
 | Owner coverage % | 100 |
 | Breached escalations | 0 |
-| Analytics history points | 9 |
+| Analytics history points | 12 |
 
 ## Teams
 
@@ -132,15 +138,16 @@
 
 | Timestamp | Coverage % | Open incidents | Active alerts | Breached escalations |
 |---|---:|---:|---:|---:|
-| 2026-03-09T19:29:33.549Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T20:07:39.036Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T20:07:38.792Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T19:35:13.475Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T19:29:33.472Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T19:06:59.343Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T18:58:25.253Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T18:58:07.602Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T18:55:50.855Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T17:27:29.536Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T14:34:19.351Z | 100 | 0 | 0 | 0 |
-| 2026-03-09T14:33:53.327Z | 100 | 0 | 0 | 0 |
-| 2026-03-09T14:33:04.082Z | 100 | 0 | 0 | 0 |
 
 ## Violations
 
@@ -163,9 +170,9 @@
 
 | Source | Loaded | Freshness | Age (min) | Max Age (min) | Timestamp | Required when active |
 |---|---|---|---:|---:|---|---|
-| Incident automation state | yes | stale | 1111.81 | 30 | 2026-03-09T00:57:44.829Z | no |
+| Incident automation state | yes | stale | 1149.9 | 30 | 2026-03-09T00:57:44.829Z | no |
 | ITSM snapshot | no | missing | n/a | 30 | n/a | no |
-| Fullcycle report | yes | stale | 1111.81 | 60 | 2026-03-09T00:57:44.829Z | no |
+| Fullcycle report | yes | stale | 1149.9 | 60 | 2026-03-09T00:57:44.829Z | no |
 </pre>
     </section>
   </div>

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-09T19:29:33.401Z",
+  "generatedAt": "2026-03-09T20:07:38.759Z",
   "status": "warn",
   "source": "backend_first_compat",
   "summary": {
@@ -30,7 +30,10 @@
     "ownerCoveragePct": 100,
     "unassignedOwners": 0,
     "breachedEscalations": 0,
-    "analyticsPoints": 9,
+    "analyticsPoints": 12,
+    "operationalProviderMode": "materialized_contract",
+    "operationalContractLoaded": true,
+    "operationalLoadedSources": 2,
     "operationalWorkloadState": "idle",
     "operationalFreshnessState": "missing",
     "operationalActionabilityState": "idle_gap",
@@ -40,7 +43,7 @@
     "operationalUnknownSources": 0,
     "incidentsTracked": 1,
     "alertsTracked": 0,
-    "historyPoints": 9,
+    "historyPoints": 12,
     "compatibilityMode": "materialized_from_backend_first"
   },
   "teams": [
@@ -132,7 +135,7 @@
   "alerts": [],
   "analytics": {
     "current": {
-      "generatedAt": "2026-03-09T19:29:33.549Z",
+      "generatedAt": "2026-03-09T20:07:39.036Z",
       "environment": "development",
       "recordsTracked": 1,
       "activeRecords": 0,
@@ -174,6 +177,12 @@
           "infoActive": 0
         }
       },
+      "operationalProvider": {
+        "mode": "materialized_contract",
+        "contractLoaded": true,
+        "contractVersion": 1,
+        "contractSchema": "fullcycle.observability.operational-provider.v1"
+      },
       "operationalSources": {
         "overall": {
           "workloadState": "idle",
@@ -197,7 +206,7 @@
             "requiredWhenActive": false,
             "maxAgeMinutes": 30,
             "timestamp": "2026-03-09T00:57:44.829Z",
-            "ageMinutes": 1111.81,
+            "ageMinutes": 1149.9,
             "freshnessState": "stale",
             "freshEnough": false
           },
@@ -221,17 +230,17 @@
             "requiredWhenActive": false,
             "maxAgeMinutes": 60,
             "timestamp": "2026-03-09T00:57:44.829Z",
-            "ageMinutes": 1111.81,
+            "ageMinutes": 1149.9,
             "freshnessState": "stale",
             "freshEnough": false
           }
         }
       }
     },
-    "totalEntries": 9
+    "totalEntries": 12
   },
   "links": {
-    "backendReportGeneratedAt": "2026-03-09T19:29:33.472Z",
-    "backendStoreGeneratedAt": "2026-03-09T19:29:33.472Z"
+    "backendReportGeneratedAt": "2026-03-09T20:07:38.959Z",
+    "backendStoreGeneratedAt": "2026-03-09T20:07:38.959Z"
   }
 }
