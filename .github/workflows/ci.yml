@@ -319,6 +319,18 @@ jobs:
       - name: Connector observability live governance gate (phase34)
         run: npm run test:phase34
 
+      - name: Materialize observability realtime panel shell
+        env:
+          FULLCYCLE_CONNECTOR_OBS_PANEL_ENFORCE_TARGETS: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_STREAM_PASS: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_ALERTING_PASS: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_API_SLA_HISTORY: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_BACKEND_STORE: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_BACKEND_PASS: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_REQUIRE_TEAM_ROUTING: "false"
+          FULLCYCLE_CONNECTOR_OBS_PANEL_MIN_TEAMS: "0"
+        run: npm run monitor:fullcycle:observability:panel
+
       - name: Start API
         run: |
           node apps/api/dist/index.js > ci-api.log 2>&1 &
