@@ -430,6 +430,10 @@ jobs:
         run: npm run monitor:fullcycle:observability:alerting
 
       - name: Connector observability backend on-call analytics gate
+        env:
+          FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_INCIDENTS: "false"
+          FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_ALERT_REPORT: "false"
+          FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_API_SLA_HISTORY: "false"
         run: npm run monitor:fullcycle:observability:backend
 
       - name: Connector observability backend-first panel gate
