@@ -46,6 +46,7 @@
 | Fase 34 - Governanca live recorrente da observabilidade | CONCLUIDA | 2026-03-09 | 2026-03-09 | `45-fase-34-validacao.md` | Wrapper oficial CI-friendly + smoke estruturado com contrato + gate runtime recorrente da trilha live |
 | Fase 35 - Convergencia da observabilidade legada | CONCLUIDA | 2026-03-09 | 2026-03-09 | `46-fase-35-validacao.md` | Materializacao runtime da trilha legada + endpoints 200 no gate live + compatibilidade backend-first |
 | Fase 36 - GitHub Actions real e fechamento da trilha live | CONCLUIDA | 2026-03-09 | 2026-03-09 | `47-fase-36-validacao.md` | Repo standalone publicado + CI real verde + correcoes de runner limpo para live/backend/painel |
+| Fase 37 - Automacao do repo standalone e fluxo canonico de PR | CONCLUIDA | 2026-03-09 | 2026-03-09 | `48-fase-37-validacao.md` | Sync declarativo + drift check + publish automatizado em branch/PR `codex/` com GitHub Actions real verde |
 
 ## Log de checkpoints
 
@@ -1858,6 +1859,64 @@ Riscos residuais:
 
 Proxima fase liberada:
 1. Fase 37 - automatizar a sincronizacao/publicacao entre o workspace e `.export-repo`, formalizando o fluxo canonico de CI/PR do projeto.
+
+### 2026-03-09 - Checkpoint 39 (Fase 37 concluida)
+Itens executados:
+1. Fluxo canonico do repo standalone formalizado:
+- criado `config/standalone-export.json` como fonte declarativa do export;
+- documentado em `docs/standalone-repo-flow.md`;
+- `README.md`, `PROJECT_RULES.md` e `docs/runbook-operacional.md` atualizados para a nova operacao.
+2. Automacao de sincronizacao criada:
+- novo script `scripts/phase37-standalone-sync.mjs`;
+- sincroniza workspace -> `.export-repo` com exclusoes explicitas;
+- suporta modo `--check` para falhar quando houver drift.
+3. Automacao de publicacao criada:
+- novo script `scripts/phase37-standalone-publish.mjs`;
+- cria/usa branch `codex/...`, faz `git add/commit/push` no standalone e abre PR no repo remoto;
+- coleta relatorio JSON/audit trail para o fluxo de entrega.
+4. Validacao local da automacao:
+- novo drill `scripts/phase37-standalone-sync-drill.mjs`;
+- `package.json` atualizado com `test:phase37`, `standalone:sync`, `standalone:sync:check` e `standalone:publish`.
+5. Decisao operacional consolidada:
+- enquanto este projeto nao for extraido para um git root proprio, o repo `institutobeatriz/supervisor-comercial-v2.0` passa a ser o repositorio canonico de CI remoto.
+
+Validacao tecnica deste checkpoint:
+1. Sintaxe:
+- `node --check scripts/phase37-standalone-sync.mjs` => sucesso;
+- `node --check scripts/phase37-standalone-publish.mjs` => sucesso;
+- `node --check scripts/phase37-standalone-sync-drill.mjs` => sucesso.
+2. Validacao local:
+- `npm run test:phase37` => sucesso;
+- `npm run standalone:sync` => sucesso;
+- `npm run standalone:sync:check` => sucesso (`copy=0`, `delete=0`, `unchanged=396`);
+- `npm run lint` => sucesso;
+- `npm run build` => sucesso.
+3. Validacao remota em branch/PR:
+- branch publicada: `codex/phase37-standalone-sync-20260309163524`;
+- PR aberta: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/1`;
+- run inicial verde: `22863865053`;
+- run final verde apos sincronizar o runbook: `22863997083`;
+- head final validado: `6c21625ead3ce17d64db1310946c477463e037c9`.
+
+Evidencia:
+1. `48-fase-37-validacao.md`.
+2. `config/standalone-export.json`.
+3. `scripts/phase37-standalone-sync.mjs`.
+4. `scripts/phase37-standalone-publish.mjs`.
+5. `scripts/phase37-standalone-sync-drill.mjs`.
+6. `docs/standalone-repo-flow.md`.
+7. `logs/monitoring/standalone-export-sync-report.json`.
+8. `logs/monitoring/standalone-export-publish-report.json`.
+9. PR `#1` do repo standalone.
+10. GitHub Actions run `22863997083`.
+
+Riscos residuais:
+1. o repo canonico de CI remoto continua separado do git root principal deste workspace;
+2. dashboards HTML internos ainda usam assets inline e dependem de CSP route-scoped permissivo;
+3. a origem de on-call segue file-based.
+
+Proxima fase liberada:
+1. Fase 38 - externalizar assets inline dos dashboards internos, endurecer CSP e reduzir a superficie de excecao das rotas HTML de observabilidade.
 
 ## Backlog ativo (referencia curta)
 

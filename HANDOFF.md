@@ -9,120 +9,100 @@
 2. `PROJECT_RULES.md`
 3. `TODO_AI.md`
 4. `docs/analise-projeto/10-memoria-execucao-fases.md`
-5. `docs/analise-projeto/47-fase-36-validacao.md`
+5. `docs/analise-projeto/48-fase-37-validacao.md`
 6. `docs/analise-projeto/09-plano-conclusao-dashboard-comercial.md`
+7. `docs/standalone-repo-flow.md`
 
 ## Estado atual
 - Responsavel anterior: Codex
 - Data do handoff: 2026-03-09
-- Ultima fase concluida: Fase 36
-- Proxima fase liberada: Fase 37
+- Ultima fase concluida: Fase 37
+- Proxima fase liberada: Fase 38
 - Fase em andamento: nenhuma
 
 ## O que foi concluido ate agora
-- Fases 0 a 36 concluidas e registradas na memoria oficial.
-- A trilha live/backend-first esta validada em runner GitHub real, com GitHub Actions verde no repositorio standalone `institutobeatriz/supervisor-comercial-v2.0`.
-- A Fase 35 convergiu a trilha legada de observability para backend-first por materializacao automatica de payload.
-- A Fase 36 fechou o gap entre validacao local e CI real, eliminando os bloqueios de bootstrap do runner GitHub.
+- Fases 0 a 37 concluidas e registradas na memoria oficial.
+- A trilha live/backend-first esta validada em runner GitHub real.
+- A sincronizacao entre este workspace e `.export-repo` deixou de ser manual.
+- O fluxo canonico `sync -> branch -> push -> PR -> GitHub Actions` foi provado no repo standalone publicado.
 
-## O que a Fase 36 entregou
-- Copia standalone publicavel do projeto em `C:/Users/user/.openclaw/workspace/supervisor-comercial/.export-repo`.
-- Publicacao real no GitHub: `https://github.com/institutobeatriz/supervisor-comercial-v2.0`.
-- Workflow CI verde no run `22862899577`.
-- Correcao de install em CI sob `NODE_ENV=production` com `npm ci --include=dev`.
-- Fallback de `WebSocket` no `phase33` via dependencia `ws`, eliminando a falha `WebSocket is not defined` no runner Linux.
-- Relaxamento controlado de bootstrap para a gate backend da Fase 32 em runner limpo.
-- Politica de painel ajustavel para `minTeams=0` quando explicitamente configurado, usada apenas na gate final do CI.
-- Evidencia formal consolidada em `docs/analise-projeto/47-fase-36-validacao.md`.
+## O que a Fase 37 entregou
+- Config declarativa do export standalone em `config/standalone-export.json`.
+- Sync idempotente workspace -> `.export-repo` em `scripts/phase37-standalone-sync.mjs`.
+- Publish automatizado com branch `codex/`, push e PR em `scripts/phase37-standalone-publish.mjs`.
+- Drill local do sync em `scripts/phase37-standalone-sync-drill.mjs`.
+- Fluxo operacional documentado em `docs/standalone-repo-flow.md`.
+- PR canonica aberta no repo standalone: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/1`.
+- GitHub Actions verde no run final `22863997083` com head `6c21625ead3ce17d64db1310946c477463e037c9`.
 
 ## Ultima entrega relevante
-### Fase 36
-- Workflow CI: `.github/workflows/ci.yml`
-- Runtime live: `scripts/phase33-observability-live-runtime-validation.mjs`
-- Painel backend-first: `scripts/phase31-observability-panel-backend-integration.mjs`
-- Preflight/registro GitHub: `docs/fullcycle-connectors-observability-github-preflight.md`
-- Evidencia oficial: `docs/analise-projeto/47-fase-36-validacao.md`
+### Fase 37
+- Config: `config/standalone-export.json`
+- Sync: `scripts/phase37-standalone-sync.mjs`
+- Publish: `scripts/phase37-standalone-publish.mjs`
+- Drill: `scripts/phase37-standalone-sync-drill.mjs`
+- Guia operacional: `docs/standalone-repo-flow.md`
+- Evidencia oficial: `docs/analise-projeto/48-fase-37-validacao.md`
 
 ## Arquivos alterados na fase concluida
-- `.github/workflows/ci.yml`
-- `scripts/phase31-observability-panel-backend-integration.mjs`
-- `scripts/phase33-observability-live-runtime-validation.mjs`
+- `config/standalone-export.json`
+- `scripts/phase37-standalone-sync.mjs`
+- `scripts/phase37-standalone-publish.mjs`
+- `scripts/phase37-standalone-sync-drill.mjs`
 - `package.json`
-- `package-lock.json`
-- `docs/fullcycle-connectors-observability-github-preflight.md`
-- `docs/analise-projeto/47-fase-36-validacao.md`
+- `README.md`
+- `PROJECT_RULES.md`
+- `docs/runbook-operacional.md`
+- `docs/standalone-repo-flow.md`
+- `docs/analise-projeto/48-fase-37-validacao.md`
 - `docs/analise-projeto/10-memoria-execucao-fases.md`
 - `HANDOFF.md`
 - `TODO_AI.md`
 
 ## O que esta funcionando
-- `npm run test:phase31`: OK
-- `npm run test:phase32`: OK
-- `npm run test:phase33`: OK
-- `npm run test:phase34`: OK
-- `npm run test:phase35`: OK
-- `npm run monitor:fullcycle:observability:live`: OK
-- GitHub Actions real: run `22862899577` => `pass`
-- Live governance em CI real:
-  - `phase33Status=pass`
-  - `smokeOk=28`
-  - `smokeFail=0`
-  - `contractValidated=20`
-  - `contractFail=0`
-  - `requiredChecks=18/18`
-  - `browserPanelConnection=connected`
-  - `analyticsStatus=200`
-  - `browserBootstrapAuthNoise=0`
-- Backend gate CI:
-  - `status=pass`
-  - `ownerCoveragePct=100`
-  - `requireIncidents=false`
-  - `requireAlertReport=false`
-  - `requireApiSlaHistory=false`
-- Panel gate CI:
-  - `status=pass`
-  - `minTeams=0`
-  - `slaPoints=1`
+- `npm run test:phase37`: OK
+- `npm run standalone:sync`: OK
+- `npm run standalone:sync:check`: OK (`copy=0`, `delete=0`, `unchanged=396`)
+- `npm run lint`: OK
+- `npm run build`: OK
+- PR aberta no repo standalone: `#1`
+- GitHub Actions final: `22863997083` => `success`
+- Repo standalone local alinhado com drift zero apos o sync final
 
 ## O que ainda nao foi fechado
-- A sincronizacao entre o workspace local e `.export-repo` ainda e manual.
 - Os dashboards HTML internos continuam com assets inline.
+- As rotas HTML de observabilidade ainda dependem de CSP route-scoped permissivo.
 - A integracao de on-call continua file-based (`rotation/calendar`) sem provedor externo real.
-- O repo operacional de CI hoje e o standalone publicado; este diretorio local ainda vive dentro do repo guarda-chuva do workspace.
+- O workspace principal ainda vive dentro do repo guarda-chuva; o repo standalone segue sendo o canonico de CI remoto por decisao operacional, nao por extracao estrutural definitiva.
 
 ## Proximo passo exato
-Iniciar a Fase 37 com este recorte:
-1. automatizar a sincronizacao/publicacao entre este projeto e `.export-repo`, eliminando drift manual;
-2. definir se `institutobeatriz/supervisor-comercial-v2.0` vira o repositorio canonico do projeto ou se este projeto sera extraido para um git root proprio;
-3. depois da automacao, validar o fluxo em branch/PR alem de `push` direto em `master`.
+Iniciar a Fase 38 com este recorte:
+1. externalizar assets inline dos dashboards HTML internos;
+2. endurecer CSP das rotas HTML de observabilidade;
+3. validar que o painel/live continuam verdes apos a remocao das excecoes atuais.
 
 ## Hipotese principal da proxima fase
-- O maior risco restante agora nao esta mais na observabilidade em si, e sim no processo operacional de publicacao.
-- Se a exportacao para `.export-repo` continuar manual, o CI verde pode divergir do estado real do workspace.
-- Fechar esse gap aumenta a confiabilidade da troca entre Codex, Claude Code e GitHub Actions.
+- O maior risco tecnico restante na camada de observabilidade HTML nao e mais drift de entrega, e sim a superficie de excecao mantida por assets inline.
+- Se externalizarmos scripts/styles e reduzirmos a CSP permissiva por rota, melhoramos seguranca e reduzimos comportamento especial dificil de manter.
 
 ## Como testar o estado atual
 ```bash
-npm run test:phase31
-npm run test:phase32
-npm run test:phase33
-npm run test:phase34
-npm run test:phase35
-npm run monitor:fullcycle:observability:live
+npm run test:phase37
+npm run standalone:sync
+npm run standalone:sync:check
+npm run lint
+npm run build
+npm run standalone:publish
 
-cd .export-repo
-git --git-dir=.git --work-tree=. log --oneline -5
-gh run list --repo institutobeatriz/supervisor-comercial-v2.0 --limit 5
-gh run view 22862899577 --repo institutobeatriz/supervisor-comercial-v2.0
+gh pr view 1 --repo institutobeatriz/supervisor-comercial-v2.0
+gh run view 22863997083 --repo institutobeatriz/supervisor-comercial-v2.0
 ```
 
 ## Observacoes importantes
 - Este diretorio continua dentro de um repo Git maior; nao confundir o Git do workspace com o repo standalone publicado.
 - `docs/analise-projeto/10-memoria-execucao-fases.md` continua sendo a fonte historica oficial.
 - `HANDOFF.md` resume apenas o estado atual.
-- A Fase 34 continua como wrapper oficial do gate live.
-- A Fase 35 continua garantindo a camada legada por materializacao backend-first.
-- A Fase 36 validou o caminho real de GitHub Actions e documentou a diferenca entre runner limpo e ambiente local.
+- O repo standalone publicado e o repositorio canonico de CI remoto ate nova decisao estrutural.
 - Ao terminar cada fase, atualizar este arquivo, `TODO_AI.md`, memoria oficial e criar commit WIP focado na fase.
 
 ## Prompt curto para a proxima IA
@@ -134,7 +114,8 @@ Leia primeiro:
 3. `HANDOFF.md`
 4. `TODO_AI.md`
 5. `docs/analise-projeto/10-memoria-execucao-fases.md`
-6. `docs/analise-projeto/47-fase-36-validacao.md`
+6. `docs/analise-projeto/48-fase-37-validacao.md`
+7. `docs/standalone-repo-flow.md`
 
 Objetivo:
-Continuar exatamente da Fase 37, sem refatoracao ampla desnecessaria e sem duplicar a memoria historica do projeto.
+Continuar exatamente da Fase 38, sem refatoracao ampla desnecessaria e sem duplicar a memoria historica do projeto.
