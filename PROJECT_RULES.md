@@ -21,6 +21,7 @@ Antes de qualquer alteracao, ler nesta ordem:
 - Plano executivo principal: `docs/analise-projeto/09-plano-conclusao-dashboard-comercial.md`
 - Estado atual para passagem de bastao: `HANDOFF.md`
 - Fila objetiva do que vem a seguir: `TODO_AI.md`
+- Fluxo canonico de CI/PR remoto: `docs/standalone-repo-flow.md`
 
 ## Stack real do projeto
 - API: Fastify + TypeScript
@@ -52,6 +53,15 @@ Antes de qualquer alteracao, ler nesta ordem:
 
 ## Regra especial para este repositório
 Este projeto ja possui historico extenso de fases. O `HANDOFF.md` deve resumir o agora; a memoria em `docs/analise-projeto/10-memoria-execucao-fases.md` e o historico oficial.
+
+## Regra especial do repo standalone
+Enquanto este projeto continuar dentro do repo guarda-chuva local, o fluxo oficial de GitHub Actions e PR remotos deve usar:
+1. sync automatizado para `.export-repo`;
+2. branch com prefixo `codex/`;
+3. publicacao no repo `institutobeatriz/supervisor-comercial-v2.0`;
+4. validacao de CI/PR no remoto standalone.
+
+Evite editar `.export-repo` manualmente como fluxo normal. O caminho preferido passa pelos scripts da Fase 37.
 
 ## Troca entre IAs
 Antes de trocar de ferramenta:

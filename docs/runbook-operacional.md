@@ -9,6 +9,17 @@ Este runbook define o procedimento oficial de operacao para API, worker, filas, 
 - API local: `npm run dev:api` ou `npm run start:api`.
 - Worker local: `npm run dev:worker` ou `npm run start:worker`.
 - Infra local (somente Postgres/Redis): `npm run local:infra`.
+- Sync do repo standalone: `npm run standalone:sync`.
+- Check de drift do standalone: `npm run standalone:sync:check`.
+- Publicacao canonica em branch/PR do standalone: `npm run standalone:publish`.
+
+## Repo standalone canonico
+Enquanto este projeto continuar dentro do repo guarda-chuva local, o fluxo oficial de GitHub Actions e PR remotos deve usar `.export-repo`.
+
+- Workspace principal: `C:/Users/user/.openclaw/workspace/supervisor-comercial`
+- Repo standalone local: `C:/Users/user/.openclaw/workspace/supervisor-comercial/.export-repo`
+- Repo remoto: `https://github.com/institutobeatriz/supervisor-comercial-v2.0`
+- Guia detalhado: `docs/standalone-repo-flow.md`
 
 ## Modos de operacao
 
@@ -311,6 +322,23 @@ Capacidades adicionais:
 2. materializa `FULLCYCLE_CONNECTOR_OBSERVABILITY_STORE_FILE`, `REPORT_FILE`, `FEED_FILE`, `API_PAYLOAD_FILE` e `DASHBOARD_FILE`;
 3. publica relatorio/dash/audit dedicados em `FULLCYCLE_CONNECTOR_OBS_COMPAT_*`;
 4. endurece o smoke/live para exigir HTTP `200` em `summary`, `feed`, `history` e `dashboard`.
+
+Hardening de CSP/assets dos dashboards HTML internos (Fase 38):
+```bash
+npm run test:phase38
+npm run monitor:fullcycle:observability:live
+```
+Capacidades adicionais:
+1. remove CSS/JS inline do painel realtime e do dashboard executivo materializado;
+2. publica assets externos sob `assets/` ao lado do HTML gerado;
+3. endurece CSP route-scoped para `style-src 'self'` e `script-src 'self'`;
+4. valida rotas HTML e assets externos no smoke/live.
+
+Rotas HTML/asset relevantes:
+1. `/api/observability/connectors/dashboard`
+2. `/api/observability/connectors/assets/*`
+3. `/api/observability/connectors/realtime/panel`
+4. `/api/observability/connectors/realtime/assets/*`
 
 Artefatos da Fase 34:
 1. `logs/monitoring/phase34-live/live-validation-report.json`

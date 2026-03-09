@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { publishHtmlAssets } from './observability-html-assets.mjs';
 
 const envBool = (k, d) => {
   const v = process.env[k];
@@ -162,6 +163,19 @@ async function main() {
     api: { baseDefault: cfg.apiBaseDefault, defaultRole: 'operator', defaultLimit: Math.min(500, Math.max(50, Math.max(incidents.length, alerts.length, 200))) },
     ui: { autoConnect: cfg.autoConnect, refreshMs: cfg.refreshMs },
   }));
+  await publishHtmlAssets({
+    htmlFile: cfg.panelDashboardFile,
+    assets: [
+      {
+        sourceFile: 'scripts/assets/fullcycle-connectors-observability-ops-panel.css',
+        fileName: 'fullcycle-connectors-observability-ops-panel.css',
+      },
+      {
+        sourceFile: 'scripts/assets/fullcycle-connectors-observability-ops-panel.js',
+        fileName: 'fullcycle-connectors-observability-ops-panel.js',
+      },
+    ],
+  });
   await appendJsonl(cfg.panelAuditFile, { timestamp: ts, source: 'phase31-observability-panel-backend-integration', status, summary, violations, panelReportFile: cfg.panelReportFile, panelDashboardFile: cfg.panelDashboardFile });
 
   console.log(`Observability panel report: ${cfg.panelReportFile}`);

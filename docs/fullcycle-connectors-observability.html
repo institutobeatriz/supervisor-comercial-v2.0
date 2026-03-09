@@ -4,74 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Observability Connectors Executive Dashboard</title>
-  <style>
-    :root {
-      --bg: #f4f7f2;
-      --panel: #ffffff;
-      --line: #d8e0db;
-      --ink: #17231f;
-      --muted: #5f716a;
-      --accent: #1f5c4d;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
-      background: linear-gradient(180deg, #f8fbf7 0%, #eef4ef 100%);
-      color: var(--ink);
-    }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
-    .hero {
-      background: linear-gradient(135deg, #183b33, #245245);
-      color: #eef7f3;
-      padding: 20px;
-      border-radius: 18px;
-      box-shadow: 0 18px 40px rgba(23, 35, 31, 0.16);
-      margin-bottom: 16px;
-    }
-    .hero h1 { margin: 0 0 8px; font-size: 24px; }
-    .meta { color: #d2e4db; font-size: 13px; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .card, .section {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px;
-    }
-    .card .label { color: var(--muted); font-size: 12px; }
-    .card .value { font-size: 26px; font-weight: 700; margin-top: 4px; }
-    .section h2 { margin: 0 0 10px; font-size: 16px; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
-    th { color: var(--muted); }
-    pre {
-      margin: 0;
-      padding: 12px;
-      border-radius: 12px;
-      background: #13211d;
-      color: #e8f4ee;
-      overflow: auto;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-  </style>
+  <link rel="stylesheet" href="./assets/fullcycle-connectors-observability-compat.css" />
 </head>
 <body>
   <div class="wrap">
     <section class="hero">
       <h1>Observability Connectors Executive Dashboard</h1>
-      <div class="meta">Generated at <strong>2026-03-09T15:45:22.791Z</strong> | Source <strong>backend_first_compat</strong></div>
+      <div class="meta">Generated at <strong>2026-03-09T17:27:29.457Z</strong> | Source <strong>backend_first_compat</strong></div>
     </section>
 
     <section class="grid">
       <article class="card"><div class="label">Status</div><div class="value">WARN</div></article>
-      <article class="card"><div class="label">Teams</div><div class="value">0</div></article>
-      <article class="card"><div class="label">Incidents</div><div class="value">0</div></article>
+      <article class="card"><div class="label">Teams</div><div class="value">1</div></article>
+      <article class="card"><div class="label">Incidents</div><div class="value">1</div></article>
       <article class="card"><div class="label">Alerts</div><div class="value">0</div></article>
     </section>
 
@@ -83,9 +28,9 @@
   &quot;alertingStatus&quot;: &quot;unknown&quot;,
   &quot;cursor&quot;: 0,
   &quot;incidents&quot;: {
-    &quot;total&quot;: 0,
+    &quot;total&quot;: 1,
     &quot;open&quot;: 0,
-    &quot;resolved&quot;: 0,
+    &quot;resolved&quot;: 1,
     &quot;openCritical&quot;: 0,
     &quot;openWarning&quot;: 0,
     &quot;openInfo&quot;: 0
@@ -98,17 +43,17 @@
     &quot;activeWarning&quot;: 0,
     &quot;activeInfo&quot;: 0
   },
-  &quot;teamsTracked&quot;: 0,
+  &quot;teamsTracked&quot;: 1,
   &quot;latestApiSla&quot;: null,
-  &quot;violations&quot;: 3,
-  &quot;blockingViolations&quot;: 3,
+  &quot;violations&quot;: 2,
+  &quot;blockingViolations&quot;: 2,
   &quot;ownerCoveragePct&quot;: 100,
   &quot;unassignedOwners&quot;: 0,
   &quot;breachedEscalations&quot;: 0,
-  &quot;analyticsPoints&quot;: 1,
-  &quot;incidentsTracked&quot;: 0,
+  &quot;analyticsPoints&quot;: 4,
+  &quot;incidentsTracked&quot;: 1,
   &quot;alertsTracked&quot;: 0,
-  &quot;historyPoints&quot;: 1,
+  &quot;historyPoints&quot;: 4,
   &quot;compatibilityMode&quot;: &quot;materialized_from_backend_first&quot;
 }</pre>
     </section>
@@ -120,7 +65,7 @@
           <tr><th>Team</th><th>Open incidents</th><th>Active alerts</th><th>Pending escalations</th><th>Owners</th></tr>
         </thead>
         <tbody>
-          <tr><td colspan="5">No team data available</td></tr>
+          <tr><td>integrations</td><td>0</td><td>0</td><td>0</td><td>n/a</td></tr>
         </tbody>
       </table>
     </section>
@@ -129,7 +74,7 @@
       <h2>Backend Dashboard Snapshot</h2>
       <pre># Fullcycle Connectors Observability Backend
 
-- Generated at: 2026-03-09T15:45:22.861Z
+- Generated at: 2026-03-09T17:27:29.536Z
 - Status: WARN
 - Environment: development
 - Stream status: unknown
@@ -153,19 +98,19 @@
 | Unassigned owners | 0 |
 | Owner coverage % | 100 |
 | Breached escalations | 0 |
-| Analytics history points | 1 |
+| Analytics history points | 4 |
 
 ## Teams
 
 | Team | Open incidents | Active alerts | Pending escalations | Owners | Channels |
 |---|---:|---:|---:|---|---|
-| - | 0 | 0 | 0 | n/a | n/a |
+| integrations | 0 | 0 | 0 | n/a | slack, webhook |
 
 ## Incidents
 
 | ID | Status | Severity | Team | Owner | Escalation | Started |
 |---|---|---|---|---|---|---|
-| - | - | - | - | - | - | - |
+| conn-20260309011820-mtofr | resolved | critical | integrations | unassigned | resolved | 2026-03-09T01:18:20.881Z |
 
 ## Alerts
 
@@ -177,13 +122,15 @@
 
 | Timestamp | Coverage % | Open incidents | Active alerts | Breached escalations |
 |---|---:|---:|---:|---:|
-| 2026-03-09T15:45:22.861Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T17:27:29.536Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T14:34:19.351Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T14:33:53.327Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T14:33:04.082Z | 100 | 0 | 0 | 0 |
 
 ## Violations
 
-- [BLOCKING] incidents_unavailable: connector incidents unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\.export-repo\logs\monitoring\fullcycle-connector-incidents.json
-- [BLOCKING] alert_report_unavailable: alert report unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\.export-repo\logs\monitoring\fullcycle-connector-observability-alerting-report.json
-- [BLOCKING] api_sla_history_unavailable: api sla history unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\.export-repo\logs\monitoring\fullcycle-connector-observability-api-sla-history.json
+- [BLOCKING] alert_report_unavailable: alert report unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\logs\monitoring\fullcycle-connector-observability-alerting-report.json
+- [BLOCKING] api_sla_history_unavailable: api sla history unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\logs\monitoring\fullcycle-connector-observability-api-sla-history.json
 - [BLOCKING] dynamic_owner_configuration_unavailable: rotation/calendar/defaultOwner unavailable for dynamic owner resolution
 </pre>
     </section>

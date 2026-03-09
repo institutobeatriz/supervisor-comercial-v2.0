@@ -841,6 +841,8 @@ async function startApiServer({ port, host, adminKey, env, apiLogFile, timeoutMs
 async function main() {
   const ts = new Date().toISOString();
   const artifactsDir = path.resolve(ROOT, envString('FULLCYCLE_CONNECTOR_OBS_LIVE_OUTPUT_DIR', 'logs/monitoring/phase33-live'));
+  await fs.rm(artifactsDir, { recursive: true, force: true });
+  await ensureDir(artifactsDir);
   const fixturesDir = path.resolve(artifactsDir, 'fixtures');
   const reportFile = path.resolve(artifactsDir, 'live-validation-report.json');
   const auditFile = path.resolve(artifactsDir, 'live-validation-audit.jsonl');
