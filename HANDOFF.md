@@ -9,99 +9,111 @@
 2. `PROJECT_RULES.md`
 3. `TODO_AI.md`
 4. `docs/analise-projeto/10-memoria-execucao-fases.md`
-5. `docs/analise-projeto/46-fase-35-validacao.md`
+5. `docs/analise-projeto/51-fase-40-validacao.md`
 6. `docs/analise-projeto/09-plano-conclusao-dashboard-comercial.md`
+7. `docs/standalone-repo-flow.md`
 
 ## Estado atual
 - Responsavel anterior: Codex
 - Data do handoff: 2026-03-09
-- Ultima fase concluida: Fase 35
-- Proxima fase liberada: Fase 36
-- Fase em andamento: Fase 36 (parcial)
+- Ultima fase concluida: Fase 40
+- Proxima fase liberada: Fase 41
+- Fase em andamento: nenhuma
 
 ## O que foi concluido ate agora
-- Fases 0 a 35 concluidas e registradas na memoria oficial.
-- A trilha live/backend-first segue com fluxo oficial recorrente de governanca (`phase34`) em cima do motor runtime da Fase 33.
-- A Fase 35 convergiu a trilha legada de observability para backend-first por materializacao automatica de payload.
-- O smoke live passou a exigir `200` em `summary`, `feed`, `history` e `dashboard`, sem tolerancia a `503`.
-- O painel operacional segue validado em browser/headless com SSE, incidents, alerts, API SLA e analytics executivo.
+- Fases 0 a 40 concluidas e registradas na memoria oficial.
+- A trilha live/backend-first continua validada localmente apos remocao de assets inline.
+- O painel realtime e o dashboard executivo interno passaram a operar com assets externos e CSP endurecida.
+- A Fase 38 ja foi propagada para o repo canonico de CI com PR e GitHub Actions verde.
+- A Fase 39 migrou o backend observability oficial para ownership operacional-first (`incident automation` + `snapshot` + `fullcycle`) e manteve compat/live/painel consistentes.
+- A Fase 40 adicionou source health/freshness operacional, endpoint `backend/summary`, diferenciacao `idle` vs `idle_gap` e live/CI com contrato endurecido.
 
-## Avanco atual da Fase 36
-- O ruido inicial de `401` no bootstrap do painel foi eliminado localmente.
-- O template do painel agora consome `adminKey`/`role`/`limit`/`apiBase` da query string antes do primeiro refresh.
-- O motor live da Fase 33 agora falha se detectar requests `401` de bootstrap nos endpoints protegidos do painel.
-- Foi criado um preflight explicito de GitHub Actions: `scripts/phase36-observability-github-actions-preflight.mjs`.
-- O preflight confirmou: `gh` autenticado, mas `remote origin` ausente; portanto a execucao em runner GitHub real esta bloqueada neste estado do repositorio.
+## O que a Fase 40 entregou
+- Wrapper oficial de source health em `scripts/phase40-observability-operational-source-health.mjs`.
+- Drill `healthy/stale/missing` em `scripts/phase40-observability-operational-source-health-drill.mjs`.
+- Endpoint `GET /api/observability/connectors/backend/summary` em `apps/api/src/routes/observability.ts`.
+- Painel backend-first com source health em `scripts/assets/fullcycle-connectors-observability-ops-panel.js` e `scripts/phase31-observability-panel-backend-integration.mjs`.
+- Trilha live recompilando `@supervisor/api` antes do boot e exigindo `backend/summary` em `scripts/phase33-observability-live-runtime-validation.mjs`, `scripts/phase34-observability-live-governance.mjs` e `scripts/ci-api-smoke.mjs`.
 
 ## Ultima entrega relevante
-### Fase 36 (em andamento)
-- Template do painel: `scripts/phase31-observability-panel-backend-template.html`
-- Motor live endurecido: `scripts/phase33-observability-live-runtime-validation.mjs`
-- Preflight GitHub: `scripts/phase36-observability-github-actions-preflight.mjs`
-- Dashboard de preflight: `docs/fullcycle-connectors-observability-github-preflight.md`
+### Fase 40
+- Evidencia oficial: `docs/analise-projeto/51-fase-40-validacao.md`
+- Memoria oficial atualizada: `docs/analise-projeto/10-memoria-execucao-fases.md`
+- Novo backend oficial: `scripts/phase40-observability-operational-source-health.mjs`
+- Novo drill: `scripts/phase40-observability-operational-source-health-drill.mjs`
+- Repo standalone canonico:
+  - PR: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/7`
+  - CI run: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/actions/runs/22871354963`
+  - Commit standalone: `c429967e4dd081fee08095550583106db93fb9aa`
 
-## Arquivos alterados no andamento atual
+## Arquivos alterados na fase concluida
+- `scripts/phase40-observability-operational-source-health.mjs`
+- `scripts/phase40-observability-operational-source-health-drill.mjs`
+- `apps/api/src/routes/observability.ts`
+- `scripts/assets/fullcycle-connectors-observability-ops-panel.js`
+- `scripts/phase31-observability-panel-backend-integration.mjs`
 - `scripts/phase31-observability-panel-backend-template.html`
 - `scripts/phase33-observability-live-runtime-validation.mjs`
-- `scripts/phase36-observability-github-actions-preflight.mjs`
-- `docs/fullcycle-connectors-observability-github-preflight.md`
+- `scripts/phase34-observability-live-governance.mjs`
+- `scripts/phase35-observability-legacy-convergence.mjs`
+- `scripts/ci-api-smoke.mjs`
+- `package.json`
+- `.github/workflows/ci.yml`
+- `.env.example`
+- `README.md`
+- `docs/monitoramento-externo.md`
+- `docs/runbook-operacional.md`
+- `docs/analise-projeto/51-fase-40-validacao.md`
+- `docs/analise-projeto/10-memoria-execucao-fases.md`
 - `HANDOFF.md`
 - `TODO_AI.md`
 
 ## O que esta funcionando
-- `npm run build -w @supervisor/api`: OK
-- `npm run test:phase32`: OK
-- `npm run test:phase33`: OK
-- `npm run test:phase34`: OK
-- `npm run test:phase35`: OK
 - `npm run test:phase31`: OK
-- `npm run monitor:fullcycle:observability:compat`: OK
-- `npm run monitor:fullcycle:observability:live`: OK
-- Smoke live observability: `smokeOk=28`, `smokeFail=0`
-- Contrato live estruturado: `contractValidated=20`, `contractFail=0`, `requiredChecks=18/18`
-- Endpoints legados endurecidos no smoke: `summary=200`, `feed=200`, `history=200`, `dashboard=200`
-- Compatibilidade legada: `status=pass`, `compatibilityMode=materialized_from_backend_first`
-- Painel headless: `conn=connected`, `incidents=1 visible`, `alerts=1 visible`, `sla=2 points`, `teams=2`
-- Ruido de bootstrap do painel: `browserBootstrapAuthNoise=0`
-- Analytics executivo live: HTTP `200`, `ownerCoveragePct=100`
+- `npm run test:phase32`: OK
+- `npm run test:phase35`: OK
+- `npm run test:phase39`: OK
+- `npm run test:phase40`: OK
+- `npm run build -w @supervisor/api`: OK
+- `npm run test:phase33`: OK
+- `npm run test:phase34`: OK (`status=pass`, `contracts=22/22`)
+- `npm run monitor:fullcycle:observability:live`: OK (`status=pass`, `contracts=22/22`)
+- `npm run monitor:fullcycle:observability:backend`: `warn` local com `workload=idle`, `freshness=missing`, `action=idle_gap`, `coverage=100%` e `active=0`
+- Repo standalone:
+  - PR `#7` aberta com a entrega da Fase 40
+  - GitHub Actions `22871354963`: OK (`success`)
 
 ## O que ainda nao foi fechado
-- O caminho das Fases 34/35 segue sem execucao em runner GitHub real porque este repositorio local nao possui `remote origin`.
-- Sem `remote`, nao ha como disparar ou inspecionar GitHub Actions reais sem publicar o codigo em um repositorio novo ou conectar a um remoto existente.
-- Os dashboards HTML internos continuam com assets inline, mesmo com CSP route-scoped correto.
-- A integracao de on-call continua file-based (`rotation/calendar`) sem provedor externo real.
+- A origem operacional oficial continua dependendo de artefatos locais (`incident-automation-state`, `itsm-snapshot`, `fullcycle-report`), nao de um provider/servico dedicado.
+- `docs/fullcycle-connectors-observability-live-governance.md` e `docs/fullcycle-connectors-observability-compat.md` continuam sendo artefatos gerados; se outra rotina live/compat rodar depois, eles mudam novamente.
 
 ## Proximo passo exato
-Iniciar a Fase 36 com este recorte:
-1. conectar este repo a um `remote origin` existente ou autorizar a criacao/publicacao de um remoto privado;
-2. executar a trilha das Fases 34/35 em runner GitHub real;
-3. coletar evidencia objetiva do browser/services do CI e registrar o resultado final da Fase 36.
+Iniciar a Fase 41 com este recorte:
+1. decidir se a ingestao operacional sai de artefatos locais para provider externo dedicado ou materializacao controlada com contrato proprio;
+2. se a decisao for provider, definir adaptador oficial e contrato/versionamento da coleta;
+3. preservar os sinais da Fase 40 (`idle`, `idle_gap`, freshness por fonte) no caminho novo.
 
 ## Hipotese principal da proxima fase
-- O principal gap funcional da trilha legada foi fechado na Fase 35.
-- O ruido local do painel foi resolvido; o bloqueio restante agora e exclusivamente a ausencia de `remote origin` para GitHub Actions reais.
-- Antes de abrir outra frente de enriquecimento visual, vale fechar a robustez final do gate live em ambiente GitHub.
+- O maior gap estrutural restante nao e mais visibilidade da fonte operacional, e sim a dependencia de arquivos materializados locais.
+- Se formalizarmos um provider/adaptador dedicado sem perder os sinais de freshness da Fase 40, o backend/painel ficam mais proximos da realidade produtiva.
 
 ## Como testar o estado atual
 ```bash
-npm run build -w @supervisor/api
-npm run test:phase32
-npm run test:phase33
-npm run test:phase34
+npm run test:phase24
+npm run test:phase31
 npm run test:phase35
-npm run monitor:fullcycle:observability:compat
+npm run test:phase38
+npm run test:phase40
+npm run build -w @supervisor/api
+npm run test:phase34
 npm run monitor:fullcycle:observability:live
-node scripts/phase36-observability-github-actions-preflight.mjs
 ```
 
 ## Observacoes importantes
-- Este repositorio ja esta com worktree sujo; nao reverter mudancas alheias.
-- `docs/analise-projeto/10-memoria-execucao-fases.md` e a fonte historica oficial.
-- `HANDOFF.md` nao substitui a memoria; ele resume o agora.
-- A Fase 34 continua como wrapper oficial do gate live e agora embute a compatibilidade da Fase 35.
-- A Fase 35 garante disponibilidade da trilha legada sem confundir isso com o status operacional do backend.
-- O smoke live agora tem report estruturado, falha por contrato e nao tolera `503` nos endpoints legados principais.
-- A Fase 36 ainda nao pode ser concluida sem um remoto GitHub real conectado a este repositorio local.
+- Este diretorio continua dentro de um repo Git maior; nao confundir o Git do workspace com o repo standalone publicado.
+- `docs/analise-projeto/10-memoria-execucao-fases.md` continua sendo a fonte historica oficial.
+- `HANDOFF.md` resume apenas o estado atual.
+- O repo standalone publicado segue sendo o repositorio canonico de CI remoto ate nova decisao estrutural.
 - Ao terminar cada fase, atualizar este arquivo, `TODO_AI.md`, memoria oficial e criar commit WIP focado na fase.
 
 ## Prompt curto para a proxima IA
@@ -113,6 +125,8 @@ Leia primeiro:
 3. `HANDOFF.md`
 4. `TODO_AI.md`
 5. `docs/analise-projeto/10-memoria-execucao-fases.md`
+6. `docs/analise-projeto/51-fase-40-validacao.md`
+7. `docs/standalone-repo-flow.md`
 
 Objetivo:
-Continuar exatamente da Fase 36, sem refatoracao ampla desnecessaria e sem duplicar a memoria historica do projeto.
+Continuar exatamente da Fase 41, sem refatoracao ampla desnecessaria e sem duplicar a memoria historica do projeto.
