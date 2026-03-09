@@ -48,6 +48,14 @@ function assert(condition, message) {
   }
 }
 
+function assertStrictHtmlShell(html, { cssRef, jsRef, templateId, label }) {
+  assert(html.includes(cssRef), `${label} should reference external css asset`);
+  assert(html.includes(jsRef), `${label} should reference external js asset`);
+  assert(html.includes(`id="${templateId}"`), `${label} should expose bootstrap template`);
+  assert(!/<style[\s>]/i.test(html), `${label} should not contain inline style tags`);
+  assert(!/<script(?![^>]*\bsrc=)[^>]*>/i.test(html), `${label} should not contain inline script tags`);
+}
+
 function runErrorDetails(run) {
   const stdout = run.stdout?.trim() || '';
   const stderr = run.stderr?.trim() || '';
@@ -239,12 +247,14 @@ async function main() {
   const observabilityFeedFile = path.resolve(DRILL_DIR, 'fullcycle-connectors-observability.json');
   const observabilityDashboardFile = path.resolve(DRILL_DIR, 'fullcycle-connectors-observability.html');
   const observabilityAuditFile = path.resolve(DRILL_DIR, 'fullcycle-connector-observability-audit.jsonl');
+  const observabilityAssetsDir = path.resolve(DRILL_DIR, 'assets');
 
   await fs.rm(observabilityStoreFile, { force: true });
   await fs.rm(observabilityReportFile, { force: true });
   await fs.rm(observabilityFeedFile, { force: true });
   await fs.rm(observabilityDashboardFile, { force: true });
   await fs.rm(observabilityAuditFile, { force: true });
+  await fs.rm(observabilityAssetsDir, { recursive: true, force: true });
   await fs.rm(postmortemDir, { recursive: true, force: true });
 
   await writeJson(timeseriesFile, buildTimeseriesMultiEnv());
@@ -282,6 +292,15 @@ async function main() {
   assert(passReport?.summary?.postmortemLinkCoveragePct === 100, `expected postmortem coverage 100, got ${passReport?.summary?.postmortemLinkCoveragePct}`);
   assert(await fileExists(observabilityDashboardFile), 'expected generated HTML observability dashboard');
   assert(await fileExists(observabilityFeedFile), 'expected generated observability JSON feed');
+  const passHtml = await fs.readFile(observabilityDashboardFile, 'utf-8');
+  assertStrictHtmlShell(passHtml, {
+    cssRef: './assets/fullcycle-connectors-observability.css',
+    jsRef: './assets/fullcycle-connectors-observability.js',
+    templateId: 'connector-observability-data',
+    label: 'observability dashboard html',
+  });
+  assert(await fileExists(path.resolve(observabilityAssetsDir, 'fullcycle-connectors-observability.css')), 'expected generated observability css asset');
+  assert(await fileExists(path.resolve(observabilityAssetsDir, 'fullcycle-connectors-observability.js')), 'expected generated observability js asset');
 
   await writeJson(timeseriesFile, buildTimeseriesSingleEnv());
   await writeJson(operationsReportFile, operationsReportWarn());
