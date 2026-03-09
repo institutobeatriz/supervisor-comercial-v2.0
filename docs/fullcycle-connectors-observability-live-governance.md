@@ -1,6 +1,6 @@
 # Fase 34 - Observability Live Governance
 
-- Gerado em: 2026-03-09T18:58:25.955Z
+- Gerado em: 2026-03-09T19:03:39.636Z
 - Status: pass
 - Runtime profile: desktop
 - Infra mode: docker-bootstrap

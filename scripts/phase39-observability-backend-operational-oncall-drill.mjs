@@ -203,6 +203,9 @@ async function main() {
 
   const passRun = await runNode(SCRIPT, {
     ...commonEnv,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE: automationStateFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_FILE: snapshotFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE: fullcycleReportFile,
     INCIDENT_AUTOMATION_STATE_FILE: automationStateFile,
     ITSM_SNAPSHOT_FILE: snapshotFile,
     FULLCYCLE_REPORT_FILE: fullcycleReportFile,
@@ -233,6 +236,9 @@ async function main() {
 
   const failRun = await runNode(SCRIPT, {
     ...commonEnv,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE: missingAutomationStateFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_FILE: missingSnapshotFile,
+    FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE: fullcycleReportFile,
     INCIDENT_AUTOMATION_STATE_FILE: missingAutomationStateFile,
     ITSM_SNAPSHOT_FILE: missingSnapshotFile,
     FULLCYCLE_REPORT_FILE: fullcycleReportFile,
