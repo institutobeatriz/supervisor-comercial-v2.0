@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { publishHtmlAssets } from './observability-html-assets.mjs';
 
 function envBool(name, fallback) {
   const raw = process.env[name];
@@ -218,62 +219,7 @@ function renderDashboard(ts, legacyReport, legacyFeed, backendStore, backendDash
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Observability Connectors Executive Dashboard</title>
-  <style>
-    :root {
-      --bg: #f4f7f2;
-      --panel: #ffffff;
-      --line: #d8e0db;
-      --ink: #17231f;
-      --muted: #5f716a;
-      --accent: #1f5c4d;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
-      background: linear-gradient(180deg, #f8fbf7 0%, #eef4ef 100%);
-      color: var(--ink);
-    }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
-    .hero {
-      background: linear-gradient(135deg, #183b33, #245245);
-      color: #eef7f3;
-      padding: 20px;
-      border-radius: 18px;
-      box-shadow: 0 18px 40px rgba(23, 35, 31, 0.16);
-      margin-bottom: 16px;
-    }
-    .hero h1 { margin: 0 0 8px; font-size: 24px; }
-    .meta { color: #d2e4db; font-size: 13px; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .card, .section {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px;
-    }
-    .card .label { color: var(--muted); font-size: 12px; }
-    .card .value { font-size: 26px; font-weight: 700; margin-top: 4px; }
-    .section h2 { margin: 0 0 10px; font-size: 16px; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
-    th { color: var(--muted); }
-    pre {
-      margin: 0;
-      padding: 12px;
-      border-radius: 12px;
-      background: #13211d;
-      color: #e8f4ee;
-      overflow: auto;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-  </style>
+  <link rel="stylesheet" href="./assets/fullcycle-connectors-observability-compat.css" />
 </head>
 <body>
   <div class="wrap">
@@ -412,6 +358,15 @@ async function main() {
   await writeJson(cfg.observabilityFeedFile, legacyFeed);
   await writeJson(cfg.observabilityApiPayloadFile, apiPayload);
   await writeText(cfg.observabilityDashboardFile, dashboardHtml);
+  await publishHtmlAssets({
+    htmlFile: cfg.observabilityDashboardFile,
+    assets: [
+      {
+        sourceFile: 'scripts/assets/fullcycle-connectors-observability-compat.css',
+        fileName: 'fullcycle-connectors-observability-compat.css',
+      },
+    ],
+  });
   await appendLine(cfg.observabilityAuditFile, JSON.stringify({
     timestamp: ts,
     source: 'phase35-observability-legacy-convergence',
@@ -523,3 +478,4 @@ main().catch((error) => {
   console.error(`Unexpected phase35 compatibility failure: ${error instanceof Error ? error.stack || error.message : String(error)}`);
   process.exit(1);
 });
+

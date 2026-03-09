@@ -3,7 +3,7 @@
 ## Atualizacao
 - Data: 2026-03-09 (America/Sao_Paulo)
 - Responsavel: Orquestracao tecnica (software house premium)
-- Fonte de verdade: este arquivo + evidencias em `11-fase-0-baseline.md` ate `47-fase-36-validacao.md`
+- Fonte de verdade: este arquivo + evidencias em `11-fase-0-baseline.md` ate `49-fase-38-validacao.md`
 
 ## Status por fase
 
@@ -47,6 +47,7 @@
 | Fase 35 - Convergencia da observabilidade legada | CONCLUIDA | 2026-03-09 | 2026-03-09 | `46-fase-35-validacao.md` | Materializacao runtime da trilha legada + endpoints 200 no gate live + compatibilidade backend-first |
 | Fase 36 - GitHub Actions real e fechamento da trilha live | CONCLUIDA | 2026-03-09 | 2026-03-09 | `47-fase-36-validacao.md` | Repo standalone publicado + CI real verde + correcoes de runner limpo para live/backend/painel |
 | Fase 37 - Automacao do repo standalone e fluxo canonico de PR | CONCLUIDA | 2026-03-09 | 2026-03-09 | `48-fase-37-validacao.md` | Sync declarativo + drift check + publish automatizado em branch/PR `codex/` com GitHub Actions real verde |
+| Fase 38 - Hardening de CSP/assets dos dashboards internos | CONCLUIDA | 2026-03-09 | 2026-03-09 | `49-fase-38-validacao.md` | Assets externos no dashboard/painel, CSP sem `unsafe-inline`, smoke/live endurecidos e compat dashboard alinhado |
 
 ## Log de checkpoints
 
@@ -1918,6 +1919,57 @@ Riscos residuais:
 
 Proxima fase liberada:
 1. Fase 38 - externalizar assets inline dos dashboards internos, endurecer CSP e reduzir a superficie de excecao das rotas HTML de observabilidade.
+
+### 2026-03-09 - Checkpoint 40 (Fase 38 concluida)
+Itens executados:
+1. Externalizacao dos dashboards HTML internos:
+- `scripts/phase31-observability-panel-backend-template.html` passou a referenciar CSS/JS externos e bootstrap via `<template>`;
+- `scripts/phase31-observability-panel-backend-integration.mjs` agora publica assets ao lado do HTML final;
+- `scripts/phase24-observability-layer.mjs` passou a gerar shell HTML com assets externos para a UI executiva original;
+- `scripts/phase35-observability-legacy-convergence.mjs` deixou de reintroduzir CSS inline no dashboard legado materializado.
+2. Assets dedicados publicados:
+- `scripts/assets/fullcycle-connectors-observability.css`;
+- `scripts/assets/fullcycle-connectors-observability.js`;
+- `scripts/assets/fullcycle-connectors-observability-ops-panel.css`;
+- `scripts/assets/fullcycle-connectors-observability-ops-panel.js`;
+- `scripts/assets/fullcycle-connectors-observability-compat.css`.
+3. Hardening da API interna:
+- `apps/api/src/routes/observability.ts` removeu `unsafe-inline` de `style-src` e `script-src`;
+- criadas rotas internas de assets para `dashboard` e `realtime/panel`;
+- smoke/contract da trilha live passa a validar CSP e assets externos.
+4. Governanca e drills:
+- `scripts/ci-api-smoke.mjs` endurecido com checks de HTML shell/asset/CSP;
+- `scripts/phase24-observability-drill.mjs` e `scripts/phase31-observability-panel-backend-integration-drill.mjs` atualizados;
+- criado `scripts/phase38-observability-csp-hardening.mjs`;
+- `package.json` e `.github/workflows/ci.yml` atualizados com `test:phase38`.
+5. Higiene do runtime live:
+- `scripts/phase33-observability-live-runtime-validation.mjs` passou a limpar o diretório de artefatos antes da execução para evitar falso positivo por asset stale.
+
+Validacao tecnica deste checkpoint:
+1. Sintaxe:
+- `node --check scripts/phase24-observability-layer.mjs` => sucesso;
+- `node --check scripts/phase31-observability-panel-backend-integration.mjs` => sucesso;
+- `node --check scripts/phase35-observability-legacy-convergence.mjs` => sucesso;
+- `node --check scripts/ci-api-smoke.mjs` => sucesso;
+- `node --check scripts/phase33-observability-live-runtime-validation.mjs` => sucesso;
+- `node --check scripts/phase38-observability-csp-hardening.mjs` => sucesso.
+2. Drills e gates:
+- `npm run test:phase24` => sucesso;
+- `npm run test:phase31` => sucesso;
+- `npm run test:phase35` => sucesso;
+- `npm run test:phase38` => sucesso;
+- `npm run test:phase34` => sucesso (`status=pass`, `contracts=21/21`);
+- `npm run monitor:fullcycle:observability:live` => sucesso (`status=pass`, `contracts=21/21`).
+3. Build:
+- `npm run build -w @supervisor/api` => sucesso.
+
+Riscos residuais:
+1. a origem de on-call continua file-based (`rotation/calendar`) apesar do hardening da camada HTML/CSP;
+2. o repo standalone remoto ainda nao foi republicado nesta fase;
+3. `docs/fullcycle-connectors-observability-live-governance.md` segue sendo artefato gerado e pode divergir se a rotina live for executada fora do fluxo de fechamento da fase.
+
+Proxima fase liberada:
+1. Fase 39 - substituir a origem file-based de on-call por fonte operacional real, preservando os contratos atuais de backend analytics, incidents/alerts e painel.
 
 ## Backlog ativo (referencia curta)
 

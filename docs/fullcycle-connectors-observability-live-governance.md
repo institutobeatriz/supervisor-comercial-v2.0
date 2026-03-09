@@ -1,6 +1,6 @@
 # Fase 34 - Observability Live Governance
 
-- Gerado em: 2026-03-09T14:47:45.384Z
+- Gerado em: 2026-03-09T17:28:01.292Z
 - Status: pass
 - Runtime profile: desktop
 - Infra mode: docker-bootstrap
@@ -8,11 +8,11 @@
 
 ## Resumo executivo
 - Phase33 status: pass
-- Smoke OK: 28
+- Smoke OK: 31
 - Smoke FAIL: 0
-- Contratos validados: 20 (minimo requerido: 18)
+- Contratos validados: 23 (minimo requerido: 21)
 - Falhas de contrato: 0
-- Checks obrigatorios aprovados: 18/18
+- Checks obrigatorios aprovados: 21/21
 - Browser connection: connected
 - Browser exceptions: 0
 - Analytics endpoint: 200
@@ -25,6 +25,7 @@
 - observability_history: pass
 - observability_archive: pass
 - observability_dashboard: pass
+- observability_dashboard_asset_css: pass
 - observability_stream_once: pass
 - observability_api_sla_summary: pass
 - observability_api_sla_history: pass
@@ -35,6 +36,8 @@
 - observability_backend_report: pass
 - observability_backend_analytics: pass
 - observability_realtime_panel: pass
+- observability_realtime_panel_asset_css: pass
+- observability_realtime_panel_asset_js: pass
 - observability_backend_dashboard: pass
 
 ## Artefatos

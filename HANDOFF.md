@@ -9,100 +9,104 @@
 2. `PROJECT_RULES.md`
 3. `TODO_AI.md`
 4. `docs/analise-projeto/10-memoria-execucao-fases.md`
-5. `docs/analise-projeto/48-fase-37-validacao.md`
+5. `docs/analise-projeto/49-fase-38-validacao.md`
 6. `docs/analise-projeto/09-plano-conclusao-dashboard-comercial.md`
 7. `docs/standalone-repo-flow.md`
 
 ## Estado atual
 - Responsavel anterior: Codex
 - Data do handoff: 2026-03-09
-- Ultima fase concluida: Fase 37
-- Proxima fase liberada: Fase 38
+- Ultima fase concluida: Fase 38
+- Proxima fase liberada: Fase 39
 - Fase em andamento: nenhuma
 
 ## O que foi concluido ate agora
-- Fases 0 a 37 concluidas e registradas na memoria oficial.
-- A trilha live/backend-first esta validada em runner GitHub real.
-- A sincronizacao entre este workspace e `.export-repo` deixou de ser manual.
-- O fluxo canonico `sync -> branch -> push -> PR -> GitHub Actions` foi provado no repo standalone publicado.
+- Fases 0 a 38 concluidas e registradas na memoria oficial.
+- A trilha live/backend-first continua validada localmente apos remocao de assets inline.
+- O painel realtime e o dashboard executivo interno passaram a operar com assets externos e CSP endurecida.
+- O fluxo canonico standalone continua pronto para sync/publish remoto quando quisermos propagar esta fase para o repo canonico de CI.
 
-## O que a Fase 37 entregou
-- Config declarativa do export standalone em `config/standalone-export.json`.
-- Sync idempotente workspace -> `.export-repo` em `scripts/phase37-standalone-sync.mjs`.
-- Publish automatizado com branch `codex/`, push e PR em `scripts/phase37-standalone-publish.mjs`.
-- Drill local do sync em `scripts/phase37-standalone-sync-drill.mjs`.
-- Fluxo operacional documentado em `docs/standalone-repo-flow.md`.
-- PR canonica aberta no repo standalone: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/1`.
-- GitHub Actions verde no run final `22864219627` com head `6588f0c2d2bc3615b3bd02b49ab48817c7dcbbab`.
+## O que a Fase 38 entregou
+- Externalizacao de CSS/JS do painel realtime em `scripts/phase31-observability-panel-backend-template.html` + `scripts/assets/fullcycle-connectors-observability-ops-panel.*`.
+- Shell HTML com assets externos para a UI executiva original em `scripts/phase24-observability-layer.mjs` + `scripts/assets/fullcycle-connectors-observability.*`.
+- Dashboard legado materializado sem CSS inline em `scripts/phase35-observability-legacy-convergence.mjs` + `scripts/assets/fullcycle-connectors-observability-compat.css`.
+- Rotas internas de assets e CSP sem `unsafe-inline` em `apps/api/src/routes/observability.ts`.
+- Smoke/drills/governanca endurecidos em `scripts/ci-api-smoke.mjs`, `scripts/phase24-observability-drill.mjs`, `scripts/phase31-observability-panel-backend-integration-drill.mjs`, `scripts/phase33-observability-live-runtime-validation.mjs`, `scripts/phase34-observability-live-governance.mjs` e `scripts/phase38-observability-csp-hardening.mjs`.
 
 ## Ultima entrega relevante
-### Fase 37
-- Config: `config/standalone-export.json`
-- Sync: `scripts/phase37-standalone-sync.mjs`
-- Publish: `scripts/phase37-standalone-publish.mjs`
-- Drill: `scripts/phase37-standalone-sync-drill.mjs`
-- Guia operacional: `docs/standalone-repo-flow.md`
-- Evidencia oficial: `docs/analise-projeto/48-fase-37-validacao.md`
+### Fase 38
+- Evidencia oficial: `docs/analise-projeto/49-fase-38-validacao.md`
+- Memoria oficial atualizada: `docs/analise-projeto/10-memoria-execucao-fases.md`
+- Novo drill: `scripts/phase38-observability-csp-hardening.mjs`
+- Rotas/CSP: `apps/api/src/routes/observability.ts`
 
 ## Arquivos alterados na fase concluida
-- `config/standalone-export.json`
-- `scripts/phase37-standalone-sync.mjs`
-- `scripts/phase37-standalone-publish.mjs`
-- `scripts/phase37-standalone-sync-drill.mjs`
+- `apps/api/src/routes/observability.ts`
+- `scripts/observability-html-assets.mjs`
+- `scripts/phase24-observability-layer.mjs`
+- `scripts/phase24-observability-drill.mjs`
+- `scripts/phase31-observability-panel-backend-template.html`
+- `scripts/phase31-observability-panel-backend-integration.mjs`
+- `scripts/phase31-observability-panel-backend-integration-drill.mjs`
+- `scripts/phase33-observability-live-runtime-validation.mjs`
+- `scripts/phase34-observability-live-governance.mjs`
+- `scripts/phase35-observability-legacy-convergence.mjs`
+- `scripts/phase38-observability-csp-hardening.mjs`
+- `scripts/assets/fullcycle-connectors-observability.css`
+- `scripts/assets/fullcycle-connectors-observability.js`
+- `scripts/assets/fullcycle-connectors-observability-ops-panel.css`
+- `scripts/assets/fullcycle-connectors-observability-ops-panel.js`
+- `scripts/assets/fullcycle-connectors-observability-compat.css`
+- `scripts/ci-api-smoke.mjs`
 - `package.json`
+- `.github/workflows/ci.yml`
 - `README.md`
-- `PROJECT_RULES.md`
 - `docs/runbook-operacional.md`
-- `docs/standalone-repo-flow.md`
-- `docs/analise-projeto/48-fase-37-validacao.md`
+- `docs/analise-projeto/49-fase-38-validacao.md`
 - `docs/analise-projeto/10-memoria-execucao-fases.md`
 - `HANDOFF.md`
 - `TODO_AI.md`
 
 ## O que esta funcionando
-- `npm run test:phase37`: OK
-- `npm run standalone:sync`: OK
-- `npm run standalone:sync:check`: OK (`copy=0`, `delete=0`, `unchanged=397`)
-- `npm run lint`: OK
-- `npm run build`: OK
-- PR aberta no repo standalone: `#1`
-- GitHub Actions final: `22864219627` => `success`
-- Repo standalone local alinhado com drift zero apos o sync final
+- `npm run test:phase24`: OK
+- `npm run test:phase31`: OK
+- `npm run test:phase35`: OK
+- `npm run test:phase38`: OK
+- `npm run build -w @supervisor/api`: OK
+- `npm run test:phase34`: OK (`status=pass`, `contracts=21/21`)
+- `npm run monitor:fullcycle:observability:live`: OK (`status=pass`, `contracts=21/21`)
 
 ## O que ainda nao foi fechado
-- Os dashboards HTML internos continuam com assets inline.
-- As rotas HTML de observabilidade ainda dependem de CSP route-scoped permissivo.
-- A integracao de on-call continua file-based (`rotation/calendar`) sem provedor externo real.
-- O workspace principal ainda vive dentro do repo guarda-chuva; o repo standalone segue sendo o canonico de CI remoto por decisao operacional, nao por extracao estrutural definitiva.
+- A origem de on-call continua file-based (`rotation/calendar`).
+- O repo standalone remoto ainda nao foi republicado com a Fase 38.
+- `docs/fullcycle-connectors-observability-live-governance.md` continua sendo artefato gerado; se outra rotina live rodar depois, ele muda novamente.
 
 ## Proximo passo exato
-Iniciar a Fase 38 com este recorte:
-1. externalizar assets inline dos dashboards HTML internos;
-2. endurecer CSP das rotas HTML de observabilidade;
-3. validar que o painel/live continuam verdes apos a remocao das excecoes atuais.
+Iniciar a Fase 39 com este recorte:
+1. substituir a origem file-based de on-call por fonte operacional real;
+2. preservar os contratos atuais de `backend/analytics`, `incidents/alerts` e painel;
+3. validar que owner coverage, escalations e dashboard continuam coerentes apos a troca da fonte.
 
 ## Hipotese principal da proxima fase
-- O maior risco tecnico restante na camada de observabilidade HTML nao e mais drift de entrega, e sim a superficie de excecao mantida por assets inline.
-- Se externalizarmos scripts/styles e reduzirmos a CSP permissiva por rota, melhoramos seguranca e reduzimos comportamento especial dificil de manter.
+- O maior gap estrutural restante na trilha backend/live nao e mais CSP/HTML, e sim a dependencia de `rotation/calendar` locais para ownership dinamico.
+- Se migrarmos isso para uma fonte operacional real sem quebrar os contratos atuais, reduzimos drift e aproximamos o fluxo de producao.
 
 ## Como testar o estado atual
 ```bash
-npm run test:phase37
-npm run standalone:sync
-npm run standalone:sync:check
-npm run lint
-npm run build
-npm run standalone:publish
-
-gh pr view 1 --repo institutobeatriz/supervisor-comercial-v2.0
-gh run view 22864219627 --repo institutobeatriz/supervisor-comercial-v2.0
+npm run test:phase24
+npm run test:phase31
+npm run test:phase35
+npm run test:phase38
+npm run build -w @supervisor/api
+npm run test:phase34
+npm run monitor:fullcycle:observability:live
 ```
 
 ## Observacoes importantes
 - Este diretorio continua dentro de um repo Git maior; nao confundir o Git do workspace com o repo standalone publicado.
 - `docs/analise-projeto/10-memoria-execucao-fases.md` continua sendo a fonte historica oficial.
 - `HANDOFF.md` resume apenas o estado atual.
-- O repo standalone publicado e o repositorio canonico de CI remoto ate nova decisao estrutural.
+- O repo standalone publicado segue sendo o repositorio canonico de CI remoto ate nova decisao estrutural.
 - Ao terminar cada fase, atualizar este arquivo, `TODO_AI.md`, memoria oficial e criar commit WIP focado na fase.
 
 ## Prompt curto para a proxima IA
@@ -114,8 +118,8 @@ Leia primeiro:
 3. `HANDOFF.md`
 4. `TODO_AI.md`
 5. `docs/analise-projeto/10-memoria-execucao-fases.md`
-6. `docs/analise-projeto/48-fase-37-validacao.md`
+6. `docs/analise-projeto/49-fase-38-validacao.md`
 7. `docs/standalone-repo-flow.md`
 
 Objetivo:
-Continuar exatamente da Fase 38, sem refatoracao ampla desnecessaria e sem duplicar a memoria historica do projeto.
+Continuar exatamente da Fase 39, sem refatoracao ampla desnecessaria e sem duplicar a memoria historica do projeto.

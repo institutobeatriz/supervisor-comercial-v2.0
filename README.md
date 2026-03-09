@@ -349,6 +349,7 @@ npm run test:phase32      # Drill do backend com owner dinamico on-call + analyt
 npm run test:phase33      # Validacao live da API interna + painel headless + analytics executivo
 npm run test:phase34      # Governanca live recorrente (CI-friendly) com contrato estruturado + browser/headless
 npm run test:phase35      # Convergencia da trilha legada de observability a partir do backend-first (summary/feed/history/dashboard)
+npm run test:phase38      # Hardening de CSP/assets dos dashboards HTML internos de observabilidade
 npm run test:phase37      # Drill da automacao de sync/publicacao do repo standalone
 npm run standalone:sync   # Sincroniza este workspace com `.export-repo`
 npm run standalone:sync:check # Falha se houver drift entre workspace e `.export-repo`
@@ -377,6 +378,15 @@ npm run monitor:fullcycle:observability:panel # Publica painel operacional backe
 npm run monitor:fullcycle:observability:compat # Materializa payload legado de observability a partir do backend-first
 npm run monitor:fullcycle:observability:live # Fluxo oficial das Fases 34/35: governanca live + contrato + painel headless + convergencia legada
 ```
+
+### Observability HTML interno
+
+As rotas HTML internas de observabilidade agora servem assets externos e CSP sem `unsafe-inline`:
+
+- `/api/observability/connectors/dashboard`
+- `/api/observability/connectors/assets/*`
+- `/api/observability/connectors/realtime/panel`
+- `/api/observability/connectors/realtime/assets/*`
 
 ## Operação (Runbook)
 

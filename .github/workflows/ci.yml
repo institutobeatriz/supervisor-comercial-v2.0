@@ -313,6 +313,9 @@ jobs:
           FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_API_SLA_HISTORY: "false"
         run: npm run test:phase35
 
+      - name: Connector observability CSP hardening drill (phase38)
+        run: npm run test:phase38
+
       - name: Connector observability live governance gate (phase34)
         run: npm run test:phase34
 

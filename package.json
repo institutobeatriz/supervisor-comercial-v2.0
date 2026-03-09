@@ -55,6 +55,7 @@
     "test:phase33": "node scripts/phase33-observability-live-runtime-validation.mjs",
     "test:phase34": "node scripts/phase34-observability-live-governance.mjs",
     "test:phase35": "node scripts/phase35-observability-legacy-convergence.mjs",
+    "test:phase38": "node scripts/phase38-observability-csp-hardening.mjs",
     "monitor:check": "node scripts/phase10-monitoring-slo.mjs",
     "monitor:chaos": "node scripts/phase11-chaos-drills.mjs",
     "monitor:reliability": "node scripts/phase12-reliability-metrics.mjs",
