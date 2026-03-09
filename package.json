@@ -83,7 +83,11 @@
     "format": "prettier --write \"**/*.ts\"",
     "clean": "rimraf apps/*/dist packages/*/dist node_modules",
     "typecheck": "tsc --noEmit",
-    "test:ci:api-smoke": "node scripts/ci-api-smoke.mjs"
+    "test:ci:api-smoke": "node scripts/ci-api-smoke.mjs",
+    "test:phase37": "node scripts/phase37-standalone-sync-drill.mjs",
+    "standalone:sync": "node scripts/phase37-standalone-sync.mjs",
+    "standalone:sync:check": "node scripts/phase37-standalone-sync.mjs --check",
+    "standalone:publish": "node scripts/phase37-standalone-publish.mjs --watch-ci"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

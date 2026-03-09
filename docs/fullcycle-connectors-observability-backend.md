@@ -1,6 +1,6 @@
 # Fullcycle Connectors Observability Backend
 
-- Generated at: 2026-03-09T15:45:22.861Z
+- Generated at: 2026-03-09T14:34:19.351Z
 - Status: WARN
 - Environment: development
 - Stream status: unknown
@@ -24,19 +24,19 @@
 | Unassigned owners | 0 |
 | Owner coverage % | 100 |
 | Breached escalations | 0 |
-| Analytics history points | 1 |
+| Analytics history points | 3 |
 
 ## Teams
 
 | Team | Open incidents | Active alerts | Pending escalations | Owners | Channels |
 |---|---:|---:|---:|---|---|
-| - | 0 | 0 | 0 | n/a | n/a |
+| integrations | 0 | 0 | 0 | n/a | slack, webhook |
 
 ## Incidents
 
 | ID | Status | Severity | Team | Owner | Escalation | Started |
 |---|---|---|---|---|---|---|
-| - | - | - | - | - | - | - |
+| conn-20260309011820-mtofr | resolved | critical | integrations | unassigned | resolved | 2026-03-09T01:18:20.881Z |
 
 ## Alerts
 
@@ -48,11 +48,12 @@
 
 | Timestamp | Coverage % | Open incidents | Active alerts | Breached escalations |
 |---|---:|---:|---:|---:|
-| 2026-03-09T15:45:22.861Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T14:34:19.351Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T14:33:53.327Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T14:33:04.082Z | 100 | 0 | 0 | 0 |
 
 ## Violations
 
-- [BLOCKING] incidents_unavailable: connector incidents unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\.export-repo\logs\monitoring\fullcycle-connector-incidents.json
-- [BLOCKING] alert_report_unavailable: alert report unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\.export-repo\logs\monitoring\fullcycle-connector-observability-alerting-report.json
-- [BLOCKING] api_sla_history_unavailable: api sla history unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\.export-repo\logs\monitoring\fullcycle-connector-observability-api-sla-history.json
+- [BLOCKING] alert_report_unavailable: alert report unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\logs\monitoring\fullcycle-connector-observability-alerting-report.json
+- [BLOCKING] api_sla_history_unavailable: api sla history unavailable at C:\Users\user\.openclaw\workspace\supervisor-comercial\logs\monitoring\fullcycle-connector-observability-api-sla-history.json
 - [BLOCKING] dynamic_owner_configuration_unavailable: rotation/calendar/defaultOwner unavailable for dynamic owner resolution
