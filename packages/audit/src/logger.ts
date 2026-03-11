@@ -1,6 +1,7 @@
 import pino from 'pino';
 import type { Logger } from 'pino';
 import { Pool } from 'pg';
+import path from 'path';
 
 /**
  * Cria um logger Pino estruturado com o nome do componente.
@@ -22,6 +23,15 @@ export function createLogger(name: string): Logger {
 export const logger = createLogger('supervisor');
 
 let _auditPool: Pool | null = null;
+
+export function resolveAuditLogDir(): string {
+  const raw = process.env.AUDIT_LOG_DIR?.trim();
+  if (raw) {
+    return path.resolve(raw);
+  }
+
+  return path.resolve(process.cwd(), 'logs');
+}
 
 function getAuditPool(): Pool | null {
   if (!process.env.DATABASE_URL) return null;
@@ -104,12 +114,9 @@ export interface AuditEntry {
 export async function logAudit(entry: AuditEntry): Promise<void> {
   try {
     const fs = await import('fs');
-    const path = await import('path');
     
-    // Garante que o diretório logs existe (relativo à raiz do projeto)
-    // Usamos process.cwd() para obter o diretório atual e subir 2 níveis
-    const projectRoot = path.join(process.cwd(), '..', '..');
-    const logsDir = path.join(projectRoot, 'logs');
+    // Diretório configurável via AUDIT_LOG_DIR (fallback: <cwd>/logs)
+    const logsDir = resolveAuditLogDir();
     
     // Cria diretório logs se não existir
     if (!fs.existsSync(logsDir)) {

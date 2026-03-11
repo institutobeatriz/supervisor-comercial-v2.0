@@ -5,6 +5,7 @@
 
 import 'dotenv/config';
 import Fastify from 'fastify';
+import type { FastifyError } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import { migrate, ping } from '@supervisor/db';
@@ -18,6 +19,7 @@ import { reviewsRoutes } from './routes/reviews.js';
 import { metricsRoutes } from './routes/metrics.js'; 
 import { conversationsRoutes } from './routes/conversations.js';
 import { alertsRoutes } from './routes/alerts.js';
+import { observabilityRoutes } from './routes/observability.js';
 import eventsRoutes from './routes/events.js';
 
 // ============================================================
@@ -86,6 +88,7 @@ async function buildApp() {
   await fastify.register(metricsRoutes, { prefix: '/api' }); 
   await fastify.register(conversationsRoutes, { prefix: '/api' });
   await fastify.register(alertsRoutes, { prefix: '/api' });
+  await fastify.register(observabilityRoutes, { prefix: '/api' });
   await fastify.register(eventsRoutes);
 
   // ============================================================
@@ -93,17 +96,19 @@ async function buildApp() {
   // ============================================================
 
   fastify.setErrorHandler((error, request, reply) => {
-    const statusCode = error.statusCode || 500;
+    const knownError = error as Partial<FastifyError> & { message?: string; stack?: string };
+    const statusCode = typeof knownError.statusCode === 'number' ? knownError.statusCode : 500;
+    const message = knownError.message || 'Internal Server Error';
     
     fastify.log.error({
-      error: error.message,
-      stack: error.stack,
+      error: message,
+      stack: knownError.stack,
       url: request.url,
       method: request.method,
     });
 
     reply.status(statusCode).send({
-      error: error.message,
+      error: message,
       statusCode,
     });
   });
