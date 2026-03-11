@@ -54,6 +54,7 @@
 | Fase 42 - Produtor dedicado do provider operacional | CONCLUIDA | 2026-03-09 | 2026-03-09 | `53-fase-42-validacao.md` | Gate oficial producer-backed, endpoint `backend/producer`, fallback `legacy_files` desabilitado no caminho oficial e CI remoto verde |
 | Fase 43 - Enforcement do legacy fallback e interface do coletor | CONCLUIDA | 2026-03-11 | 2026-03-11 | `54-fase-43-validacao.md` | Enforcement real via `enforceNoLegacy`, interface `OPERATIONAL_COLLECTOR_INTERFACE` canonizada, smoke exige `legacyFallbackState=disabled`, drill pass/legacy_blocked/mode_blocked |
 | Fase 44 - Integração do coletor operacional dedicado | CONCLUIDA | 2026-03-11 | 2026-03-11 | `55-fase-44-validacao.md` | Módulo coletor com modos `file`/`synthetic`, opção `collectorSources` no provider, integração opcional no producer via `USE_COLLECTOR`, drill file_mode/synthetic_mode/integration passando |
+| Fase 45 - Propagação das Fases 43+44 para CI standalone canônico | CONCLUIDA | 2026-03-11 | 2026-03-11 | `56-fase-45-validacao.md` | PR #10 aberto em institutobeatriz/supervisor-comercial-v2.0; CI GitHub Actions verde após restauração de package.json, tsconfig, route files, migrations 001-004/008/016-019 e 75 scripts; todos os drills (phase34 live governance gate incluído) passando |
 
 ## Log de checkpoints
 

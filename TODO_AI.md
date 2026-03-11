@@ -1,15 +1,16 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 44
-- Proxima fase liberada: Fase 45
+- Ultima fase concluida: Fase 45
+- Proxima fase liberada: Fase 46
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: coletor dedicado implementado (stub, modos `file`/`synthetic`), `collectorSources` no provider, producer integra coletor opcionalmente; proximo passo e propagar Fases 43/44 para o repo standalone canonico
+- Estado atual: Fases 43/44 propagadas para o repo standalone canonico; CI remoto verde (run 22969299196, PR #10); proximo passo e definir Fase 46 conforme plano
 
 ## Prioridade alta
-- [ ] Fase 45: propagar Fases 43 e 44 para o repo standalone canonico (PR + GitHub Actions)
-- [ ] Fase 45: validar CI remoto verde apos propagacao
-- [ ] Fase 45: decidir quando `USE_COLLECTOR=true` deve virar o default no producer
+- [ ] Fase 46: definir proximo passo conforme `docs/analise-projeto/09-plano-conclusao-dashboard-comercial.md`
+- [ ] Fase 46: decidir quando `USE_COLLECTOR=true` deve virar o default no producer
+- [x] Fase 45: propagar Fases 43 e 44 para o repo standalone canonico (PR + GitHub Actions)
+- [x] Fase 45: validar CI remoto verde apos propagacao
 - [x] Fase 44: implementar o coletor/stub concreto respeitando a `OPERATIONAL_COLLECTOR_INTERFACE`
 - [x] Fase 44: adicionar `collectorSources` ao provider para bypass do file-reading
 - [x] Fase 44: validar que contratos das Fases 41/42/43 continuam validos apos integracao do coletor
@@ -44,7 +45,8 @@
 - o chain completo (phase30+) so e validado no workspace principal; o worktree esparso executa o drill sem o chain
 - `docs/fullcycle-connectors-observability-live-governance.md` continua sendo artefato gerado e muda a cada execucao da rotina live
 - o repo canonico de CI remoto continua separado do git root principal do workspace
-- as Fases 43 e 44 ainda nao foram propagadas para o repo standalone canonico de CI
+- arquivos untracked no git principal nao sao populados no worktree esparso; cada sync pode deletar arquivos do export-repo se nao estiverem no worktree; mitigacao: copiar untracked antes de cada sync
+- PR #10 aguarda review/merge pelo mantenedor do repo canonical
 
 ## Dividas tecnicas
 - integrar o coletor com um servico externo real substituindo o stub atual

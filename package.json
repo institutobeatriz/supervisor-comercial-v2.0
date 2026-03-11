@@ -62,6 +62,7 @@
     "test:phase42": "node scripts/phase42-observability-operational-provider-producer-drill.mjs",
     "test:phase43": "node scripts/phase43-disable-legacy-fallback-drill.mjs",
     "test:phase44": "node scripts/phase44-operational-collector-drill.mjs",
+    "test:phase46": "node scripts/phase46-collector-default-drill.mjs",
     "monitor:check": "node scripts/phase10-monitoring-slo.mjs",
     "monitor:chaos": "node scripts/phase11-chaos-drills.mjs",
     "monitor:reliability": "node scripts/phase12-reliability-metrics.mjs",

@@ -432,6 +432,10 @@ const checks = [
         if (typeof data?.producer?.summary?.legacyFallbackAllowed === 'boolean') {
           pushIf(errors, data.producer.summary.legacyFallbackAllowed === false, `producer.summary.legacyFallbackAllowed must be false (phase43 enforcement)`);
         }
+        // phase46 enforcement: collectorEnabled must be present and true (collector is now default)
+        pushIf(errors, typeof data?.producer?.summary?.collectorEnabled === 'boolean', 'producer.summary.collectorEnabled must be boolean (phase46 enforcement)');
+        pushIf(errors, data?.producer?.summary?.collectorEnabled === true, 'producer.summary.collectorEnabled must be true (phase46 enforcement)');
+        pushIf(errors, typeof data?.producer?.summary?.collectorMode === 'string' && data.producer.summary.collectorMode.length > 0, 'producer.summary.collectorMode must be a non-empty string (phase46 enforcement)');
         return errors;
       },
     ],

@@ -51,6 +51,8 @@ function renderDashboard({ ts, status, summary, providerMeta, contract, backendR
     `- Backend status: ${summary.backendStatus || 'unknown'}`,
     `- Legacy fallback state: ${summary.legacyFallbackState || 'unknown'}`,
     `- Deprecation target: ${summary.deprecationTarget || 'n/a'}`,
+    `- Collector enabled: ${summary.collectorEnabled ? 'yes' : 'no'}`,
+    `- Collector mode: ${summary.collectorMode || 'n/a'}`,
     '',
     '## Source Summary',
     '',
@@ -100,7 +102,7 @@ async function main() {
     automationStateFile: envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE', envString('INCIDENT_AUTOMATION_STATE_FILE', path.resolve(process.cwd(), 'logs/monitoring/incident-automation-state.json'))),
     snapshotFile: envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_FILE', envString('ITSM_SNAPSHOT_FILE', path.resolve(process.cwd(), 'logs/monitoring/itsm-snapshot.json'))),
     fullcycleReportFile: envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE', envString('FULLCYCLE_REPORT_FILE', path.resolve(process.cwd(), 'logs/monitoring/fullcycle-governance-report.json'))),
-    useCollector: envBool('FULLCYCLE_CONNECTOR_OBS_BACKEND_USE_COLLECTOR', false),
+    useCollector: envBool('FULLCYCLE_CONNECTOR_OBS_BACKEND_USE_COLLECTOR', true),  // phase46: collector is now the default path
     collectorMode: envString('FULLCYCLE_CONNECTOR_OBS_COLLECTOR_MODE', 'file'),
   };
 
@@ -221,6 +223,9 @@ async function main() {
       legacyFallbackState: providerMeta?.legacyFallbackState || producerDescriptor.legacyFallbackState,
       legacyFallbackAllowed: providerMeta?.legacyFallbackAllowed === true || cfg.allowLegacyFallback,
       deprecationTarget: providerMeta?.deprecationTarget || cfg.deprecationTarget,
+      // phase46: expose collector state in summary for smoke checks and governance
+      collectorEnabled: cfg.useCollector,
+      collectorMode: cfg.useCollector ? cfg.collectorMode : 'disabled',
     };
 
     const report = {
@@ -240,6 +245,8 @@ async function main() {
         producerDashboardFile: cfg.producerDashboardFile,
         producerAuditFile: cfg.producerAuditFile,
         phase41Script: cfg.phase41Script,
+        useCollector: cfg.useCollector,      // phase46
+        collectorMode: cfg.collectorMode,    // phase46
       },
       producer: {
         operationalProvider: providerMeta,
