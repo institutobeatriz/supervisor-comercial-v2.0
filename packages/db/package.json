@@ -1,0 +1,23 @@
+{
+  "name": "@supervisor/db",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "echo 'no build needed'",
+    "migrate": "npx tsx src/migrate.ts",
+    "reset": "npx tsx src/reset.ts",
+    "seed": "npx tsx src/seed.ts"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "dotenv": "^16.4.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.0",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0"
+  }
+}
