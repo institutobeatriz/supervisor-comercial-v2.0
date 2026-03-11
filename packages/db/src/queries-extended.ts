@@ -1,1 +1,0 @@
-﻿// Extended queries created

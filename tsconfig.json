@@ -20,28 +20,9 @@
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": ".",
-    "baseUrl": ".",
     "paths": {
-      "@supervisor/audit": ["./packages/audit/src/index.ts"],
-      "@supervisor/audit/*": ["./packages/audit/src/*"],
-      "@supervisor/db": ["./packages/db/src/index.ts"],
-      "@supervisor/db/*": ["./packages/db/src/*"],
-      "@supervisor/embeddings": ["./packages/embeddings/src/index.ts"],
-      "@supervisor/embeddings/*": ["./packages/embeddings/src/*"],
-      "@supervisor/evolution": ["./packages/evolution/src/index.ts"],
-      "@supervisor/evolution/*": ["./packages/evolution/src/*"],
-      "@supervisor/governance": ["./packages/governance/src/index.ts"],
-      "@supervisor/governance/*": ["./packages/governance/src/*"],
-      "@supervisor/llm": ["./packages/llm/src/index.ts"],
-      "@supervisor/llm/*": ["./packages/llm/src/*"],
-      "@supervisor/planner": ["./packages/planner/src/index.ts"],
-      "@supervisor/planner/*": ["./packages/planner/src/*"],
-      "@supervisor/rag": ["./packages/rag/src/index.ts"],
-      "@supervisor/rag/*": ["./packages/rag/src/*"],
-      "@supervisor/stt": ["./packages/stt/src/index.ts"],
-      "@supervisor/stt/*": ["./packages/stt/src/*"],
-      "@supervisor/vision": ["./packages/vision/src/index.ts"],
-      "@supervisor/vision/*": ["./packages/vision/src/*"]
+      "@supervisor/vision": ["packages/vision/src/index.ts"],
+      "@supervisor/vision/*": ["packages/vision/src/*"]
     }
   },
   "include": [

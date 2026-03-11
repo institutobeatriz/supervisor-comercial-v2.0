@@ -125,13 +125,23 @@ export async function getContactByPhone(phone: string): Promise<Contact | null> 
 export async function upsertConversation(
   input: UpsertConversationInput
 ): Promise<Conversation> {
-  // Upsert atômico para evitar corrida e múltiplas conversas "open" por contato.
-  // Requer índice único parcial em (contact_id) WHERE status='open'.
+  // Buscar conversa aberta existente
+  const existing = await query<Conversation>(
+    `SELECT * FROM conversations 
+     WHERE contact_id = $1 AND status = 'open'
+     ORDER BY created_at DESC 
+     LIMIT 1`,
+    [input.contact_id]
+  );
+
+  if (existing.rows[0]) {
+    return existing.rows[0];
+  }
+
+  // Criar nova conversa
   const result = await query<Conversation>(
     `INSERT INTO conversations (contact_id, seller_id, status, funnel_stage)
      VALUES ($1, $2, 'open', 'lead')
-     ON CONFLICT (contact_id) WHERE status = 'open'
-     DO UPDATE SET seller_id = conversations.seller_id
      RETURNING *`,
     [input.contact_id, input.seller_id]
   );
@@ -179,24 +189,7 @@ export async function insertMessage(input: InsertMessageInput): Promise<Message>
       input.raw_event_id || null,
     ]
   );
-  if (result.rows[0]) {
-    return result.rows[0];
-  }
-
-  if (input.whatsapp_message_id) {
-    const existing = await query<Message>(
-      `SELECT * FROM messages
-       WHERE conversation_id = $1 AND whatsapp_message_id = $2
-       ORDER BY created_at DESC
-       LIMIT 1`,
-      [input.conversation_id, input.whatsapp_message_id]
-    );
-    if (existing.rows[0]) {
-      return existing.rows[0];
-    }
-  }
-
-  throw new Error('Failed to insert or recover message');
+  return result.rows[0];
 }
 
 export async function getMessageById(id: string): Promise<Message | null> {
@@ -606,16 +599,12 @@ export async function getConversationDetail(conversationId: string): Promise<Rec
 export async function getWeeklyReport(
   sellerId: string,
   startDate: Date,
-  _endDate: Date
+  endDate: Date
 ): Promise<ReportWeekly | null> {
-  const weekStart = startDate.toISOString().slice(0, 10);
   const result = await query<ReportWeekly>(
     `SELECT * FROM reports_weekly 
-     WHERE ($1::uuid IS NULL OR seller_id = $1)
-       AND week_start = $2::date
-     ORDER BY created_at DESC
-     LIMIT 1`,
-    [sellerId || null, weekStart]
+     WHERE seller_id = $1 AND period_start = $2 AND period_end = $3`,
+    [sellerId, startDate, endDate]
   );
   return result.rows[0] || null;
 }
@@ -726,7 +715,7 @@ export async function getLeadsByTemperature(
     FROM conversations c
     LEFT JOIN conversation_insights ci ON ci.conversation_id = c.id
     WHERE c.status = 'open' AND ($1::uuid IS NULL OR c.seller_id = $1)
-    GROUP BY 1
+    GROUP BY temperature
     ORDER BY temperature`,
     [sellerId || null]
   );
@@ -1444,7 +1433,7 @@ export async function getPendingReviews(limit: number = 50, offset: number = 0):
   const result = await query<any>(
     `SELECT hr.*, c.contact_id, ct.display_name as contact_name
      FROM human_reviews hr
-     JOIN conversations c ON c.id::text = hr.conversation_id
+     JOIN conversations c ON c.id = hr.conversation_id
      LEFT JOIN contacts ct ON ct.id = c.contact_id
      WHERE hr.status = 'pending'
      ORDER BY hr.created_at DESC
@@ -1458,7 +1447,7 @@ export async function getReviewById(id: string): Promise<any> {
   const result = await query<any>(
     `SELECT hr.*, c.contact_id, ct.display_name as contact_name
      FROM human_reviews hr
-     JOIN conversations c ON c.id::text = hr.conversation_id
+     JOIN conversations c ON c.id = hr.conversation_id
      LEFT JOIN contacts ct ON ct.id = c.contact_id
      WHERE hr.id = $1`,
     [id]
@@ -1466,8 +1455,8 @@ export async function getReviewById(id: string): Promise<any> {
   return result.rows[0] || null;
 }
 
-export async function approveReview(id: string, reviewer: string, outcome: string, valueCents?: number, notes?: string): Promise<any | null> {
-  return transaction(async (client) => {
+export async function approveReview(id: string, reviewer: string, outcome: string, valueCents?: number, notes?: string): Promise<boolean> {
+  return await transaction(async (client) => {
     // Buscar a revisão
     const reviewRes = await client.query(
       'SELECT * FROM human_reviews WHERE id = $1 AND status = $2',
@@ -1475,25 +1464,17 @@ export async function approveReview(id: string, reviewer: string, outcome: strin
     );
     
     if (reviewRes.rows.length === 0) {
-      return null;
+      return false;
     }
     
     const review = reviewRes.rows[0];
-    const finalOutcome = ['won', 'lost', 'in_progress'].includes(outcome) ? outcome : review.suggested_outcome;
-    const finalValueCents = valueCents ?? review.suggested_value_cents ?? null;
     
     // Atualizar a revisão
-    const updateRes = await client.query(
+    await client.query(
       `UPDATE human_reviews 
-       SET status = 'approved',
-           reviewed_by = $1,
-           reviewed_at = NOW(),
-           review_notes = COALESCE($2, review_notes),
-           final_outcome = $3,
-           final_value_cents = COALESCE($4, final_value_cents)
-       WHERE id = $5
-       RETURNING *`,
-      [reviewer, notes, finalOutcome, finalValueCents, id]
+       SET status = 'approved', reviewer = $1, reviewed_at = NOW(), notes = COALESCE($2, notes)
+       WHERE id = $3`,
+      [reviewer, notes, id]
     );
     
     // Criar sales_outcome
@@ -1502,31 +1483,28 @@ export async function approveReview(id: string, reviewer: string, outcome: strin
        VALUES ($1, $2, $3, NULL)
        ON CONFLICT (conversation_id) 
        DO UPDATE SET outcome = $2, value_cents = $3, updated_at = NOW()`,
-      [review.conversation_id, finalOutcome, finalValueCents]
+      [review.conversation_id, review.suggested_outcome, valueCents || review.suggested_value_cents]
     );
     
     // Atualizar conversa
     await client.query(
       `UPDATE conversations SET status = 'closed', funnel_stage = CASE WHEN $1 = 'won' THEN 'closed_won' ELSE 'closed_lost' END WHERE id = $2`,
-      [finalOutcome, review.conversation_id]
+      [review.suggested_outcome, review.conversation_id]
     );
     
-    return updateRes.rows[0];
+    return true;
   });
 }
 
-export async function rejectReview(id: string, reviewer: string, notes?: string): Promise<any | null> {
+export async function rejectReview(id: string, reviewer: string, notes?: string): Promise<boolean> {
   const result = await query(
     `UPDATE human_reviews 
-     SET status = 'rejected',
-         reviewed_by = $1,
-         reviewed_at = NOW(),
-         review_notes = COALESCE($2, review_notes)
+     SET status = 'rejected', reviewer = $1, reviewed_at = NOW(), notes = COALESCE($2, notes)
      WHERE id = $3 AND status = 'pending'
-     RETURNING *`,
+     RETURNING id`,
     [reviewer, notes, id]
   );
-  return result.rows[0] || null;
+  return result.rowCount > 0;
 }
 
 export async function getReviewStats(): Promise<any> {

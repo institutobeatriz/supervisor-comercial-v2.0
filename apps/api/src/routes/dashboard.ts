@@ -29,8 +29,6 @@ const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
 redis.on('error', () => {}); // Suprime unhandled error event quando Redis está offline
 redis.connect().catch((err: Error) => console.warn('[Cache] Redis offline - cache desativado:', err.message));
 
-const NEGATIVE_SENTIMENT_THRESHOLD = 2; // Escala 1..5 (1=muito negativo)
-
 async function cachedQuery<T>(
   key: string,
   ttlSeconds: number,
@@ -143,8 +141,10 @@ export async function dashboardRoutes(app: FastifyInstance) {
     `, [sellerId || null, startDate, endDate]);
     const contatados = parseInt((contatadosResult.rows[0] as { period: string })?.period || '0');
 
-    // Reusa a mesma regra da camada DB: won / (won + lost) * 100
-    const taxaConversao = Math.round((kpis.conversion_rate || 0) * 10) / 10;
+    // Cálculo correto da taxa de conversão
+    // Formula: (vendas ganhas / total de conversas) × 100
+    const taxaConversaoCalculada = (kpis.sales_won / Math.max(kpis.leads_received, 1)) * 100;
+    const taxaConversao = Math.round(taxaConversaoCalculada * 10) / 10; // Uma casa decimal
 
     return {
       faturamentoMes: kpis.revenue_cents / 100,
@@ -469,10 +469,10 @@ export async function dashboardRoutes(app: FastifyInstance) {
       FROM message_labels ml
       JOIN messages m ON m.id = ml.message_id
       JOIN conversations c ON c.id = m.conversation_id
-      WHERE c.status = 'open' AND m.direction = 'inbound' AND ml.sentiment <= $2
+      WHERE c.status = 'open' AND m.direction = 'inbound' AND ml.sentiment < 40
         AND ($1::uuid IS NULL OR c.seller_id = $1)
       GROUP BY ml.intent ORDER BY count DESC`,
-      [sellerId || null, NEGATIVE_SENTIMENT_THRESHOLD]
+      [sellerId || null]
     );
     
     const noResponseResult = await query<any>(

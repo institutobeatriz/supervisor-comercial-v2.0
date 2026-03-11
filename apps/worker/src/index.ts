@@ -6,7 +6,6 @@
 import { Queue, Worker, Job } from 'bullmq';
 import cron from 'node-cron';
 import { Pool } from 'pg';
-import http from 'node:http';
 import { classifyMessage, isSale, isLost, MessageClassification } from '@supervisor/llm';
 import { logAudit, createAuditEntry, truncateText, createLogger } from '@supervisor/audit';
 import { ralphLoop, createPlannerContext, getAdjustedThreshold } from '@supervisor/planner';
@@ -28,8 +27,6 @@ const schedulerLog = createLogger('scheduler');
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://app:app@localhost:5432/sales_supervisor';
 const TIMEZONE = process.env.SCHEDULER_TIMEZONE || 'America/Sao_Paulo';
-const WORKER_HEALTH_HOST = process.env.WORKER_HEALTH_HOST || '0.0.0.0';
-const WORKER_HEALTH_PORT = parseInt(process.env.WORKER_HEALTH_PORT || '3002', 10);
 
 // Lanes configuration
 const LANE_CONFIG = {
@@ -46,9 +43,6 @@ function parseRedisUrl(url: string) {
 
 const connection = parseRedisUrl(REDIS_URL);
 const db = new Pool({ connectionString: DATABASE_URL });
-let isShuttingDown = false;
-let hasHealthServerStarted = false;
-let healthServer: http.Server | null = null;
 
 workerLog.info({ redis: connection, lanes: Object.keys(LANE_CONFIG) }, 'Worker v2.0 starting');
 
@@ -703,8 +697,7 @@ Regras: máximo 3 wins, 3 mistakes, 2 next_best_actions. summary em 1-2 linhas. 
 // ============================================
 // VISION WORKER - Comprovante detection
 // ============================================
-// Canonical env is EVOLUTION_URL; keep EVOLUTION_API_URL for backward compatibility.
-const EVOLUTION_URL_WORKER = process.env.EVOLUTION_URL || process.env.EVOLUTION_API_URL || 'http://localhost:8080';
+const EVOLUTION_URL_WORKER = process.env.EVOLUTION_URL || 'http://localhost:8080';
 const EVOLUTION_KEY_WORKER = process.env.EVOLUTION_API_KEY;
 
 async function downloadBase64ForVision(
@@ -1106,102 +1099,15 @@ cron.schedule('0 4 1 * *', async () => {
 
 workerLog.info({ timezone: TIMEZONE }, 'Worker v2.0 ready');
 
-async function getWorkerReadiness(): Promise<{ statusCode: number; payload: Record<string, unknown> }> {
-  if (isShuttingDown) {
-    return {
-      statusCode: 503,
-      payload: {
-        status: 'shutting_down',
-        ready: false,
-        worker_count: workers.length,
-        timestamp: new Date().toISOString(),
-      },
-    };
-  }
-
-  try {
-    await db.query('SELECT 1');
-    return {
-      statusCode: 200,
-      payload: {
-        status: 'ready',
-        ready: true,
-        worker_count: workers.length,
-        timezone: TIMEZONE,
-        timestamp: new Date().toISOString(),
-      },
-    };
-  } catch (error) {
-    return {
-      statusCode: 503,
-      payload: {
-        status: 'not_ready',
-        ready: false,
-        worker_count: workers.length,
-        error: error instanceof Error ? error.message : 'unknown',
-        timestamp: new Date().toISOString(),
-      },
-    };
-  }
-}
-
-function startHealthServer() {
-  if (hasHealthServerStarted) return;
-  hasHealthServerStarted = true;
-
-  healthServer = http.createServer(async (req, res) => {
-    if (req.url !== '/health' && req.url !== '/ready') {
-      res.writeHead(404, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'not_found' }));
-      return;
-    }
-
-    const readiness = await getWorkerReadiness();
-    res.writeHead(readiness.statusCode, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(readiness.payload));
-  });
-
-  healthServer.listen(WORKER_HEALTH_PORT, WORKER_HEALTH_HOST, () => {
-    workerLog.info({ host: WORKER_HEALTH_HOST, port: WORKER_HEALTH_PORT }, 'Worker health server listening');
-  });
-}
-
-startHealthServer();
-
 // Keep alive
 setInterval(() => {
   workerLog.debug('Heartbeat');
 }, 60000);
 
 // Graceful shutdown
-async function shutdown(signal: string) {
-  if (isShuttingDown) return;
-  isShuttingDown = true;
-
-  workerLog.info({ signal }, 'Shutting down...');
+process.on('SIGTERM', async () => {
+  workerLog.info('Shutting down...');
   await Promise.all(workers.map(w => w.close()));
-  await Promise.all(Object.values(queues).map((q) => q.close()));
   await db.end();
-
-  if (healthServer) {
-    await new Promise<void>((resolve) => {
-      healthServer?.close(() => resolve());
-    });
-  }
-
   process.exit(0);
-}
-
-process.on('SIGTERM', () => {
-  shutdown('SIGTERM').catch((error) => {
-    workerLog.error({ err: error }, 'Shutdown failed');
-    process.exit(1);
-  });
-});
-
-process.on('SIGINT', () => {
-  shutdown('SIGINT').catch((error) => {
-    workerLog.error({ err: error }, 'Shutdown failed');
-    process.exit(1);
-  });
 });

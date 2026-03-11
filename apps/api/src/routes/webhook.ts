@@ -9,8 +9,7 @@ const log = createLogger('webhook');
 const mediaLog = createLogger('media');
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
-// Canonical env is EVOLUTION_URL; keep EVOLUTION_API_URL for backward compatibility.
-const EVOLUTION_URL = process.env.EVOLUTION_URL || process.env.EVOLUTION_API_URL || 'http://localhost:8080';
+const EVOLUTION_URL = process.env.EVOLUTION_URL || 'http://172.27.207.185:8080';
 const EVOLUTION_KEY = process.env.EVOLUTION_API_KEY;
 
 // Baixar mídia descriptada da Evolution API
@@ -162,36 +161,26 @@ async function processMessage(instance: string, data: unknown, fastify: any, raw
       conversation_id: conv.id, seller_id: key.fromMe ? seller.id : undefined,
       direction: dir, type: type as any, text, media_url: url, media_mime: mime,
       timestamp: ts, raw_event: data as Record<string, unknown>,
-      whatsapp_message_id: key.id,
       raw_event_id: rawEventId,
     });
     await updateConversationLastMessage(conv.id);
 
     const q = getQueues();
-    // Processar áudio:
-    // 1) base64 no próprio payload (mais rápido e resiliente)
-    // 2) Evolution API para obter mídia descriptografada
-    // 3) fallback com mediaKey + URL .enc
-    if (type === 'audio') {
-      if (base64) {
-        log.info({ messageId: msg.id, base64Chars: base64.length }, 'Audio base64 found in payload');
-        await q.sttQueue!.add('transcribe', { messageId: msg.id, mediaUrl: url || '', base64, mediaMime: mime });
-      } else if (url) {
-        log.info({ messageId: msg.id }, 'Audio detected, downloading from Evolution API');
-        const decryptedBase64 = await downloadDecryptedMedia(instance, { id: key.id, remoteJid: key.remoteJid });
+    // Processar áudio - tentar Evolution API, se falhar usar descriptografia local
+    if (type === 'audio' && url) {
+      // Primeiro, tentar baixar da Evolution API
+      log.info({ messageId: msg.id }, 'Audio detected, downloading from Evolution API');
+      const decryptedBase64 = await downloadDecryptedMedia(instance, { id: key.id, remoteJid: key.remoteJid });
 
-        if (decryptedBase64) {
-          log.info({ messageId: msg.id, base64Chars: decryptedBase64.length }, 'Audio obtained via Evolution API');
-          await q.sttQueue!.add('transcribe', { messageId: msg.id, mediaUrl: url, base64: decryptedBase64, mediaMime: mime });
-        } else if (mediaKey) {
-          // Fallback: descriptografia local com mediaKey
-          log.warn({ messageId: msg.id }, 'Evolution API failed, falling back to local decryption with mediaKey');
-          await q.sttQueue!.add('transcribe', { messageId: msg.id, mediaUrl: url, mediaKey, mediaMime: mime });
-        } else {
-          log.warn({ messageId: msg.id }, 'Could not process audio: no base64 or mediaKey available');
-        }
+      if (decryptedBase64) {
+        log.info({ messageId: msg.id, base64Chars: decryptedBase64.length }, 'Audio obtained via Evolution API');
+        await q.sttQueue!.add('transcribe', { messageId: msg.id, mediaUrl: url, base64: decryptedBase64, mediaMime: mime });
+      } else if (mediaKey) {
+        // Fallback: descriptografia local com mediaKey
+        log.warn({ messageId: msg.id }, 'Evolution API failed, falling back to local decryption with mediaKey');
+        await q.sttQueue!.add('transcribe', { messageId: msg.id, mediaUrl: url, mediaKey, mediaMime: mime });
       } else {
-        log.warn({ messageId: msg.id }, 'Could not process audio: no media url/base64 available');
+        log.warn({ messageId: msg.id }, 'Could not process audio: no base64 or mediaKey available');
       }
     }
     if (text && dir === 'inbound') await q.classifyQueue!.add('classify', {
@@ -210,7 +199,6 @@ async function processMessage(instance: string, data: unknown, fastify: any, raw
         messageKeyRemoteJid: key.remoteJid,
         mime: mime || 'image/jpeg',
         type,
-        base64: base64 || undefined,
       }, {
         jobId: `vision-${msg.id}`,
         attempts: 3,

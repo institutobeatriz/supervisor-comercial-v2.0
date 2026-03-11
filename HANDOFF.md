@@ -2,106 +2,107 @@
 
 ## Projeto
 - Nome: `supervisor-comercial`
-- Objetivo atual: concluir a trilha premium do dashboard comercial e da observabilidade enterprise, mantendo rastreabilidade por fases e validacao objetiva.
+- Objetivo atual: concluir a trilha premium do dashboard comercial e da observabilidade enterprise, mantendo rastreabilidade por fases, CI remoto canônico e continuidade entre Codex/Claude.
 
 ## Leitura minima para continuar
 1. `AGENTS.md`
-2. `PROJECT_RULES.md`
-3. `TODO_AI.md`
-4. `docs/analise-projeto/10-memoria-execucao-fases.md`
-5. `docs/analise-projeto/46-fase-35-validacao.md`
-6. `docs/analise-projeto/09-plano-conclusao-dashboard-comercial.md`
+2. `CLAUDE.md`
+3. `PROJECT_RULES.md`
+4. `TODO_AI.md`
+5. `docs/analise-projeto/10-memoria-execucao-fases.md`
+6. `docs/analise-projeto/55-fase-44-validacao.md`
+7. `docs/analise-projeto/09-plano-conclusao-dashboard-comercial.md`
+8. `docs/standalone-repo-flow.md`
 
 ## Estado atual
-- Responsavel anterior: Codex
-- Data do handoff: 2026-03-09
-- Ultima fase concluida: Fase 35
-- Proxima fase liberada: Fase 36
-- Fase em andamento: Fase 36 (parcial)
+- Responsavel anterior: Claude (claude-sonnet-4-6)
+- Data do handoff: 2026-03-11
+- Ultima fase concluida: Fase 44
+- Proxima fase liberada: Fase 45
+- Fase em andamento: nenhuma
 
 ## O que foi concluido ate agora
-- Fases 0 a 35 concluidas e registradas na memoria oficial.
-- A trilha live/backend-first segue com fluxo oficial recorrente de governanca (`phase34`) em cima do motor runtime da Fase 33.
-- A Fase 35 convergiu a trilha legada de observability para backend-first por materializacao automatica de payload.
-- O smoke live passou a exigir `200` em `summary`, `feed`, `history` e `dashboard`, sem tolerancia a `503`.
-- O painel operacional segue validado em browser/headless com SSE, incidents, alerts, API SLA e analytics executivo.
+- Fases 0 a 44 concluidas e registradas na memoria oficial.
+- O módulo coletor dedicado (`phase44-operational-collector.mjs`) existe com modos `file` e `synthetic`.
+- O provider aceita `collectorSources` para bypass do file-reading quando o coletor já normalizou as fontes.
+- O producer dedicado (`phase42`) integra o coletor opcionalmente via `FULLCYCLE_CONNECTOR_OBS_BACKEND_USE_COLLECTOR=true`.
+- Os contratos das Fases 41/42/43 continuam válidos.
 
-## Avanco atual da Fase 36
-- O ruido inicial de `401` no bootstrap do painel foi eliminado localmente.
-- O template do painel agora consome `adminKey`/`role`/`limit`/`apiBase` da query string antes do primeiro refresh.
-- O motor live da Fase 33 agora falha se detectar requests `401` de bootstrap nos endpoints protegidos do painel.
-- Foi criado um preflight explicito de GitHub Actions: `scripts/phase36-observability-github-actions-preflight.mjs`.
-- O preflight confirmou: `gh` autenticado, mas `remote origin` ausente; portanto a execucao em runner GitHub real esta bloqueada neste estado do repositorio.
+## O que a Fase 44 entregou
+- Provider canônico atualizado: `scripts/observability-operational-provider.mjs`
+  - Novo: opção `collectorSources` em `loadOperationalProvider`
+  - Quando `collectorSources` presente: bypass da leitura de arquivos
+- Módulo coletor (novo): `scripts/phase44-operational-collector.mjs`
+  - Exporta: `collectOperationalSources(options)`, `validateCollectorSources(sources)`
+  - Modos: `file` (default) | `synthetic`
+  - Env: `FULLCYCLE_CONNECTOR_OBS_COLLECTOR_MODE`
+  - Entry point guard via `import.meta.url`
+- Drill (novo): `scripts/phase44-operational-collector-drill.mjs`
+- Producer atualizado: `scripts/phase42-observability-operational-provider-producer.mjs`
+  - Novo: `FULLCYCLE_CONNECTOR_OBS_BACKEND_USE_COLLECTOR` (bool, default false)
+  - Novo: `FULLCYCLE_CONNECTOR_OBS_COLLECTOR_MODE` (string, default 'file')
+- Scripts adicionados em `package.json`: `test:phase44`, `monitor:fullcycle:observability:collector`
+- CI standalone: `config/standalone-export.json` com `test:phase44` em `validateCommands`
 
 ## Ultima entrega relevante
-### Fase 36 (em andamento)
-- Template do painel: `scripts/phase31-observability-panel-backend-template.html`
-- Motor live endurecido: `scripts/phase33-observability-live-runtime-validation.mjs`
-- Preflight GitHub: `scripts/phase36-observability-github-actions-preflight.mjs`
-- Dashboard de preflight: `docs/fullcycle-connectors-observability-github-preflight.md`
+### Fase 44
+- Evidencia oficial: `docs/analise-projeto/55-fase-44-validacao.md`
+- Memoria oficial atualizada: `docs/analise-projeto/10-memoria-execucao-fases.md`
+- Artefatos gerados:
+  - `logs/monitoring/phase44-drill/drill-report.json`
+  - `logs/monitoring/phase44-drill/phase44-integration-contract.json`
 
-## Arquivos alterados no andamento atual
-- `scripts/phase31-observability-panel-backend-template.html`
-- `scripts/phase33-observability-live-runtime-validation.mjs`
-- `scripts/phase36-observability-github-actions-preflight.mjs`
-- `docs/fullcycle-connectors-observability-github-preflight.md`
+## Arquivos alterados na fase concluida
+- `scripts/observability-operational-provider.mjs`
+- `scripts/phase44-operational-collector.mjs` (novo)
+- `scripts/phase44-operational-collector-drill.mjs` (novo)
+- `scripts/phase42-observability-operational-provider-producer.mjs`
+- `package.json`
+- `config/standalone-export.json`
+- `docs/analise-projeto/55-fase-44-validacao.md` (novo)
+- `docs/analise-projeto/10-memoria-execucao-fases.md`
 - `HANDOFF.md`
 - `TODO_AI.md`
 
 ## O que esta funcionando
+- `npm run test:phase44`: OK (worktree) — file_mode + synthetic_mode + integration
+- `npm run test:phase43`: OK (worktree)
+- `npm run test:phase39`: OK
+- `npm run test:phase40`: OK
+- `npm run test:phase41`: OK
+- `npm run test:phase42`: OK (workspace principal)
 - `npm run build -w @supervisor/api`: OK
-- `npm run test:phase32`: OK
-- `npm run test:phase33`: OK
-- `npm run test:phase34`: OK
-- `npm run test:phase35`: OK
-- `npm run test:phase31`: OK
-- `npm run monitor:fullcycle:observability:compat`: OK
-- `npm run monitor:fullcycle:observability:live`: OK
-- Smoke live observability: `smokeOk=28`, `smokeFail=0`
-- Contrato live estruturado: `contractValidated=20`, `contractFail=0`, `requiredChecks=18/18`
-- Endpoints legados endurecidos no smoke: `summary=200`, `feed=200`, `history=200`, `dashboard=200`
-- Compatibilidade legada: `status=pass`, `compatibilityMode=materialized_from_backend_first`
-- Painel headless: `conn=connected`, `incidents=1 visible`, `alerts=1 visible`, `sla=2 points`, `teams=2`
-- Ruido de bootstrap do painel: `browserBootstrapAuthNoise=0`
-- Analytics executivo live: HTTP `200`, `ownerCoveragePct=100`
 
 ## O que ainda nao foi fechado
-- O caminho das Fases 34/35 segue sem execucao em runner GitHub real porque este repositorio local nao possui `remote origin`.
-- Sem `remote`, nao ha como disparar ou inspecionar GitHub Actions reais sem publicar o codigo em um repositorio novo ou conectar a um remoto existente.
-- Os dashboards HTML internos continuam com assets inline, mesmo com CSP route-scoped correto.
-- A integracao de on-call continua file-based (`rotation/calendar`) sem provedor externo real.
+- O coletor é um stub: integração com serviço externo real fica para iteração futura.
+- O producer usa o coletor apenas quando `USE_COLLECTOR=true`: migração default fica para iteração futura.
+- As Fases 43 e 44 ainda não foram propagadas para o repo standalone canônico de CI.
+- O chain completo (phase30+) só é validado no workspace principal; o worktree esparso executa os drills sem o chain.
 
 ## Proximo passo exato
-Iniciar a Fase 36 com este recorte:
-1. conectar este repo a um `remote origin` existente ou autorizar a criacao/publicacao de um remoto privado;
-2. executar a trilha das Fases 34/35 em runner GitHub real;
-3. coletar evidencia objetiva do browser/services do CI e registrar o resultado final da Fase 36.
-
-## Hipotese principal da proxima fase
-- O principal gap funcional da trilha legada foi fechado na Fase 35.
-- O ruido local do painel foi resolvido; o bloqueio restante agora e exclusivamente a ausencia de `remote origin` para GitHub Actions reais.
-- Antes de abrir outra frente de enriquecimento visual, vale fechar a robustez final do gate live em ambiente GitHub.
+Iniciar a Fase 45 com este recorte:
+1. Propagar Fases 43 e 44 para o repo standalone canônico (PR + GitHub Actions).
+2. Decidir quando `USE_COLLECTOR=true` deve virar o default no producer.
+3. Validar CI remoto verde após propagação.
 
 ## Como testar o estado atual
 ```bash
+npm run test:phase44
+npm run test:phase43
+npm run test:phase42
+npm run test:phase39
+npm run test:phase40
+npm run test:phase41
 npm run build -w @supervisor/api
-npm run test:phase32
-npm run test:phase33
-npm run test:phase34
-npm run test:phase35
-npm run monitor:fullcycle:observability:compat
-npm run monitor:fullcycle:observability:live
-node scripts/phase36-observability-github-actions-preflight.mjs
+npm run monitor:fullcycle:observability:backend
+npm run monitor:fullcycle:observability:enforcement
 ```
 
 ## Observacoes importantes
-- Este repositorio ja esta com worktree sujo; nao reverter mudancas alheias.
-- `docs/analise-projeto/10-memoria-execucao-fases.md` e a fonte historica oficial.
-- `HANDOFF.md` nao substitui a memoria; ele resume o agora.
-- A Fase 34 continua como wrapper oficial do gate live e agora embute a compatibilidade da Fase 35.
-- A Fase 35 garante disponibilidade da trilha legada sem confundir isso com o status operacional do backend.
-- O smoke live agora tem report estruturado, falha por contrato e nao tolera `503` nos endpoints legados principais.
-- A Fase 36 ainda nao pode ser concluida sem um remoto GitHub real conectado a este repositorio local.
+- Este diretorio continua dentro de um repo Git maior; nao confundir o Git do workspace com o repo standalone publicado.
+- `docs/analise-projeto/10-memoria-execucao-fases.md` continua sendo a fonte historica oficial.
+- `HANDOFF.md` resume apenas o estado atual.
+- O repo standalone publicado segue sendo o repositorio canonico de CI remoto ate nova decisao estrutural.
 - Ao terminar cada fase, atualizar este arquivo, `TODO_AI.md`, memoria oficial e criar commit WIP focado na fase.
 
 ## Prompt curto para a proxima IA
@@ -109,10 +110,13 @@ Continue este projeto a partir do estado atual do repositorio.
 
 Leia primeiro:
 1. `AGENTS.md`
-2. `PROJECT_RULES.md`
-3. `HANDOFF.md`
-4. `TODO_AI.md`
-5. `docs/analise-projeto/10-memoria-execucao-fases.md`
+2. `CLAUDE.md`
+3. `PROJECT_RULES.md`
+4. `HANDOFF.md`
+5. `TODO_AI.md`
+6. `docs/analise-projeto/10-memoria-execucao-fases.md`
+7. `docs/analise-projeto/55-fase-44-validacao.md`
+8. `docs/standalone-repo-flow.md`
 
 Objetivo:
-Continuar exatamente da Fase 36, sem refatoracao ampla desnecessaria e sem duplicar a memoria historica do projeto.
+Continuar exatamente da Fase 45, sem refatoracao ampla desnecessaria e sem duplicar a memoria historica do projeto.
