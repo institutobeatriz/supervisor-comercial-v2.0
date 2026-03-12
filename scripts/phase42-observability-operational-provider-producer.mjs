@@ -95,7 +95,6 @@ async function main() {
     providerMode: envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_MODE', 'materialized_contract'),
     producerMode: envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_MODE', 'dedicated_script'),
     materializeContract: envBool('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_MATERIALIZE', true),
-    allowLegacyFallback: envBool('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_ALLOW_LEGACY_FALLBACK', false),
     requireProvider: envBool('FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_PROVIDER', true),
     requireProducer: envBool('FULLCYCLE_CONNECTOR_OBS_BACKEND_REQUIRE_OPERATIONAL_PRODUCER', true),
     deprecationTarget: envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_DEPRECATION_TARGET', 'phase43-disable-legacy-fallback'),
@@ -113,8 +112,8 @@ async function main() {
     reportFile: cfg.producerReportFile,
     dashboardFile: cfg.producerDashboardFile,
     auditFile: cfg.producerAuditFile,
-    legacyFallbackAllowed: cfg.allowLegacyFallback,
-    legacyFallbackState: cfg.allowLegacyFallback ? 'deprecated_allowed' : 'disabled',
+    legacyFallbackAllowed: false,
+    legacyFallbackState: 'disabled',
     deprecationTarget: cfg.deprecationTarget,
   };
 
@@ -160,7 +159,6 @@ async function main() {
       ts,
       providerMode: cfg.providerMode,
       materializeContract: cfg.materializeContract,
-      allowLegacyFallback: cfg.allowLegacyFallback,
       contractFile: cfg.contractFile,
       automationStateFile: cfg.automationStateFile,
       snapshotFile: cfg.snapshotFile,
@@ -171,13 +169,6 @@ async function main() {
     });
 
     const providerMeta = provider.meta || {};
-    if (cfg.allowLegacyFallback) {
-      violations.push({
-        code: 'legacy_fallback_deprecated_still_enabled',
-        blocking: false,
-        message: 'legacy fallback remains enabled; official path should move to disabled state',
-      });
-    }
     if (cfg.requireProducer && !providerMeta.contractLoaded) {
       violations.push({
         code: 'operational_producer_contract_unavailable',
@@ -221,7 +212,7 @@ async function main() {
       backendStatus: backendReport?.status || (phase41Run ? 'unknown' : 'skipped'),
       backendProviderMode: backendReport?.operationalProvider?.mode || null,
       legacyFallbackState: providerMeta?.legacyFallbackState || producerDescriptor.legacyFallbackState,
-      legacyFallbackAllowed: providerMeta?.legacyFallbackAllowed === true || cfg.allowLegacyFallback,
+      legacyFallbackAllowed: false,
       deprecationTarget: providerMeta?.deprecationTarget || cfg.deprecationTarget,
       // phase46: expose collector state in summary for smoke checks and governance
       collectorEnabled: cfg.useCollector,
@@ -238,7 +229,6 @@ async function main() {
         materializeContract: cfg.materializeContract,
         requireProvider: cfg.requireProvider,
         requireProducer: cfg.requireProducer,
-        allowLegacyFallback: cfg.allowLegacyFallback,
         deprecationTarget: cfg.deprecationTarget,
         contractFile: cfg.contractFile,
         producerReportFile: cfg.producerReportFile,
@@ -323,7 +313,7 @@ async function main() {
         loadedSources: 0,
         missingSources: 0,
         backendStatus: 'failed',
-        legacyFallbackState: cfg.allowLegacyFallback ? 'deprecated_allowed' : 'disabled',
+        legacyFallbackState: 'disabled',
         deprecationTarget: cfg.deprecationTarget,
       },
       providerMeta: null,

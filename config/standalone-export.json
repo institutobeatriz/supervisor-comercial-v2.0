@@ -44,7 +44,8 @@
     "npm run test:phase44",
     "npm run test:phase46",
     "npm run test:phase47",
-    "npm run test:phase48"
+    "npm run test:phase48",
+    "npm run test:phase49"
   ],
   "git": {
     "repo": "institutobeatriz/supervisor-comercial-v2.0",

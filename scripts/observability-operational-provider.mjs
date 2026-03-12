@@ -289,15 +289,14 @@ function buildProviderMeta({ cfg, mode, contract, sources, contractLoaded, loadE
     materialized,
     materializationMode: contract?.materializationMode || (mode === 'materialized_contract' ? 'controlled' : 'legacy'),
     materializedBy: contract?.materializedBy || null,
-    allowLegacyFallback: cfg.allowLegacyFallback,
     producerMode: producer?.mode || null,
     producerGeneratedAt: producer?.generatedAt || null,
     producerReady: producer ? producer.ready !== false : null,
     producerReportFile: producer?.reportFile || null,
     producerDashboardFile: producer?.dashboardFile || null,
     producerAuditFile: producer?.auditFile || null,
-    legacyFallbackState: producer?.legacyFallbackState || (cfg.allowLegacyFallback ? 'deprecated_allowed' : 'disabled'),
-    legacyFallbackAllowed: producer?.legacyFallbackAllowed === true || cfg.allowLegacyFallback,
+    legacyFallbackState: 'disabled',
+    legacyFallbackAllowed: false,
     deprecationTarget: producer?.deprecationTarget || null,
     sources,
     summary: summarizeSources(sources),
@@ -337,8 +336,6 @@ export async function loadOperationalProvider(options = {}) {
   const cfg = {
     providerMode: options.providerMode || envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_MODE', 'materialized_contract'),
     materializeContract: options.materializeContract ?? envBool('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_MATERIALIZE', true),
-    allowLegacyFallback: options.allowLegacyFallback ?? envBool('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_ALLOW_LEGACY_FALLBACK', false),
-    enforceNoLegacy: options.enforceNoLegacy ?? envBool('FULLCYCLE_CONNECTOR_OBS_BACKEND_ENFORCE_NO_LEGACY', false),
     contractFile: options.contractFile || envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE', path.resolve(process.cwd(), 'logs/monitoring/fullcycle-connector-observability-operational-provider.json')),
     automationStateFile: options.automationStateFile || envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE', envString('INCIDENT_AUTOMATION_STATE_FILE', path.resolve(process.cwd(), 'logs/monitoring/incident-automation-state.json'))),
     snapshotFile: options.snapshotFile || envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_SNAPSHOT_FILE', envString('ITSM_SNAPSHOT_FILE', path.resolve(process.cwd(), 'logs/monitoring/itsm-snapshot.json'))),
@@ -367,25 +364,6 @@ export async function loadOperationalProvider(options = {}) {
     ...legacyRaw,
   };
 
-  if (cfg.providerMode !== 'materialized_contract') {
-    if (cfg.enforceNoLegacy) {
-      throw new Error(
-        `[phase43-enforce] legacy_files mode is blocked: providerMode=${cfg.providerMode} but enforceNoLegacy=true. ` +
-        'Set FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_MODE=materialized_contract to use the canonical path.',
-      );
-    }
-    const meta = buildProviderMeta({
-      cfg,
-      mode: 'legacy_files',
-      contract: null,
-      sources: legacySources,
-      contractLoaded: false,
-      loadError: null,
-      materialized: false,
-    });
-    return { ...asOperationalInputs({ meta, contractLoaded: false, contract: null, legacy }), contract: null };
-  }
-
   let contract = null;
   let loadError = null;
   let materialized = false;
@@ -407,25 +385,6 @@ export async function loadOperationalProvider(options = {}) {
     } else {
       loadError = loadedContract ? 'invalid_contract' : 'missing_contract';
     }
-  }
-
-  if (!contract && cfg.allowLegacyFallback) {
-    if (cfg.enforceNoLegacy) {
-      throw new Error(
-        `[phase43-enforce] legacy fallback is blocked: allowLegacyFallback=true but enforceNoLegacy=true. ` +
-        'Set FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_ALLOW_LEGACY_FALLBACK=false to comply with phase43 enforcement.',
-      );
-    }
-    const meta = buildProviderMeta({
-      cfg,
-      mode: 'materialized_contract',
-      contract: null,
-      sources: legacySources,
-      contractLoaded: false,
-      loadError,
-      materialized,
-    });
-    return { ...asOperationalInputs({ meta, contractLoaded: false, contract: null, legacy }), contract: null };
   }
 
   const contractLoaded = isOperationalContract(contract);
