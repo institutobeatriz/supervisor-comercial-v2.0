@@ -1,14 +1,17 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 45
-- Proxima fase liberada: Fase 46
+- Ultima fase concluida: Fase 46
+- Proxima fase liberada: Fase 47
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: Fases 43/44 propagadas para o repo standalone canonico; CI remoto verde (run 22969299196, PR #10); proximo passo e definir Fase 46 conforme plano
+- Estado atual: collector e o default do producer; summary expoe collectorEnabled/collectorMode; CI verde run 22969908488; proximo passo e avaliar fase 47 conforme plano
 
 ## Prioridade alta
-- [ ] Fase 46: definir proximo passo conforme `docs/analise-projeto/09-plano-conclusao-dashboard-comercial.md`
-- [ ] Fase 46: decidir quando `USE_COLLECTOR=true` deve virar o default no producer
+- [ ] Fase 47: avaliar proxima necessidade conforme plano de conclusao
+- [ ] Fase 47: integrar coletor com servico externo real (substituir stub atual)
+- [x] Fase 46: fazer USE_COLLECTOR=true o default no producer
+- [x] Fase 46: expor collectorEnabled/collectorMode no summary do producer
+- [x] Fase 46: adicionar enforcement smoke phase46
 - [x] Fase 45: propagar Fases 43 e 44 para o repo standalone canonico (PR + GitHub Actions)
 - [x] Fase 45: validar CI remoto verde apos propagacao
 - [x] Fase 44: implementar o coletor/stub concreto respeitando a `OPERATIONAL_COLLECTOR_INTERFACE`
@@ -47,6 +50,7 @@
 - o repo canonico de CI remoto continua separado do git root principal do workspace
 - arquivos untracked no git principal nao sao populados no worktree esparso; cada sync pode deletar arquivos do export-repo se nao estiverem no worktree; mitigacao: copiar untracked antes de cada sync
 - PR #10 aguarda review/merge pelo mantenedor do repo canonical
+- o coletor usa dados sinteticos em CI (modo file sem arquivos reais); integração com serviço externo fica para Fase 47+
 
 ## Dividas tecnicas
 - integrar o coletor com um servico externo real substituindo o stub atual

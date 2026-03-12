@@ -222,6 +222,88 @@ async function buildFileSources({ automationStateFile, snapshotFile, fullcycleRe
 }
 
 // ---------------------------------------------------------------------------
+// API-based sources (fetches from internal observability API)
+// ---------------------------------------------------------------------------
+
+async function buildApiSources({ apiBaseUrl, apiKey }) {
+  const url = `${apiBaseUrl}/api/observability/connectors/backend/report`;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+  let response;
+  try {
+    response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'x-admin-key': apiKey || '',
+        'x-observability-role': 'executive',
+      },
+      signal: controller.signal,
+    });
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      throw new Error('collector api timeout');
+    }
+    throw new Error(`collector api unreachable: ${err.message}`);
+  }
+  clearTimeout(timeoutId);
+
+  if (!response.ok) {
+    throw new Error(`collector api returned status ${response.status}`);
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (err) {
+    throw new Error('collector api response not JSON');
+  }
+
+  const rawSources = data?.sources || data?.backend?.sources || {};
+  return mapApiSourcesToCollectorFormat(rawSources);
+}
+
+function mapApiSourcesToCollectorFormat(rawSources) {
+  const ia = rawSources?.incidentAutomation || {};
+  const it = rawSources?.itsmSnapshot || {};
+  const fr = rawSources?.fullcycleReport || {};
+
+  return {
+    incidentAutomation: {
+      key: 'incidentAutomation',
+      label: 'Incident automation state',
+      file: '(api)',
+      loaded: Boolean(ia.loaded),
+      timestamp: ia.timestamp || null,
+      incidentCount: typeof ia.incidentCount === 'number' ? ia.incidentCount : 0,
+      incidents: ia.incidents && typeof ia.incidents === 'object' ? ia.incidents : {},
+    },
+    itsmSnapshot: {
+      key: 'itsmSnapshot',
+      label: 'ITSM snapshot',
+      file: '(api)',
+      loaded: Boolean(it.loaded),
+      timestamp: it.timestamp || null,
+      pagingCount: typeof it.pagingCount === 'number' ? it.pagingCount : (Array.isArray(it.paging) ? it.paging.length : 0),
+      ticketCount: typeof it.ticketCount === 'number' ? it.ticketCount : (Array.isArray(it.tickets) ? it.tickets.length : 0),
+      paging: Array.isArray(it.paging) ? it.paging : [],
+      tickets: Array.isArray(it.tickets) ? it.tickets : [],
+    },
+    fullcycleReport: {
+      key: 'fullcycleReport',
+      label: 'Fullcycle report',
+      file: '(api)',
+      loaded: Boolean(fr.loaded),
+      timestamp: fr.timestamp || null,
+      status: typeof fr.status === 'string' ? fr.status : 'unknown',
+      ownerCoveragePct: typeof fr.ownerCoveragePct === 'number' ? fr.ownerCoveragePct : null,
+      summary: fr.summary && typeof fr.summary === 'object' ? fr.summary : {},
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Main collector function (exported for direct import)
 // ---------------------------------------------------------------------------
 
@@ -229,7 +311,9 @@ async function buildFileSources({ automationStateFile, snapshotFile, fullcycleRe
  * Collect operational sources respecting OPERATIONAL_COLLECTOR_INTERFACE.
  *
  * @param {object} options
- * @param {string} [options.mode='file']        - 'file' | 'synthetic'
+ * @param {string} [options.mode='file']        - 'file' | 'synthetic' | 'api'
+ * @param {string} [options.apiBaseUrl]         - base URL for api mode
+ * @param {string} [options.apiKey]             - API key for api mode
  * @param {string} [options.automationStateFile]
  * @param {string} [options.snapshotFile]
  * @param {string} [options.fullcycleReportFile]
@@ -251,11 +335,21 @@ export async function collectOperationalSources(options = {}) {
     options.fullcycleReportFile ||
     envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_REPORT_FILE',
       envString('FULLCYCLE_REPORT_FILE', path.resolve(process.cwd(), 'logs/monitoring/fullcycle-governance-report.json')));
+  const apiBaseUrl =
+    options.apiBaseUrl ||
+    envString('FULLCYCLE_CONNECTOR_OBS_COLLECTOR_API_URL', 'http://localhost:3000');
+  const apiKey =
+    options.apiKey ||
+    envString('FULLCYCLE_CONNECTOR_OBS_COLLECTOR_API_KEY',
+      envString('ADMIN_API_KEY', ''));
 
   let sources;
   let collectorMode = mode;
 
-  if (mode === 'synthetic') {
+  if (mode === 'api') {
+    sources = await buildApiSources({ apiBaseUrl, apiKey });
+    collectorMode = 'api';
+  } else if (mode === 'synthetic') {
     sources = buildSyntheticSources(ts);
   } else {
     sources = await buildFileSources({ automationStateFile, snapshotFile, fullcycleReportFile });

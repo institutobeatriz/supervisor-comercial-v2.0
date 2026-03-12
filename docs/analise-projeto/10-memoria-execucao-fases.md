@@ -55,6 +55,7 @@
 | Fase 43 - Enforcement do legacy fallback e interface do coletor | CONCLUIDA | 2026-03-11 | 2026-03-11 | `54-fase-43-validacao.md` | Enforcement real via `enforceNoLegacy`, interface `OPERATIONAL_COLLECTOR_INTERFACE` canonizada, smoke exige `legacyFallbackState=disabled`, drill pass/legacy_blocked/mode_blocked |
 | Fase 44 - Integração do coletor operacional dedicado | CONCLUIDA | 2026-03-11 | 2026-03-11 | `55-fase-44-validacao.md` | Módulo coletor com modos `file`/`synthetic`, opção `collectorSources` no provider, integração opcional no producer via `USE_COLLECTOR`, drill file_mode/synthetic_mode/integration passando |
 | Fase 45 - Propagação das Fases 43+44 para CI standalone canônico | CONCLUIDA | 2026-03-11 | 2026-03-11 | `56-fase-45-validacao.md` | PR #10 aberto em institutobeatriz/supervisor-comercial-v2.0; CI GitHub Actions verde após restauração de package.json, tsconfig, route files, migrations 001-004/008/016-019 e 75 scripts; todos os drills (phase34 live governance gate incluído) passando |
+| Fase 46 - Collector como caminho default do producer | CONCLUIDA | 2026-03-11 | 2026-03-11 | `57-fase-46-validacao.md` | USE_COLLECTOR default alterado para true; collectorEnabled/collectorMode adicionados ao summary; enforcement smoke phase46; drill phase46 (default/bypass/contract) passando; CI verde run 22969908488 |
 
 ## Log de checkpoints
 
