@@ -58,6 +58,7 @@
 | Fase 46 - Collector como caminho default do producer | CONCLUIDA | 2026-03-11 | 2026-03-11 | `57-fase-46-validacao.md` | USE_COLLECTOR default alterado para true; collectorEnabled/collectorMode adicionados ao summary; enforcement smoke phase46; drill phase46 (default/bypass/contract) passando; CI verde run 22969908488 |
 | Fase 47 - Modo API no coletor operacional | CONCLUIDA | 2026-03-12 | 2026-03-12 | `58-fase-47-validacao.md` | buildApiSources() com fetch+AbortController (8s timeout); mapApiSourcesToCollectorFormat(); branch api em collectOperationalSources(); env vars COLLECTOR_API_URL/COLLECTOR_API_KEY; drill phase47 (api_unreachable/api_mode_contract/mode_env_selection) passando; CI verde run 22981720840 |
 | Fase 48 - Modo service no coletor operacional | CONCLUIDA | 2026-03-12 | 2026-03-12 | `59-fase-48-validacao.md` | _serviceCache singleton; buildServiceSources() lazy poll NaN-safe (TTL 300s default); branch service antes de api; env COLLECTOR_SERVICE_TTL_MS; 4 drills (cache_hit/cache_miss/stale_refresh/env_selection) passando; OPERATIONAL_COLLECTOR_INTERFACE.integrationModes fechado; CI verde run 22983410484 |
+| Fase 49 - Remoção cirúrgica do legacy fallback | CONCLUIDA | 2026-03-12 | 2026-03-12 | `60-fase-49-validacao.md` | Dead branches if(providerMode!='materialized_contract') e if(!contract&&allowLegacyFallback) removidos; legacyFallbackState hardcoded 'disabled'; buildLegacySources() mantida; 4 drills passando; CI verde run 23000418395 |
 
 ## Log de checkpoints
 

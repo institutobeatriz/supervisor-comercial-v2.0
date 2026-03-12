@@ -1,14 +1,19 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 48
-- Proxima fase liberada: Fase 49 (a definir)
+- Ultima fase concluida: Fase 49
+- Proxima fase liberada: Fase 50 (a definir)
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: OPERATIONAL_COLLECTOR_INTERFACE.integrationModes completamente implementado (file/api/service); CI verde run 22983410484; proximo passo e avaliar fase 49
+- Estado atual: dead branches do legacy_files removidos; legacyFallbackState hardcoded 'disabled'; CI verde run 23000418395; proximo passo e avaliar fase 50
 
 ## Prioridade alta
-- [ ] Fase 49: avaliar proxima necessidade conforme plano de conclusao
-- [ ] Fase 49: decidir quando `backend/producer` vira obrigatorio sem fallback em todos os ambientes
+- [ ] Fase 50: avaliar proxima necessidade conforme plano de conclusao
+- [ ] Fase 50: decidir quando `backend/producer` vira obrigatorio sem fallback em todos os ambientes
+- [x] Fase 49: remover dead branches if(providerMode!='materialized_contract') e if(!contract&&allowLegacyFallback)
+- [x] Fase 49: hardcodar legacyFallbackState:'disabled' e legacyFallbackAllowed:false
+- [x] Fase 49: drill phase49 (no_legacy_mode_branch/legacy_fallback_state_hardcoded_disabled/legacy_fallback_allowed_hardcoded_false/allow_legacy_fallback_option_ignored) passando
+- [x] Fase 49: test:phase49 no package.json e standalone-export.json
+- [x] Fase 49: CI remoto verde run 23000418395
 - [x] Fase 48: implementar modo `service` (lazy poll, cache TTL 300s, NaN-safe)
 - [x] Fase 48: drill phase48 (cache_hit/cache_miss/stale_refresh/env_selection) passando
 - [x] Fase 48: test:phase48 no package.json e standalone-export.json
@@ -26,10 +31,10 @@
 ## Prioridade baixa
 - [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`)
 - [ ] Revisar politica `minTeams=0` da gate final do painel
+- [ ] Limpar `cfg.providerMode` de `loadOperationalProvider()` — dead config após Fase 49, sem impacto funcional
 
 ## Bugs / riscos abertos
 - O producer usa o coletor por default (`USE_COLLECTOR=true`) mas em CI usa mode=file sem arquivos reais
-- O fallback `legacy_files` persiste com enforcement ativo bloqueando ativacao inadvertida
 - O chain completo (phase30+) so e validado no workspace principal
 - PR #10 aguarda review/merge pelo mantenedor do repo canonical
 - `buildServiceSources` sem guard contra stampede concorrente (harmless para use case atual)
