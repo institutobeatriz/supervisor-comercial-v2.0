@@ -1,14 +1,18 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 46
-- Proxima fase liberada: Fase 47
+- Ultima fase concluida: Fase 47
+- Proxima fase liberada: Fase 48 (a definir)
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: collector e o default do producer; summary expoe collectorEnabled/collectorMode; CI verde run 22969908488; proximo passo e avaliar fase 47 conforme plano
+- Estado atual: coletor tem modos file/synthetic/api; modo api chama endpoint interno com fetch+timeout; CI verde run 22981720840; proximo passo e avaliar fase 48 conforme plano
 
 ## Prioridade alta
-- [ ] Fase 47: avaliar proxima necessidade conforme plano de conclusao
-- [ ] Fase 47: integrar coletor com servico externo real (substituir stub atual)
+- [ ] Fase 48: avaliar proxima necessidade conforme plano de conclusao (`09-plano-conclusao-dashboard-comercial.md`)
+- [ ] Fase 48: implementar modo `service` do coletor (terceiro modo declarado em OPERATIONAL_COLLECTOR_INTERFACE)
+- [x] Fase 47: adicionar modo `api` ao coletor (buildApiSources, mapApiSourcesToCollectorFormat, branch api em collectOperationalSources)
+- [x] Fase 47: drill phase47 (api_unreachable/api_mode_contract/mode_env_selection) passando
+- [x] Fase 47: test:phase47 no package.json e standalone-export.json
+- [x] Fase 47: CI remoto verde run 22981720840
 - [x] Fase 46: fazer USE_COLLECTOR=true o default no producer
 - [x] Fase 46: expor collectorEnabled/collectorMode no summary do producer
 - [x] Fase 46: adicionar enforcement smoke phase46
@@ -32,7 +36,7 @@
 - [x] Fase 40: validar cenarios `healthy/stale/missing` na trilha live, compat e CI remoto
 
 ## Prioridade media
-- [ ] Propagar Fases 43 e 44 para o repo standalone canonico (PR + GitHub Actions)
+- [ ] Implementar modo `service` do coletor (terceiro modo declarado em OPERATIONAL_COLLECTOR_INTERFACE)
 - [ ] Decidir quando `backend/provider` e `backend/producer` devem virar dependencias obrigatorias sem fallback em todos os ambientes
 - [ ] Definir se `backend/analytics` deve aparecer diretamente na UI executiva do painel
 - [ ] Avaliar se a extracao futura para um git root proprio ainda traz ganho operacional relevante apos a Fase 37
@@ -42,19 +46,18 @@
 - [ ] Revisar se a politica `minTeams=0` da gate final do painel deve continuar so em CI limpo ou se precisa de dataset minimo sintetico
 
 ## Bugs / riscos abertos
-- o coletor é um stub: integração com serviço externo real fica para iteração futura
-- o producer usa o coletor apenas quando `USE_COLLECTOR=true`: migração default fica para iteração futura
+- o modo `service` do coletor (OPERATIONAL_COLLECTOR_INTERFACE) ainda nao esta implementado
+- o modo `api` usa endpoint interno real, mas CI usa mock server; integracao com producao requer URL/key configurados
+- o producer usa o coletor por default agora, mas o stub lê arquivos locais (mode=file) em CI sem dados reais
 - o fallback `legacy_files` persiste no codigo-base como compatibilidade, com enforcement ativo bloqueando sua ativacao inadvertida
 - o chain completo (phase30+) so e validado no workspace principal; o worktree esparso executa o drill sem o chain
 - `docs/fullcycle-connectors-observability-live-governance.md` continua sendo artefato gerado e muda a cada execucao da rotina live
 - o repo canonico de CI remoto continua separado do git root principal do workspace
 - arquivos untracked no git principal nao sao populados no worktree esparso; cada sync pode deletar arquivos do export-repo se nao estiverem no worktree; mitigacao: copiar untracked antes de cada sync
 - PR #10 aguarda review/merge pelo mantenedor do repo canonical
-- o coletor usa dados sinteticos em CI (modo file sem arquivos reais); integração com serviço externo fica para Fase 47+
 
 ## Dividas tecnicas
-- integrar o coletor com um servico externo real substituindo o stub atual
-- decidir o rollout default do coletor no producer (migrar `USE_COLLECTOR` para `true` por default)
+- implementar modo `service` do coletor substituindo o stub atual por chamada a servico dedicado
 - decidir o papel de longo prazo de `backend/analytics` na UI executiva
 - avaliar se o git root principal deve ser extraido no futuro ou se o fluxo standalone ja cobre a necessidade operacional
 - manter alinhados os contratos dos dashboards HTML internos com a trilha live/compat real

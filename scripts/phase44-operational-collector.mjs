@@ -304,6 +304,27 @@ function mapApiSourcesToCollectorFormat(rawSources) {
 }
 
 // ---------------------------------------------------------------------------
+// Service-based sources (lazy polling with in-memory cache)
+// ---------------------------------------------------------------------------
+
+const _serviceCache = { sources: null, fetchedAt: null };
+
+async function buildServiceSources({ apiBaseUrl, apiKey, ttlMs }) {
+  const now = Date.now();
+  const age = _serviceCache.fetchedAt !== null ? now - _serviceCache.fetchedAt : Infinity;
+
+  if (_serviceCache.sources !== null && age < ttlMs) {
+    return _serviceCache.sources; // cache hit
+  }
+
+  // cache miss or stale — fetch fresh
+  const fresh = await buildApiSources({ apiBaseUrl, apiKey });
+  _serviceCache.sources = fresh;
+  _serviceCache.fetchedAt = now;
+  return fresh;
+}
+
+// ---------------------------------------------------------------------------
 // Main collector function (exported for direct import)
 // ---------------------------------------------------------------------------
 
@@ -311,9 +332,10 @@ function mapApiSourcesToCollectorFormat(rawSources) {
  * Collect operational sources respecting OPERATIONAL_COLLECTOR_INTERFACE.
  *
  * @param {object} options
- * @param {string} [options.mode='file']        - 'file' | 'synthetic' | 'api'
+ * @param {string} [options.mode='file']        - 'file' | 'synthetic' | 'api' | 'service'
  * @param {string} [options.apiBaseUrl]         - base URL for api mode
  * @param {string} [options.apiKey]             - API key for api mode
+ * @param {number} [options.serviceTtlMs]       - cache TTL for service mode (default 300000)
  * @param {string} [options.automationStateFile]
  * @param {string} [options.snapshotFile]
  * @param {string} [options.fullcycleReportFile]
@@ -342,11 +364,19 @@ export async function collectOperationalSources(options = {}) {
     options.apiKey ||
     envString('FULLCYCLE_CONNECTOR_OBS_COLLECTOR_API_KEY',
       envString('ADMIN_API_KEY', ''));
+  const serviceTtlMs = (() => {
+    if (typeof options.serviceTtlMs === 'number') return options.serviceTtlMs;
+    const fromEnv = Number(envString('FULLCYCLE_CONNECTOR_OBS_COLLECTOR_SERVICE_TTL_MS', '300000'));
+    return Number.isFinite(fromEnv) ? fromEnv : 300000;
+  })();
 
   let sources;
   let collectorMode = mode;
 
-  if (mode === 'api') {
+  if (mode === 'service') {
+    sources = await buildServiceSources({ apiBaseUrl, apiKey, ttlMs: serviceTtlMs });
+    collectorMode = 'service';
+  } else if (mode === 'api') {
     sources = await buildApiSources({ apiBaseUrl, apiKey });
     collectorMode = 'api';
   } else if (mode === 'synthetic') {
