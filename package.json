@@ -67,6 +67,7 @@
     "test:phase48": "node scripts/phase48-collector-service-mode-drill.mjs",
     "test:phase49": "node scripts/phase49-legacy-removal-drill.mjs",
     "test:phase50": "node scripts/phase50-analytics-ui-drill.mjs",
+    "test:phase51": "node scripts/phase51-producer-mandatory-drill.mjs",
     "monitor:check": "node scripts/phase10-monitoring-slo.mjs",
     "monitor:chaos": "node scripts/phase11-chaos-drills.mjs",
     "monitor:reliability": "node scripts/phase12-reliability-metrics.mjs",
