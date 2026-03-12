@@ -1,38 +1,48 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 35
-- Proxima fase liberada: Fase 36
+- Ultima fase concluida: Fase 49
+- Proxima fase liberada: Fase 50 (a definir)
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual da Fase 36: andamento parcial com bloqueio operacional (`remote origin` ausente)
+- Estado atual: dead branches do legacy_files removidos; legacyFallbackState hardcoded 'disabled'; CI verde run 23000418395; proximo passo e avaliar fase 50
 
 ## Prioridade alta
-- [ ] Fase 36: conectar este repo a um `remote origin` existente ou autorizar a criacao/publicacao de um remoto privado
-- [x] Fase 36: reduzir o ruido de bootstrap do painel (`401` antes do `adminKey`) sem quebrar a validacao headless/live
-- [ ] Fase 36: executar a trilha das Fases 34/35 em runner GitHub real com evidencia objetiva do browser e dos services
-- [ ] Fase 36: confirmar que o gate live permanece verde em CI com os endpoints legados endurecidos em `200`
+- [ ] Fase 50: avaliar proxima necessidade conforme plano de conclusao
+- [ ] Fase 50: decidir quando `backend/producer` vira obrigatorio sem fallback em todos os ambientes
+- [x] Fase 49: remover dead branches if(providerMode!='materialized_contract') e if(!contract&&allowLegacyFallback)
+- [x] Fase 49: hardcodar legacyFallbackState:'disabled' e legacyFallbackAllowed:false
+- [x] Fase 49: drill phase49 (no_legacy_mode_branch/legacy_fallback_state_hardcoded_disabled/legacy_fallback_allowed_hardcoded_false/allow_legacy_fallback_option_ignored) passando
+- [x] Fase 49: test:phase49 no package.json e standalone-export.json
+- [x] Fase 49: CI remoto verde run 23000418395
+- [x] Fase 48: implementar modo `service` (lazy poll, cache TTL 300s, NaN-safe)
+- [x] Fase 48: drill phase48 (cache_hit/cache_miss/stale_refresh/env_selection) passando
+- [x] Fase 48: test:phase48 no package.json e standalone-export.json
+- [x] Fase 48: CI remoto verde run 22983410484
+- [x] Fase 47: adicionar modo `api` ao coletor (buildApiSources, mapApiSourcesToCollectorFormat)
+- [x] Fase 46: fazer USE_COLLECTOR=true o default no producer
+- [x] Fase 45: propagar Fases 43 e 44 para o repo standalone canonico (PR + GitHub Actions)
+- [x] Fase 44: implementar o coletor/stub concreto respeitando a `OPERATIONAL_COLLECTOR_INTERFACE`
+- [x] Fase 43: transformar `phase43-disable-legacy-fallback` em enforcement real
 
 ## Prioridade media
-- [ ] Decidir se os dashboards HTML internos devem migrar gradualmente para assets externos para reduzir dependencia de CSP route-scoped
-- [ ] Avaliar se `backend/analytics` deve aparecer diretamente na UI executiva do painel
-- [ ] Definir horizonte de descontinuacao formal da camada legada agora que a compatibilidade backend-first esta materializada
-- [x] Criar preflight objetivo para verificar `gh auth` + `remote origin` + capacidade de consultar workflows/runs
+- [ ] Definir se `backend/analytics` deve aparecer diretamente na UI executiva do painel
+- [ ] Avaliar se a extracao futura para um git root proprio ainda traz ganho operacional relevante
 
 ## Prioridade baixa
-- [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`) com a memoria atual
-- [ ] Evoluir a origem do on-call de arquivos locais para fonte operacional real sem perder o contrato atual
+- [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`)
+- [ ] Revisar politica `minTeams=0` da gate final do painel
+- [ ] Limpar `cfg.providerMode` de `loadOperationalProvider()` — dead config após Fase 49, sem impacto funcional
 
 ## Bugs / riscos abertos
-- caminho CI real das Fases 34/35 ainda nao foi exercitado em runner GitHub neste turno
-- repositorio local nao possui `remote origin`, bloqueando GitHub Actions reais
-- dashboards HTML internos continuam com `<script>`/`<style>` inline, embora agora protegidos por CSP especifico de rota
-- ownership de on-call ainda depende de `rotation/calendar` file-based
+- O producer usa o coletor por default (`USE_COLLECTOR=true`) mas em CI usa mode=file sem arquivos reais
+- O chain completo (phase30+) so e validado no workspace principal
+- PR #10 aguarda review/merge pelo mantenedor do repo canonical
+- `buildServiceSources` sem guard contra stampede concorrente (harmless para use case atual)
 
 ## Dividas tecnicas
-- decidir o papel de longo prazo da trilha legada agora que ela foi compatibilizada via backend-first
-- reduzir dependencia de assets inline nos dashboards HTML internos
-- decidir o papel exato de `backend/analytics` na UI, hoje validado live mas ainda sem consumo dedicado na tela
-- transformar o preflight GitHub da Fase 36 em execucao real assim que houver remoto conectado
+- Decidir quando `backend/producer` vira obrigatorio sem fallback
+- `backend/analytics` na UI executiva
+- Avaliar extração futura do git root principal
 
 ## Checklist obrigatorio para troca de IA
 - [x] atualizar `HANDOFF.md`
@@ -41,4 +51,4 @@
 - [x] listar arquivos alterados
 - [x] registrar testes executados
 - [x] registrar pendencias e proximo passo exato
-- [x] criar commit WIP focado apenas na fase
+- [x] criar commit WIP focado apenas no andamento atual
