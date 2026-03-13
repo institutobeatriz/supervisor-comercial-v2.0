@@ -13,6 +13,14 @@ function assert(condition, message) {
   }
 }
 
+function assertStrictHtmlShell(html, { cssRef, jsRef, templateId, label }) {
+  assert(html.includes(cssRef), `${label} should reference external css asset`);
+  assert(html.includes(jsRef), `${label} should reference external js asset`);
+  assert(html.includes(`id="${templateId}"`), `${label} should expose bootstrap template`);
+  assert(!/<style[\s>]/i.test(html), `${label} should not contain inline style tags`);
+  assert(!/<script(?![^>]*\bsrc=)[^>]*>/i.test(html), `${label} should not contain inline script tags`);
+}
+
 function runNode(scriptPath, env) {
   return new Promise((resolve) => {
     const child = spawn('node', [scriptPath], {
@@ -50,10 +58,12 @@ async function main() {
   const panelReportFile = path.resolve(DRILL_DIR, 'panel-report.json');
   const panelDashboardFile = path.resolve(DRILL_DIR, 'panel-dashboard.html');
   const panelAuditFile = path.resolve(DRILL_DIR, 'panel-audit.jsonl');
+  const panelAssetsDir = path.resolve(DRILL_DIR, 'assets');
 
   await fs.rm(panelReportFile, { force: true });
   await fs.rm(panelDashboardFile, { force: true });
   await fs.rm(panelAuditFile, { force: true });
+  await fs.rm(panelAssetsDir, { recursive: true, force: true });
 
   const now = Date.now();
   const iso = (offsetMs) => new Date(now + offsetMs).toISOString();
@@ -144,13 +154,24 @@ async function main() {
   const passReport = await readJson(panelReportFile);
   assert(passReport?.status === 'pass', `expected pass status, got ${passReport?.status}`);
   const passHtml = await fs.readFile(panelDashboardFile, 'utf-8');
-  assert(passHtml.includes('/api/observability/connectors/incidents/summary'), 'panel html should consume incidents summary endpoint');
-  assert(passHtml.includes('/api/observability/connectors/alerts/summary'), 'panel html should consume alerts summary endpoint');
-  assert(passHtml.includes('/api/observability/connectors/api-sla/summary'), 'panel html should consume api-sla summary endpoint');
-  assert(passHtml.includes('/api/observability/connectors/backend/report'), 'panel html should consume backend report endpoint for exec roles');
   assert(passHtml.includes('Connect SSE'), 'panel html should expose SSE action');
   assert(passHtml.includes('for=\"team\"'), 'panel html should expose team filter');
   assert(!passHtml.includes('bootstrap'), 'panel html should not embed legacy bootstrap payload');
+  assertStrictHtmlShell(passHtml, {
+    cssRef: './assets/fullcycle-connectors-observability-ops-panel.css',
+    jsRef: './assets/fullcycle-connectors-observability-ops-panel.js',
+    templateId: 'phase31-panel-data',
+    label: 'panel html',
+  });
+  const panelCssFile = path.resolve(panelAssetsDir, 'fullcycle-connectors-observability-ops-panel.css');
+  const panelJsFile = path.resolve(panelAssetsDir, 'fullcycle-connectors-observability-ops-panel.js');
+  assert(await fs.access(panelCssFile).then(() => true).catch(() => false), 'panel html should publish css asset');
+  assert(await fs.access(panelJsFile).then(() => true).catch(() => false), 'panel html should publish js asset');
+  const passJs = await fs.readFile(panelJsFile, 'utf-8');
+  assert(passJs.includes('/api/observability/connectors/incidents/summary'), 'panel js should consume incidents summary endpoint');
+  assert(passJs.includes('/api/observability/connectors/alerts/summary'), 'panel js should consume alerts summary endpoint');
+  assert(passJs.includes('/api/observability/connectors/api-sla/summary'), 'panel js should consume api-sla summary endpoint');
+  assert(passJs.includes('/api/observability/connectors/backend/report'), 'panel js should consume backend report endpoint for exec roles');
 
   await writeJson(backendStoreFile, {
     version: 1,
