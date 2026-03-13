@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import {
   TrendingUp, TrendingDown, Minus,
   DollarSign, ShoppingCart, Users, Target,
-  Clock, Zap, BarChart3, AlertTriangle,
+  Clock, Zap, BarChart3, AlertTriangle, Shield,
 } from 'lucide-react'
 import {
   AreaChart, Area, BarChart, Bar,
@@ -53,6 +53,20 @@ interface PipelineData {
   total_pipeline: number
   total_weighted: number
   total_count: number
+}
+
+interface AnalyticsCurrent {
+  activeRecords: number
+  assignedOwners: number
+  unassignedOwners: number
+  ownerCoveragePct: number | null
+  breachedEscalations: number
+}
+
+interface AnalyticsData {
+  generatedAt: string | null
+  current: AnalyticsCurrent | null
+  totalEntries: number
 }
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -141,6 +155,7 @@ export default function ExecutivoPage({
   const { data: comparison, loading: comparisonLoading, error: comparisonError } = useApi<Comparison>(`/dashboard/kpis-comparison?${compParams}`)
   const { data: evolution, loading: evolutionLoading, error: evolutionError } = useApi<DailyPoint[]>(`/dashboard/daily-evolution?${evolutionParams}`)
   const { data: pipeline, loading: pipelineLoading, error: pipelineError } = useApi<PipelineData>(`/dashboard/pipeline-weighted?${pipelineParams}`)
+  const { data: analytics } = useApi<AnalyticsData>('/observability/connectors/backend/analytics?limit=1')
   const primaryLoading = kpisLoading
   const hasAnyError = kpisError || comparisonError || evolutionError || pipelineError
   const noData = !kpis && !primaryLoading
@@ -513,6 +528,67 @@ export default function ExecutivoPage({
           </div>
         )}
       </div>
+
+      {/* ── Bloco 6: Cobertura Operacional (analytics) ── */}
+      {analytics?.current && (
+        <div className="glass rounded-xl p-4 glow-box mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+              <Shield size={14} className="text-accent-primary" /> Cobertura Operacional
+            </h3>
+            {analytics.generatedAt && (
+              <span className="text-[10px] text-gray-500">
+                {new Date(analytics.generatedAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+              </span>
+            )}
+          </div>
+
+          {(() => {
+            const pct = analytics.current!.ownerCoveragePct ?? 0
+            const color = pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444'
+            return (
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-gray-400">Cobertura de Owners</span>
+                  <span className="text-xs font-bold" style={{ color }}>{pct.toFixed(1)}%</span>
+                </div>
+                <div className="h-2 bg-dark-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: color }}
+                  />
+                </div>
+              </div>
+            )
+          })()}
+
+          <div className="grid grid-cols-3 gap-3 mb-3">
+            <div className="p-2 bg-dark-700/50 rounded-lg text-center">
+              <p className="text-[10px] text-gray-500 mb-0.5">Registros Ativos</p>
+              <p className="text-lg font-bold text-white">{analytics.current!.activeRecords}</p>
+            </div>
+            <div className="p-2 bg-dark-700/50 rounded-lg text-center">
+              <p className="text-[10px] text-gray-500 mb-0.5">Com Owner</p>
+              <p className="text-lg font-bold text-accent-success">{analytics.current!.assignedOwners}</p>
+            </div>
+            <div className="p-2 bg-dark-700/50 rounded-lg text-center">
+              <p className="text-[10px] text-gray-500 mb-0.5">Sem Owner</p>
+              <p className={`text-lg font-bold ${analytics.current!.unassignedOwners > 0 ? 'text-accent-warning' : 'text-gray-500'}`}>
+                {analytics.current!.unassignedOwners}
+              </p>
+            </div>
+          </div>
+
+          {analytics.current!.breachedEscalations > 0 && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-accent-danger/10 border border-accent-danger/20 rounded-lg">
+              <AlertTriangle size={13} className="text-accent-danger flex-shrink-0" />
+              <p className="text-xs text-accent-danger">
+                <strong>{analytics.current!.breachedEscalations}</strong> escalação{analytics.current!.breachedEscalations > 1 ? 'ões' : ''} com SLA violado
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </>
   )
 }
