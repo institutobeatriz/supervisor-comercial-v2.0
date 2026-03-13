@@ -212,11 +212,38 @@ function applyDashboardHtmlHeaders(reply: any) {
       "frame-ancestors 'none'",
       "img-src 'self' data:",
       "font-src 'self' data:",
-      "style-src 'self' 'unsafe-inline'",
-      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self'",
+      "script-src 'self'",
       "connect-src 'self' http: https: ws: wss:",
     ].join('; '),
   );
+}
+
+function getStaticAssetType(assetName: string): string | null {
+  if (assetName.endsWith('.css')) return 'text/css; charset=utf-8';
+  if (assetName.endsWith('.js')) return 'application/javascript; charset=utf-8';
+  return null;
+}
+
+async function serveDashboardAsset(reply: any, htmlFile: string, assetName: string, allowedAssets: string[]) {
+  const safeName = path.basename(String(assetName || '').trim());
+  if (!safeName || safeName !== assetName || !allowedAssets.includes(safeName)) {
+    return reply.code(404).send({ error: 'Asset not found', asset: assetName });
+  }
+
+  const assetType = getStaticAssetType(safeName);
+  if (!assetType) {
+    return reply.code(404).send({ error: 'Unsupported asset type', asset: safeName });
+  }
+
+  const assetFile = path.resolve(path.dirname(htmlFile), 'assets', safeName);
+  if (!(await fileExists(assetFile))) {
+    return reply.code(503).send({ error: 'Asset unavailable', asset: safeName, file: assetFile });
+  }
+
+  reply.header('cache-control', 'no-store');
+  reply.header('x-content-type-options', 'nosniff');
+  return reply.type(assetType).send(await fs.readFile(assetFile, 'utf-8'));
 }
 
 export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
@@ -234,6 +261,8 @@ export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
     backendReportFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_REPORT_FILE', 'logs/monitoring/fullcycle-connector-observability-backend-report.json'),
     backendDashboardFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_DASHBOARD_FILE', 'docs/fullcycle-connectors-observability-backend.md'),
     backendAnalyticsFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_ANALYTICS_FILE', 'logs/monitoring/fullcycle-connector-observability-backend-analytics.json'),
+    backendOperationalContractFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE', 'logs/monitoring/fullcycle-connector-observability-operational-provider.json'),
+    backendOperationalProducerReportFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PRODUCER_REPORT_FILE', 'logs/monitoring/fullcycle-connector-observability-operational-producer-report.json'),
     streamStateFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_STREAM_STATE_FILE', 'logs/monitoring/fullcycle-connector-observability-stream-state.json'),
     streamEventsFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_STREAM_EVENTS_FILE', 'logs/monitoring/fullcycle-connector-observability-stream-events.jsonl'),
     streamReportFile: resolvePath('FULLCYCLE_CONNECTOR_OBS_STREAM_REPORT_FILE', 'logs/monitoring/fullcycle-connector-observability-realtime-report.json'),
@@ -346,6 +375,17 @@ export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
     applyDashboardHtmlHeaders(reply);
     return reply.type('text/html').send(html);
   });
+
+  fastify.get('/observability/connectors/assets/:asset', async (request: any, reply) => serveDashboardAsset(
+    reply,
+    cfg.dashboardFile,
+    String(request.params?.asset || ''),
+    [
+      'fullcycle-connectors-observability-compat.css',
+      'fullcycle-connectors-observability.css',
+      'fullcycle-connectors-observability.js',
+    ],
+  ));
 
   // Sumario de SLA historico da API interna (operator+)
   fastify.get('/observability/connectors/api-sla/summary', async (request, reply) => {
@@ -503,6 +543,72 @@ export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // Relatorio consolidado do backend dedicado (executive+)
+  fastify.get('/observability/connectors/backend/summary', async (request, reply) => {
+    if (!(await requireAccess(request, reply, 'operator'))) return;
+    if (!(await fileExists(cfg.backendStoreFile))) {
+      return reply.code(503).send({
+        error: 'Observability backend summary unavailable',
+        file: cfg.backendStoreFile,
+      });
+    }
+
+    const [store, report, analytics] = await Promise.all([
+      readJson(cfg.backendStoreFile, {}),
+      readJson(cfg.backendReportFile, null),
+      readJson(cfg.backendAnalyticsFile, null),
+    ]);
+    const entries = Array.isArray(analytics?.entries) ? analytics.entries : [];
+
+    return {
+      role: getProvidedRole(request),
+      generatedAt: store?.generatedAt || report?.generatedAt || analytics?.generatedAt || null,
+      status: store?.status || report?.status || 'unknown',
+      summary: store?.summary || report?.summary || {},
+      oncall: store?.oncall || null,
+      operationalProvider: report?.operationalProvider || store?.operationalProvider || store?.oncall?.operationalProvider || analytics?.current?.operationalProvider || null,
+      operationalSources: report?.operationalSources || store?.operationalSources || analytics?.current?.operationalSources || null,
+      analytics: {
+        current: analytics?.current || null,
+        totalEntries: entries.length,
+      },
+    };
+  });
+
+  // Provider/contrato canonico da ingestao operacional (operator+)
+  fastify.get('/observability/connectors/backend/provider', async (request, reply) => {
+    if (!(await requireAccess(request, reply, 'operator'))) return;
+    if (!(await fileExists(cfg.backendOperationalContractFile))) {
+      return reply.code(503).send({
+        error: 'Observability backend provider unavailable',
+        file: cfg.backendOperationalContractFile,
+      });
+    }
+    const provider = await readJson(cfg.backendOperationalContractFile, {});
+    return {
+      role: getProvidedRole(request),
+      generatedAt: provider?.generatedAt || null,
+      provider,
+    };
+  });
+
+  // Producer dedicado da ingestao operacional (operator+)
+  fastify.get('/observability/connectors/backend/producer', async (request, reply) => {
+    if (!(await requireAccess(request, reply, 'operator'))) return;
+    if (!(await fileExists(cfg.backendOperationalProducerReportFile))) {
+      return reply.code(503).send({
+        error: 'Observability backend producer unavailable',
+        file: cfg.backendOperationalProducerReportFile,
+      });
+    }
+    const producer = await readJson(cfg.backendOperationalProducerReportFile, {});
+    return {
+      role: getProvidedRole(request),
+      generatedAt: producer?.generatedAt || null,
+      producer,
+    };
+  });
+
+  // Relatorio consolidado do backend dedicado (executive+)
   fastify.get('/observability/connectors/backend/report', async (request, reply) => {
     if (!(await requireAccess(request, reply, 'executive'))) return;
     if (!(await fileExists(cfg.backendReportFile))) {
@@ -566,6 +672,16 @@ export const observabilityRoutes: FastifyPluginAsync = async (fastify) => {
     applyDashboardHtmlHeaders(reply);
     return reply.type('text/html').send(html);
   });
+
+  fastify.get('/observability/connectors/realtime/assets/:asset', async (request: any, reply) => serveDashboardAsset(
+    reply,
+    cfg.panelDashboardFile,
+    String(request.params?.asset || ''),
+    [
+      'fullcycle-connectors-observability-ops-panel.css',
+      'fullcycle-connectors-observability-ops-panel.js',
+    ],
+  ));
 
   // Stream SSE interno para monitoramento executivo/operacional em tempo real
   fastify.get('/observability/connectors/stream', async (request, reply) => {

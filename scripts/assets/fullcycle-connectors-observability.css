@@ -1,0 +1,91 @@
+:root {
+  --bg: #f4f6ef;
+  --panel: #ffffff;
+  --ink: #182321;
+  --muted: #5c6e69;
+  --ok: #1f7a47;
+  --warn: #a66800;
+  --fail: #a51e2d;
+  --line: #d6ddd9;
+  --chip: #ebf0ed;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  background: radial-gradient(circle at 15% 0%, #f8fbf6 0%, #f1f5ef 42%, #e9eee8 100%);
+  color: var(--ink);
+}
+.wrap { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.hero {
+  background: linear-gradient(120deg, #173931, #1f4f42);
+  color: #f4fbf8;
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 32px rgba(24, 35, 33, 0.18);
+}
+.hero h1 { margin: 0 0 8px; font-size: 24px; }
+.meta { color: #cfe2da; font-size: 13px; }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+}
+.card .label { color: var(--muted); font-size: 12px; }
+.card .value { font-size: 24px; font-weight: 700; margin-top: 2px; }
+.section {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.section h2 { margin: 0 0 10px; font-size: 16px; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+select,
+button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+th { color: var(--muted); font-weight: 600; }
+.chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--chip);
+  font-size: 12px;
+}
+.status-pass { color: var(--ok); font-weight: 700; }
+.status-warn { color: var(--warn); font-weight: 700; }
+.status-fail { color: var(--fail); font-weight: 700; }
+.vlist { margin: 0; padding-left: 18px; }
+.vlist li { margin: 4px 0; }
+@media (max-width: 780px) {
+  .hero h1 { font-size: 20px; }
+  .card .value { font-size: 20px; }
+  table { font-size: 12px; }
+}
