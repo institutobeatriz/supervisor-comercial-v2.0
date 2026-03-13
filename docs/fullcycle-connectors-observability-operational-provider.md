@@ -1,6 +1,6 @@
 # Fullcycle Connectors Operational Provider
 
-- Generated at: 2026-03-13T12:33:36.804Z
+- Generated at: 2026-03-13T13:37:31.281Z
 - Backend status: WARN
 - Provider mode: materialized_contract
 - Contract loaded: yes

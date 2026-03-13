@@ -1,6 +1,6 @@
 # Fullcycle Connectors Observability Backend
 
-- Generated at: 2026-03-13T12:33:36.895Z
+- Generated at: 2026-03-13T13:37:31.396Z
 - Status: WARN
 - Environment: development
 - Stream status: unknown
@@ -30,7 +30,7 @@
 | Unassigned owners | 0 |
 | Owner coverage % | 100 |
 | Breached escalations | 0 |
-| Analytics history points | 32 |
+| Analytics history points | 37 |
 
 ## Teams
 
@@ -54,16 +54,16 @@
 
 | Timestamp | Coverage % | Open incidents | Active alerts | Breached escalations |
 |---|---:|---:|---:|---:|
-| 2026-03-13T12:33:36.895Z | 100 | 0 | 0 | 0 |
+| 2026-03-13T13:37:31.396Z | 100 | 0 | 0 | 0 |
+| 2026-03-13T13:37:30.030Z | 100 | 0 | 0 | 0 |
+| 2026-03-13T13:37:29.589Z | 100 | 0 | 0 | 0 |
+| 2026-03-13T13:37:29.119Z | 100 | 0 | 0 | 0 |
+| 2026-03-13T13:37:28.683Z | 100 | 0 | 0 | 0 |
+| 2026-03-13T12:33:36.849Z | 100 | 0 | 0 | 0 |
 | 2026-03-13T12:33:36.490Z | 100 | 0 | 0 | 0 |
 | 2026-03-13T12:33:36.138Z | 100 | 0 | 0 | 0 |
 | 2026-03-13T12:33:35.746Z | 100 | 0 | 0 | 0 |
 | 2026-03-13T12:33:34.666Z | 100 | 0 | 0 | 0 |
-| 2026-03-13T01:32:57.601Z | 100 | 0 | 0 | 0 |
-| 2026-03-13T01:32:57.238Z | 100 | 0 | 0 | 0 |
-| 2026-03-13T01:32:56.874Z | 100 | 0 | 0 | 0 |
-| 2026-03-13T01:32:56.501Z | 100 | 0 | 0 | 0 |
-| 2026-03-13T01:32:52.173Z | 100 | 0 | 0 | 0 |
 
 ## Violations
 

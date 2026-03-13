@@ -1,22 +1,23 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 52
-- Proxima fase liberada: Fase 53 (a definir)
+- Ultima fase concluida: Fase 53
+- Proxima fase liberada: Fase 54 (a definir)
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: dead config cfg.providerMode removido de loadOperationalProvider(); 4 drills passando; build TS OK; proximo passo e avaliar fase 53
+- Estado atual: política minTeams formalizada via drill; 4 drills passando; build TS OK; proximo passo e avaliar fase 54
 
 ## Prioridade alta
-- [ ] Fase 53: a definir — avaliar proxima necessidade conforme plano de conclusao
+- [ ] Fase 54: a definir — avaliar proxima necessidade conforme plano de conclusao
 
 ## Prioridade media
 - [ ] Avaliar se a extracao futura para um git root proprio ainda traz ganho operacional relevante
 
 ## Prioridade baixa
 - [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`)
-- [ ] Revisar politica `minTeams=0` da gate final do painel
 
 ## Fases concluidas (historico)
+- [x] Fase 53: drill formaliza política minTeams — MIN_TEAMS=0 permissivo, MIN_TEAMS>=1 exige times
+- [x] Fase 53: Revisar politica minTeams=0 da gate final do painel
 - [x] Fase 52: remover dead config cfg.providerMode de loadOperationalProvider()
 - [x] Fase 51: avaliar proxima necessidade conforme plano de conclusao
 - [x] Fase 51: decidir quando `backend/producer` vira obrigatorio sem fallback em todos os ambientes
@@ -36,7 +37,7 @@
 
 ## Bugs / riscos abertos
 - O chain completo (phase30+) so e validado no workspace principal
-- PR #11 aguarda review/merge pelo mantenedor do repo canonical
+- PR #13 aguarda review/merge pelo mantenedor do repo canonical
 
 ## Dividas tecnicas
 - Avaliar extração futura do git root principal
