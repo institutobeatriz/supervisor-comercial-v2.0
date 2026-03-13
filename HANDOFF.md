@@ -43,7 +43,7 @@
 ### Fase 52
 - Evidencia oficial: `docs/analise-projeto/63-fase-52-validacao.md`
 - Memoria oficial atualizada: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- CI run: (a preencher após publish)
+- CI run: https://github.com/institutobeatriz/supervisor-comercial-v2.0/actions/runs/23032233549
 
 ## Arquivos alterados na fase concluida
 - `scripts/observability-operational-provider.mjs` (1 linha removida)

@@ -42,9 +42,9 @@ desde a Fase 49, quando todas as branches condicionais que o consumiam foram rem
 
 ## CI remoto
 
-- PR: (a preencher após publish)
-- CI run: (a preencher após CI verde)
-- Conclusão: (a preencher)
+- PR: https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/12
+- CI run: https://github.com/institutobeatriz/supervisor-comercial-v2.0/actions/runs/23032233549
+- Conclusão: success (quality-and-smoke: ✅ 1m51s)
 
 ## Commits desta fase
 

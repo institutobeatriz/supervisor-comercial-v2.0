@@ -69,6 +69,7 @@
     "test:phase50": "node scripts/phase50-analytics-ui-drill.mjs",
     "test:phase51": "node scripts/phase51-producer-mandatory-drill.mjs",
     "test:phase52": "node scripts/phase52-providermode-cleanup-drill.mjs",
+    "test:phase53": "node scripts/phase53-minteams-policy-drill.mjs",
     "monitor:check": "node scripts/phase10-monitoring-slo.mjs",
     "monitor:chaos": "node scripts/phase11-chaos-drills.mjs",
     "monitor:reliability": "node scripts/phase12-reliability-metrics.mjs",
