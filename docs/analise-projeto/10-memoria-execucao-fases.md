@@ -66,6 +66,7 @@
 | Fase 54 - Fechamento do gap de CI (phase38-42) | CONCLUIDA | 2026-03-13 | 2026-03-13 | `65-fase-54-validacao.md` | Fix regressão phase42 drill (USE_COLLECTOR=false); meta-drill phase54 (5 drills); test:phase38-42 e test:phase54 adicionados ao validateCommands; build TS OK; CI verde run 23053638655 |
 | Fase 55 - Fechamento do gap de CI (phase14-30) | CONCLUIDA | 2026-03-13 | 2026-03-13 | `66-fase-55-validacao.md` | Meta-drill phase55 (17 drills phase14-30); test:phase14-30 e test:phase55 adicionados ao validateCommands; build TS OK; CI verde run 23055336215 |
 | Fase 56 - Standalone sync drill no CI (phase37) | CONCLUIDA | 2026-03-13 | 2026-03-13 | `67-fase-56-validacao.md` | drill phase56 (phase37_pass); test:phase37 e test:phase56 adicionados ao validateCommands; último gap de CI fechado; CI verde run 23066873046 |
+| Fase 57 - Drill de decisão de extração do git root | CONCLUIDA | 2026-03-13 | 2026-03-13 | `68-fase-57-validacao.md` | Drill formaliza decisão: git root separado não é necessário neste estágio; 4 drills (workspace_structure_sufficient/standalone_ci_validates_coverage/standalone_sync_scripts_present/decision_extraction_not_required) passando; validateCommands cobre 42 fases; decisão arquivada em JSON |
 
 ## Log de checkpoints
 

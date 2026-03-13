@@ -1,21 +1,19 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 56
-- Proxima fase liberada: Fase 57 (a definir)
+- Ultima fase concluida: Fase 57
+- Proxima fase liberada: Fase 58 (a definir)
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: todos os gaps de CI fechados (phase14-30, phase37-42, phase54-56); proximo passo e avaliar fase 57
+- Estado atual: git root extraction decision formalizada (Fase 57); próximo candidato: padronizar docs legados da raiz
 
 ## Prioridade alta
-- [ ] Fase 57: a definir — avaliar proxima necessidade conforme plano de conclusao
-
-## Prioridade media
-- [ ] Avaliar se a extracao futura para um git root proprio ainda traz ganho operacional relevante
+- [ ] Fase 58: a definir — avaliar proxima necessidade conforme plano de conclusao
 
 ## Prioridade baixa
 - [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`)
 
 ## Fases concluidas (historico)
+- [x] Fase 57: drill de decisão de extração git root — conclusão: não necessário; 4 drills passando; decisão arquivada em JSON
 - [x] Fase 56: standalone sync drill no CI — test:phase37 e test:phase56 adicionados; último gap CI fechado
 - [x] Fase 55: fechamento do gap CI phase14-30 — meta-drill phase55 (17 drills)
 - [x] Fase 54: fechamento do gap CI — test:phase38-42 adicionados; regressão phase42 corrigida
@@ -36,7 +34,7 @@
 - PRs aguardam review/merge pelo mantenedor do repo canonical
 
 ## Dividas tecnicas
-- Avaliar extração futura do git root principal
+- Decisão sobre extração git root: FORMALIZADA na Fase 57 — não necessário neste estágio
 
 ## Checklist obrigatorio para troca de IA
 - [x] atualizar `HANDOFF.md`
