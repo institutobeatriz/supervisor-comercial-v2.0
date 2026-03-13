@@ -74,6 +74,7 @@
     "test:phase55": "node scripts/phase55-ci-gap-early-phases-drill.mjs",
     "test:phase56": "node scripts/phase56-standalone-sync-ci-drill.mjs",
     "test:phase57": "node scripts/phase57-git-root-decision-drill.mjs",
+    "test:phase58": "node scripts/phase58-completion-readiness-drill.mjs",
     "monitor:check": "node scripts/phase10-monitoring-slo.mjs",
     "monitor:chaos": "node scripts/phase11-chaos-drills.mjs",
     "monitor:reliability": "node scripts/phase12-reliability-metrics.mjs",

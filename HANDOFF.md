@@ -40,7 +40,7 @@
 ### Fase 57
 - Evidencia oficial: `docs/analise-projeto/68-fase-57-validacao.md`
 - Memoria oficial atualizada: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- CI run: aguardando resultado (standalone:publish em andamento)
+- CI run: https://github.com/institutobeatriz/supervisor-comercial-v2.0/actions/runs/23067680055
 
 ## Arquivos alterados na fase concluida
 - `scripts/phase57-git-root-decision-drill.mjs` (novo)
