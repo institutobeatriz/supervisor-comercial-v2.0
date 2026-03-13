@@ -64,6 +64,7 @@
 | Fase 52 - Remoção do dead config cfg.providerMode | CONCLUIDA | 2026-03-12 | 2026-03-12 | `63-fase-52-validacao.md` | cfg.providerMode removido de loadOperationalProvider(); env FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_MODE ignorada; contract.providerMode hardcoded em buildMaterializedContract() intacto; 4 drills passando; build TS OK; CI verde |
 | Fase 53 - Política de minTeams na gate do painel operacional | CONCLUIDA | 2026-03-13 | 2026-03-13 | `64-fase-53-validacao.md` | Drill formaliza política: MIN_TEAMS=0 permissivo (sem exigência de times), MIN_TEAMS>=1 exige teams>=n; 4 drills passando; build TS OK; CI verde run 23051052903 |
 | Fase 54 - Fechamento do gap de CI (phase38-42) | CONCLUIDA | 2026-03-13 | 2026-03-13 | `65-fase-54-validacao.md` | Fix regressão phase42 drill (USE_COLLECTOR=false); meta-drill phase54 (5 drills); test:phase38-42 e test:phase54 adicionados ao validateCommands; build TS OK; CI verde run 23053638655 |
+| Fase 55 - Fechamento do gap de CI (phase14-30) | CONCLUIDA | 2026-03-13 | 2026-03-13 | `66-fase-55-validacao.md` | Meta-drill phase55 (17 drills phase14-30); test:phase14-30 e test:phase55 adicionados ao validateCommands; build TS OK; CI verde run 23055336215 |
 
 ## Log de checkpoints
 

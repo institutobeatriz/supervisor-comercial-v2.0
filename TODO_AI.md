@@ -1,13 +1,13 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 54
-- Proxima fase liberada: Fase 55 (a definir)
+- Ultima fase concluida: Fase 55
+- Proxima fase liberada: Fase 56 (a definir)
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: gap CI fechado (test:phase38-42 no validateCommands); regressão phase42 corrigida; proximo passo e avaliar fase 55
+- Estado atual: gap CI fechado para phase14-30 (17 drills); proximo passo e avaliar fase 56
 
 ## Prioridade alta
-- [ ] Fase 55: a definir — avaliar proxima necessidade conforme plano de conclusao
+- [ ] Fase 56: a definir — avaliar proxima necessidade conforme plano de conclusao
 
 ## Prioridade media
 - [ ] Avaliar se a extracao futura para um git root proprio ainda traz ganho operacional relevante
@@ -16,9 +16,9 @@
 - [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`)
 
 ## Fases concluidas (historico)
+- [x] Fase 55: fechamento do gap CI phase14-30 — meta-drill phase55 (17 drills); test:phase14-30 adicionados ao validateCommands
 - [x] Fase 54: fechamento do gap CI — test:phase38-42 adicionados ao validateCommands; regressão phase42 corrigida
 - [x] Fase 53: drill formaliza política minTeams — MIN_TEAMS=0 permissivo, MIN_TEAMS>=1 exige times
-- [x] Fase 53: Revisar politica minTeams=0 da gate final do painel
 - [x] Fase 52: remover dead config cfg.providerMode de loadOperationalProvider()
 - [x] Fase 51: decidir quando `backend/producer` vira obrigatorio sem fallback em todos os ambientes
 - [x] Fase 50: card Cobertura Operacional em Executivo.tsx consumindo backend/analytics
@@ -31,7 +31,7 @@
 - [x] Fase 43: transformar `phase43-disable-legacy-fallback` em enforcement real
 
 ## Bugs / riscos abertos
-- O chain completo (phase30+) so e validado no workspace principal
+- Testes phase3-5 (Docker) e phase10-13 (dados reais) NÃO estão no validateCommands — requerem ambiente vivo
 - PRs aguardam review/merge pelo mantenedor do repo canonical
 
 ## Dividas tecnicas
