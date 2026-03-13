@@ -13,6 +13,7 @@ const REQUIRED_CHECKS = [
   'observability_history',
   'observability_archive',
   'observability_dashboard',
+  'observability_dashboard_asset_css',
   'observability_stream_once',
   'observability_api_sla_summary',
   'observability_api_sla_history',
@@ -20,9 +21,14 @@ const REQUIRED_CHECKS = [
   'observability_incidents',
   'observability_alerts_summary',
   'observability_alerts',
+  'observability_backend_summary',
+  'observability_backend_provider',
+  'observability_backend_producer',
   'observability_backend_report',
   'observability_backend_analytics',
   'observability_realtime_panel',
+  'observability_realtime_panel_asset_css',
+  'observability_realtime_panel_asset_js',
   'observability_backend_dashboard',
 ];
 

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Observability Backend Ops Panel</title>
+  <link rel="stylesheet" href="./assets/fullcycle-connectors-observability-ops-panel.css"/>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <h1>Realtime Incident Command Panel</h1>
+      <p>Backend-first view for incidents, alerts, API SLA and realtime timeline. The panel no longer embeds local seed data and refreshes against the dedicated internal observability API.</p>
+      <div class="hero-meta">
+        <span class="pill">Generated <strong id="generatedAt"></strong></span>
+        <span class="pill">Gate <strong id="gateStatus"></strong></span>
+        <span class="pill">Backend <strong id="backendStatusHero"></strong></span>
+        <span class="pill">Stream <strong id="streamStatusHero"></strong></span>
+        <span class="pill">Last refresh <strong id="lastRefreshLabel">n/a</strong></span>
+      </div>
+    </section>
+
+    <section class="toolbar card">
+      <div class="toolbar-row">
+        <div class="field grow"><label for="apiBase">API Base</label><input id="apiBase" type="text" spellcheck="false"/></div>
+        <div class="field"><label for="adminKey">Admin Key</label><input id="adminKey" type="password" spellcheck="false"/></div>
+        <div class="field"><label for="role">Role</label><select id="role"><option value="operator">operator</option><option value="executive">executive</option><option value="admin">admin</option></select></div>
+        <div class="field"><label for="limit">Limit</label><input id="limit" type="number" min="1" max="1000"/></div>
+        <div class="field"><label>&nbsp;</label><button id="refresh" class="btn-primary">Refresh Data</button></div>
+        <div class="field"><label>&nbsp;</label><button id="connect" class="btn-primary">Connect SSE</button></div>
+        <div class="field"><label>&nbsp;</label><button id="stop" class="btn-danger">Stop SSE</button></div>
+      </div>
+      <div class="toolbar-row">
+        <div class="checks" aria-label="severity filters">
+          <span class="check"><input id="sevCritical" type="checkbox" checked/>critical</span>
+          <span class="check"><input id="sevWarning" type="checkbox" checked/>warning</span>
+          <span class="check"><input id="sevInfo" type="checkbox" checked/>info</span>
+          <span class="check"><input id="autoRefresh" type="checkbox" checked/>auto refresh</span>
+        </div>
+        <div class="field"><label for="status">Status</label><select id="status"><option value="all">all</option><option value="open">open</option><option value="resolved">resolved</option><option value="pass">pass</option><option value="warn">warn</option><option value="fail">fail</option></select></div>
+        <div class="field"><label for="team">Team</label><select id="team"></select></div>
+        <div class="field"><label for="source">Source</label><select id="source"></select></div>
+        <div class="field"><label for="environment">Environment</label><select id="environment"></select></div>
+        <div class="field"><label for="period">Period</label><select id="period"><option value="15m">15m</option><option value="1h">1h</option><option value="6h">6h</option><option value="24h" selected>24h</option><option value="7d">7d</option><option value="all">all</option></select></div>
+        <div class="field grow"><label for="search">Search</label><input id="search" type="text" spellcheck="false" placeholder="incident id, alert key, connector, message"/></div>
+      </div>
+    </section>
+
+    <section id="stats" class="stats"></section>
+
+    <section class="grid">
+      <section class="card span-8">
+        <div class="card-head"><div><h2>Incidents</h2><p>Dedicated backend records filtered by team, severity, source and environment.</p></div><span id="incidentsMeta" class="badge badge-info">waiting</span></div>
+        <div class="card-body"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Severity</th><th>Status</th><th>Team</th><th>Connectors</th><th>Opened</th><th>Age</th><th>Violations</th></tr></thead><tbody id="incidentsBody"></tbody></table></div></div>
+      </section>
+      <section class="card span-4">
+        <div class="card-head"><div><h2>Operational Posture</h2><p>Team routing, workload state and operational source freshness based on the dedicated backend.</p></div><span id="connState" class="badge badge-warning">disconnected</span></div>
+        <div class="card-body stack"><div class="mini-grid" id="postureGrid"></div><div><label>Teams observed</label><div id="teamList" class="team-list"></div></div><div class="footer-note">SSE timeline updates independently. Backend lists refresh on demand and on auto-refresh cycles.</div></div>
+      </section>
+    </section>
+    <section class="grid">
+      <section class="card span-6">
+        <div class="card-head"><div><h2>Alerts</h2><p>Active and resolved alerts consolidated by source and routing team.</p></div><span id="alertsMeta" class="badge badge-info">waiting</span></div>
+        <div class="card-body"><div class="table-wrap"><table><thead><tr><th>Key</th><th>Severity</th><th>Status</th><th>Team</th><th>Source</th><th>Last Seen</th><th>Dispatches</th><th>Message</th></tr></thead><tbody id="alertsBody"></tbody></table></div></div>
+      </section>
+      <section class="card span-6">
+        <div class="card-head"><div><h2>API SLA</h2><p>Uses summary for operator and history for executive/admin roles.</p></div><span id="slaMeta" class="badge badge-info">waiting</span></div>
+        <div class="card-body"><div class="table-wrap"><table><thead><tr><th>Timestamp</th><th>Environment</th><th>Status</th><th>Availability</th><th>Latency</th><th>Payload Age</th><th>Blocking</th></tr></thead><tbody id="slaBody"></tbody></table></div></div>
+      </section>
+    </section>
+
+    <section class="grid">
+      <section class="card span-7">
+        <div class="card-head"><div><h2>Realtime Timeline</h2><p>SSE stream from <code>/api/observability/connectors/stream</code> with environment and severity filters.</p></div><span id="timelineMeta" class="badge badge-info">0 events</span></div>
+        <div class="card-body"><div class="table-wrap"><table><thead><tr><th>Timestamp</th><th>Severity</th><th>Source</th><th>Environment</th><th>Type</th><th>Status</th><th>Message</th></tr></thead><tbody id="timelineBody"></tbody></table></div></div>
+      </section>
+      <section class="card span-5">
+        <div class="card-head"><div><h2>Activity Log</h2><p>Operational log for fetches, stream state and auth/routing feedback.</p></div><span id="lastEventBadge" class="badge badge-info">last event n/a</span></div>
+        <div class="card-body"><pre id="activityLog"></pre></div>
+      </section>
+    </section>
+  </main>
+  <template id="phase31-panel-data">{"generatedAt":"2026-03-13T12:23:53.606Z","status":"warn","summary":{"defaultEnvironment":"unknown","backendStatus":"warn","streamStatus":"unknown","alertingStatus":"unknown","streamCursor":null,"teams":0,"incidents":0,"openIncidents":0,"openCriticalIncidents":0,"alerts":0,"activeAlerts":0,"activeCriticalAlerts":0,"operationalWorkloadState":"idle","operationalFreshnessState":"missing","operationalActionabilityState":"idle_gap","operationalHealthySources":0,"operationalStaleSources":0,"operationalMissingSources":3,"streamAgeMinutes":null,"slaPoints":0,"slaAgeMinutes":null,"violations":6,"blockingViolations":6},"operationalSources":{"overall":{"workloadState":"idle","freshnessState":"missing","actionabilityState":"idle_gap","healthySources":0,"staleSources":0,"missingSources":3,"unknownSources":0,"requiredSources":1,"requiredHealthySources":0,"activeRecords":0,"activeWorkloadPresent":false},"sources":{"incidentAutomation":{"key":"incidentAutomation","label":"Incident automation state","file":"C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\.claude\\worktrees\\epic-sanderson\\supervisor-comercial\\logs\\monitoring\\incident-automation-state.json","loaded":false,"requiredWhenActive":true,"maxAgeMinutes":30,"timestamp":null,"ageMinutes":null,"freshnessState":"missing","freshEnough":false},"itsmSnapshot":{"key":"itsmSnapshot","label":"ITSM snapshot","file":"C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\.claude\\worktrees\\epic-sanderson\\supervisor-comercial\\logs\\monitoring\\itsm-snapshot.json","loaded":false,"requiredWhenActive":false,"maxAgeMinutes":30,"timestamp":null,"ageMinutes":null,"freshnessState":"missing","freshEnough":false},"fullcycleReport":{"key":"fullcycleReport","label":"Fullcycle report","file":"C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\.claude\\worktrees\\epic-sanderson\\supervisor-comercial\\logs\\monitoring\\fullcycle-governance-report.json","loaded":false,"requiredWhenActive":false,"maxAgeMinutes":60,"timestamp":null,"ageMinutes":null,"freshnessState":"missing","freshEnough":false}}},"operationalProvider":{"mode":"materialized_contract","sourceMode":"operational_contract","contractFile":"C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\.claude\\worktrees\\epic-sanderson\\supervisor-comercial\\logs\\monitoring\\fullcycle-connector-observability-operational-provider.json","contractLoaded":true,"contractVersion":1,"contractSchema":"fullcycle.observability.operational-provider.v1","contractGeneratedAt":"2026-03-13T01:32:57.505Z","contractState":"ready","materialized":false,"materializationMode":"controlled","materializedBy":"phase42-observability-operational-provider-producer","producerMode":"dedicated_script","producerGeneratedAt":"2026-03-13T01:32:57.505Z","producerReady":true,"producerReportFile":"C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\.claude\\worktrees\\epic-sanderson\\supervisor-comercial\\logs\\monitoring\\phase51-drill\\producer-drill4.json","producerDashboardFile":"C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\.claude\\worktrees\\epic-sanderson\\supervisor-comercial\\logs\\monitoring\\phase51-drill\\producer-drill4-dashboard.md","producerAuditFile":"C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\.claude\\worktrees\\epic-sanderson\\supervisor-comercial\\logs\\monitoring\\phase51-drill\\producer-drill4-audit.jsonl","legacyFallbackState":"disabled","legacyFallbackAllowed":false,"deprecationTarget":"phase43-disable-legacy-fallback","sources":{"incidentAutomation":{"key":"incidentAutomation","label":"Incident automation state","file":"C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\.claude\\worktrees\\epic-sanderson\\supervisor-comercial\\logs\\monitoring\\incident-automation-state.json","loaded":false,"timestamp":null,"incidentCount":0,"incidents":{}},"itsmSnapshot":{"key":"itsmSnapshot","label":"ITSM snapshot","file":"C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\.claude\\worktrees\\epic-sanderson\\supervisor-comercial\\logs\\monitoring\\itsm-snapshot.json","loaded":false,"timestamp":null,"pagingCount":0,"ticketCount":0,"paging":[],"tickets":[]},"fullcycleReport":{"key":"fullcycleReport","label":"Fullcycle report","file":"C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\.claude\\worktrees\\epic-sanderson\\supervisor-comercial\\logs\\monitoring\\fullcycle-governance-report.json","loaded":false,"timestamp":null,"status":"unknown","ownerCoveragePct":null,"summary":{}}},"summary":{"loadedSources":0,"missingSources":3,"incidentAutomationIncidents":0,"pagingEntries":0,"ticketEntries":0,"fullcycleStatus":"unknown"},"loadError":null},"api":{"baseDefault":"http://127.0.0.1:3000","defaultRole":"operator","defaultLimit":200},"ui":{"autoConnect":true,"refreshMs":30000}}</template>
+  <script src="./assets/fullcycle-connectors-observability-ops-panel.js"></script>
+</body>
+</html>
