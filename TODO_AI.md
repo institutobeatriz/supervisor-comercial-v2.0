@@ -1,13 +1,23 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 51
-- Proxima fase liberada: Fase 52 (a definir)
+- Ultima fase concluida: Fase 52
+- Proxima fase liberada: Fase 53 (a definir)
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: drill producer mandatory enforcement concluido; backend/producer obrigatorio sem fallback formalizado; build TS OK; proximo passo e avaliar fase 52
+- Estado atual: dead config cfg.providerMode removido de loadOperationalProvider(); 4 drills passando; build TS OK; proximo passo e avaliar fase 53
 
 ## Prioridade alta
-- [ ] Fase 52: a definir — avaliar proxima necessidade conforme plano de conclusao
+- [ ] Fase 53: a definir — avaliar proxima necessidade conforme plano de conclusao
+
+## Prioridade media
+- [ ] Avaliar se a extracao futura para um git root proprio ainda traz ganho operacional relevante
+
+## Prioridade baixa
+- [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`)
+- [ ] Revisar politica `minTeams=0` da gate final do painel
+
+## Fases concluidas (historico)
+- [x] Fase 52: remover dead config cfg.providerMode de loadOperationalProvider()
 - [x] Fase 51: avaliar proxima necessidade conforme plano de conclusao
 - [x] Fase 51: decidir quando `backend/producer` vira obrigatorio sem fallback em todos os ambientes
 - [x] Fase 50: card Cobertura Operacional em Executivo.tsx consumindo backend/analytics
@@ -24,17 +34,9 @@
 - [x] Fase 44: implementar o coletor/stub concreto
 - [x] Fase 43: transformar `phase43-disable-legacy-fallback` em enforcement real
 
-## Prioridade media
-- [ ] Avaliar se a extracao futura para um git root proprio ainda traz ganho operacional relevante
-
-## Prioridade baixa
-- [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`)
-- [ ] Revisar politica `minTeams=0` da gate final do painel
-- [ ] Limpar `cfg.providerMode` de `loadOperationalProvider()` — dead config menor
-
 ## Bugs / riscos abertos
 - O chain completo (phase30+) so e validado no workspace principal
-- PR #10 aguarda review/merge pelo mantenedor do repo canonical
+- PR #11 aguarda review/merge pelo mantenedor do repo canonical
 
 ## Dividas tecnicas
 - Avaliar extração futura do git root principal

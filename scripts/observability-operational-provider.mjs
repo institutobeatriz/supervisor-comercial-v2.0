@@ -334,7 +334,6 @@ function asOperationalInputs({ meta, contractLoaded, contract, legacy }) {
 export async function loadOperationalProvider(options = {}) {
   const ts = options.ts || new Date().toISOString();
   const cfg = {
-    providerMode: options.providerMode || envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_MODE', 'materialized_contract'),
     materializeContract: options.materializeContract ?? envBool('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_MATERIALIZE', true),
     contractFile: options.contractFile || envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_CONTRACT_FILE', path.resolve(process.cwd(), 'logs/monitoring/fullcycle-connector-observability-operational-provider.json')),
     automationStateFile: options.automationStateFile || envString('FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_STATE_FILE', envString('INCIDENT_AUTOMATION_STATE_FILE', path.resolve(process.cwd(), 'logs/monitoring/incident-automation-state.json'))),

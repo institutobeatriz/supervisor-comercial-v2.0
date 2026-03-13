@@ -43,8 +43,9 @@ O `backend/producer` é **obrigatório sem fallback** em todos os ambientes a pa
 
 ## CI remoto
 
-- PR: (aguardando push Task 4)
-- CI run: (aguardando)
+- PR: https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/11
+- CI run: https://github.com/institutobeatriz/supervisor-comercial-v2.0/actions/runs/23019099011
+- Conclusão: **success** (2m5s)
 
 ## Commits desta fase
 

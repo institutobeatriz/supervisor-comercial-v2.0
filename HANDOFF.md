@@ -10,71 +10,73 @@
 3. `PROJECT_RULES.md`
 4. `TODO_AI.md`
 5. `docs/analise-projeto/10-memoria-execucao-fases.md`
-6. `docs/analise-projeto/62-fase-51-validacao.md`
+6. `docs/analise-projeto/63-fase-52-validacao.md`
 7. `docs/analise-projeto/09-plano-conclusao-dashboard-comercial.md`
 8. `docs/standalone-repo-flow.md`
 
 ## Estado atual
 - Responsavel anterior: Claude (claude-sonnet-4-6)
 - Data do handoff: 2026-03-12
-- Ultima fase concluida: Fase 51
-- Proxima fase liberada: Fase 52 (a definir)
+- Ultima fase concluida: Fase 52
+- Proxima fase liberada: Fase 53 (a definir)
 - Fase em andamento: nenhuma
 
 ## O que foi concluido ate agora
-- Fases 0 a 51 concluidas e registradas na memoria oficial.
+- Fases 0 a 52 concluidas e registradas na memoria oficial.
+- Drill `phase52-providermode-cleanup-drill.mjs` valida remoção de dead config `cfg.providerMode`.
+- `loadOperationalProvider()` não lê mais `options.providerMode` nem env `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_PROVIDER_MODE`.
+- `contract.providerMode` continua presente e hardcoded como `'materialized_contract'` em `buildMaterializedContract()`.
 - Drill `phase51-producer-mandatory-drill.mjs` formaliza a decisão: `backend/producer` é obrigatório sem fallback em todos os ambientes.
-- Campos `legacyFallbackAllowed: false`, `legacyFallbackState: 'disabled'`, `requireProvider: true`, `requireProducer: true` validados via drill.
 - Card "Cobertura Operacional" adicionado ao `Executivo.tsx` consumindo `/api/observability/connectors/backend/analytics`.
-- Degradação graciosa: card oculto em 503/erro/null sem afetar restante do painel.
 - O coletor operacional tem todos os modos: `file`, `api`, `service`.
 - Dead branches do legacy_files removidos do provider e producer.
-- PR #10 em institutobeatriz/supervisor-comercial-v2.0 com CI verde (run 23017071993).
+- PR #11 em institutobeatriz/supervisor-comercial-v2.0 com CI verde.
 
-## O que a Fase 51 entregou
-- Drill `phase51-producer-mandatory-drill.mjs` — 4 drills de contrato de enforcement
-- Decisão formal documentada: `backend/producer` obrigatório sem fallback desde Fase 51
-- `test:phase51` no `package.json` e `config/standalone-export.json`
+## O que a Fase 52 entregou
+- Removida linha `cfg.providerMode` de `loadOperationalProvider()` — dead config desde Fase 49
+- Drill `phase52-providermode-cleanup-drill.mjs` — 4 drills de contrato e regressão
+- `test:phase52` no `package.json` e `config/standalone-export.json`
 - Build TypeScript limpo: `npm run build -w @supervisor/dashboard` OK
-- Regressão: test:phase50, test:phase49 passando
+- Regressão: test:phase51, test:phase49 passando
 
 ## Ultima entrega relevante
-### Fase 51
-- Evidencia oficial: `docs/analise-projeto/62-fase-51-validacao.md`
+### Fase 52
+- Evidencia oficial: `docs/analise-projeto/63-fase-52-validacao.md`
 - Memoria oficial atualizada: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- CI run: (aguardando push Task 4)
+- CI run: (a preencher após publish)
 
 ## Arquivos alterados na fase concluida
-- `scripts/phase51-producer-mandatory-drill.mjs` (novo)
+- `scripts/observability-operational-provider.mjs` (1 linha removida)
+- `scripts/phase52-providermode-cleanup-drill.mjs` (novo)
 - `package.json`
 - `config/standalone-export.json`
-- `docs/analise-projeto/62-fase-51-validacao.md` (novo)
+- `docs/analise-projeto/63-fase-52-validacao.md` (novo)
 - `docs/analise-projeto/10-memoria-execucao-fases.md`
 - `HANDOFF.md`
 - `TODO_AI.md`
 
 ## O que esta funcionando
-- `npm run test:phase51`: OK (4 drills passando)
-- `npm run test:phase50`: OK
+- `npm run test:phase52`: OK (4 drills passando)
+- `npm run test:phase51`: OK
 - `npm run test:phase49`: OK
 - `npm run build -w @supervisor/dashboard`: OK (sem erros TS)
-- CI remoto verde: PR #10, run 23017071993
 
 ## O que ainda nao foi fechado
-- Fase 52 a definir conforme plano de conclusao
+- Fase 53 a definir conforme plano de conclusao
 - O chain completo (phase30+) só é validado no workspace principal
-- O PR #10 aguarda review/merge pelo mantenedor do repo canonical
-- `cfg.providerMode` ainda presente em `loadOperationalProvider()` — dead config menor sem impacto
+- O PR #11 aguarda review/merge pelo mantenedor do repo canonical
+- `minTeams=0` gate — prioridade baixa
+- Padronizar documentos legados da raiz — prioridade baixa
 
 ## Proximo passo exato
-Avaliar Fase 52 conforme necessidade do projeto:
-1. Verificar plano de conclusao (`09-plano-conclusao-dashboard-comercial.md`)
-2. Possíveis direções: limpeza técnica residual, melhorias do painel, ou outras necessidades do projeto
+Avaliar Fase 53 conforme necessidade do projeto:
+1. Verificar plano de conclusao e TODO_AI.md
+2. Possíveis direções: padronizar documentos legados, revisar minTeams=0, ou outras necessidades
 
 ## Como testar o estado atual
 ```bash
+npm run test:phase52
 npm run test:phase51
-npm run test:phase50
 npm run test:phase49
 npm run build -w @supervisor/dashboard
 ```
@@ -93,8 +95,8 @@ Leia primeiro:
 4. `HANDOFF.md`
 5. `TODO_AI.md`
 6. `docs/analise-projeto/10-memoria-execucao-fases.md`
-7. `docs/analise-projeto/62-fase-51-validacao.md`
+7. `docs/analise-projeto/63-fase-52-validacao.md`
 8. `docs/standalone-repo-flow.md`
 
 Objetivo:
-Continuar exatamente da Fase 52 (ou próxima fase definida no plano), sem refatoracao ampla desnecessaria e sem duplicar a memoria historica do projeto.
+Continuar exatamente da Fase 53 (ou próxima fase definida no plano), sem refatoracao ampla desnecessaria e sem duplicar a memoria historica do projeto.
