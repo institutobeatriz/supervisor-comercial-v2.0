@@ -1,18 +1,19 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 63
-- Proxima fase liberada: Fase 64 (a definir — projeto em estado production_ready)
+- Ultima fase concluida: Fase 64
+- Proxima fase liberada: Fase 65 (a definir — projeto em estado production_ready)
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: production_ready (F58); pipeline integro (F59); exclusoes CI documentadas (F60); evidencias auditadas (F61); consistencia bidirecional validada (F62); consistencia cruzada de rastreamento validada (F63)
+- Estado atual: production_ready (F58); pipeline integro (F59); exclusoes CI documentadas (F60); evidencias auditadas (F61); consistencia bidirecional validada (F62); consistencia cruzada de rastreamento validada (F63); meta-drill auditoria (F64)
 
 ## Prioridade alta
-- [ ] Fase 64: a definir — projeto em estado production_ready; avaliar necessidade de evolucao
+- [ ] Fase 65: a definir — projeto em estado production_ready; avaliar necessidade de evolucao
 
 ## Prioridade baixa
 - [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`) — fora do worktree git, requer decisao de move-los
 
 ## Fases concluidas (historico)
+- [x] Fase 64: meta-drill de auditoria (bloco 57-63) — 7 drills passando; fix evergreen em phase58/61/62/63 (>= em vez de ===); validateCommands cobre 49 test:phase commands
 - [x] Fase 63: drill de consistencia cruzada dos arquivos de rastreamento — HANDOFF/TODO/memoria validados mutuamente; 64 rows CONCLUIDA (fases 0-63); validateCommands cobre 48 test:phase commands
 - [x] Fase 62: drill de consistencia bidirecional package.json vs validateCommands — 7 exclusoes documentadas confirmadas (3-5 Docker, 10-13 dados reais); 4 drills passando; validateCommands cobre 47 test:phase commands
 - [x] Fase 61: drill de auditoria de evidencias — 61 CONCLUIDA rows; 29 evidencias pos-worktree presentes (32-60); 32 ausencias pre-worktree documentadas (0-31); validateCommands cobre 46 test:phase commands
@@ -47,6 +48,7 @@
 - Consistencia de evidencias: AUDITADA na Fase 61 (61 rows, 29 presentes, 32 pre-worktree)
 - Consistencia bidirecional package.json vs validateCommands: VALIDADA na Fase 62
 - Consistencia cruzada dos arquivos de rastreamento: VALIDADA na Fase 63
+- Meta-drill de auditoria (57-63): VALIDADO na Fase 64; fix evergreen aplicado
 
 ## Checklist obrigatorio para troca de IA
 - [x] atualizar `HANDOFF.md`

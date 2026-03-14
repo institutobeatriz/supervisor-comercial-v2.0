@@ -126,18 +126,18 @@ async function drillHandoffFilesConsistent() {
 
   const root = process.cwd();
 
-  // Check HANDOFF.md references Fase 57 as last completed
+  // Check HANDOFF.md has the expected structural fields (evergreen assertions)
   const handoffContent = await readFile(path.resolve(root, 'HANDOFF.md'), 'utf-8');
   assert(
-    handoffContent.includes('Fase 57'),
-    'HANDOFF.md menciona Fase 57',
+    handoffContent.includes('Ultima fase concluida'),
+    'HANDOFF.md possui campo "Ultima fase concluida"',
   );
   assert(
-    handoffContent.includes('Fase 58'),
-    'HANDOFF.md menciona Fase 58 como próxima',
+    handoffContent.includes('Proxima fase liberada'),
+    'HANDOFF.md possui campo "Proxima fase liberada"',
   );
 
-  // Check TODO_AI.md reflects Fase 57 as done and Fase 58 as next
+  // Check TODO_AI.md reflects Fase 57 in history
   const todoContent = await readFile(path.resolve(root, 'TODO_AI.md'), 'utf-8');
   assert(
     todoContent.includes('Fase 57'),

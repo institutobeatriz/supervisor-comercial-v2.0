@@ -70,8 +70,8 @@ async function main() {
   // ── Drill 1: memory_row_count_correct ────────────────────────────────────
   console.log('\n[Drill 1] memory_row_count_correct');
   assert(
-    concludedRows.length === 61,
-    `memory has exactly 61 CONCLUIDA rows (phases 0–60) — found ${concludedRows.length}`
+    concludedRows.length >= 61,
+    `memory has at least 61 CONCLUIDA rows (phases 0–60 minimum) — found ${concludedRows.length}`
   );
 
   // ── Drill 2: post_worktree_evidence_complete ─────────────────────────────

@@ -114,7 +114,8 @@
     "test:phase37": "node scripts/phase37-standalone-sync-drill.mjs",
     "standalone:sync": "node scripts/phase37-standalone-sync.mjs",
     "standalone:sync:check": "node scripts/phase37-standalone-sync.mjs --check",
-    "standalone:publish": "node scripts/phase37-standalone-publish.mjs --watch-ci"
+    "standalone:publish": "node scripts/phase37-standalone-publish.mjs --watch-ci",
+    "test:phase64": "node scripts/phase64-audit-suite-drill.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

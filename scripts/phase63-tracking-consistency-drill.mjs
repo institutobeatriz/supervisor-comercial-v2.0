@@ -93,12 +93,12 @@ async function main() {
     `TODO phase=${todoPhase}, HANDOFF phase=${handoffPhase}`
   );
 
-  // --- Drill 3: memoria has exactly 63 CONCLUIDA rows (phases 0-62) ---
-  const EXPECTED_ROWS = 63; // phases 0 through 62
+  // --- Drill 3: memoria has at least 63 CONCLUIDA rows (phases 0-62 minimum) ---
+  const MIN_ROWS = 63; // phases 0 through 62 were present when this drill was written
   assert(
     'memory_concluida_count_exact',
-    concluidaCount === EXPECTED_ROWS,
-    `found ${concluidaCount}, expected ${EXPECTED_ROWS}`
+    concluidaCount >= MIN_ROWS,
+    `found ${concluidaCount}, expected >= ${MIN_ROWS}`
   );
 
   // --- Drill 4: evidence file referenced in HANDOFF exists ---

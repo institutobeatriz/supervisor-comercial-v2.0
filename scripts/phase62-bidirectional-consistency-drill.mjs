@@ -115,8 +115,8 @@ async function main() {
   // ── Drill 4: validatecommands_count_stable ───────────────────────────────
   console.log('\n[Drill 4] validatecommands_count_stable');
   assert(
-    valPhases.size === EXPECTED_VALIDATECOMMANDS_COUNT,
-    `validateCommands has exactly ${EXPECTED_VALIDATECOMMANDS_COUNT} test:phase entries — found ${valPhases.size}`
+    valPhases.size >= EXPECTED_VALIDATECOMMANDS_COUNT,
+    `validateCommands has at least ${EXPECTED_VALIDATECOMMANDS_COUNT} test:phase entries — found ${valPhases.size}`
   );
 
   // ── Archive report ───────────────────────────────────────────────────────
