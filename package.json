@@ -79,6 +79,7 @@
     "test:phase60": "node scripts/phase60-ci-exclusions-audit-drill.mjs",
     "test:phase61": "node scripts/phase61-evidence-audit-drill.mjs",
     "test:phase62": "node scripts/phase62-bidirectional-consistency-drill.mjs",
+    "test:phase63": "node scripts/phase63-tracking-consistency-drill.mjs",
     "monitor:check": "node scripts/phase10-monitoring-slo.mjs",
     "monitor:chaos": "node scripts/phase11-chaos-drills.mjs",
     "monitor:reliability": "node scripts/phase12-reliability-metrics.mjs",

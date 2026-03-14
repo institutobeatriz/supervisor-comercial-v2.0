@@ -72,6 +72,7 @@
 | Fase 60 - Auditoria das exclusões intencionais do CI | CONCLUIDA | 2026-03-13 | 2026-03-13 | `71-fase-60-validacao.md` | Drill formaliza 16 fases intencionalmente ausentes do validateCommands: phases 3-5 (Docker), phase 36 (network), phases 10-13 (dados reais), phases 1-2/6-9/45 (sem drill aplicável); 4 drills passando; validateCommands agora cobre 45 test:phase commands |
 | Fase 61 - Auditoria de evidências da memória oficial | CONCLUIDA | 2026-03-14 | 2026-03-14 | `72-fase-61-validacao.md` | Drill valida consistência entre memória e evidências: 61 CONCLUIDA rows, 29 evidências pós-worktree presentes (fases 32–60), 32 ausências pré-worktree documentadas como intencionais (fases 0–31); 4 drills passando; validateCommands cobre 46 test:phase commands |
 | Fase 62 - Consistência bidirecional package.json ↔ validateCommands | CONCLUIDA | 2026-03-14 | 2026-03-14 | `73-fase-62-validacao.md` | Drill valida direção inversa: todo test:phase de package.json ausente do validateCommands é exclusão documentada (fases 3-5 Docker, 10-13 dados reais); 4 drills passando; validateCommands cobre 47 test:phase commands |
+| Fase 63 - Consistência cruzada dos arquivos de rastreamento | CONCLUIDA | 2026-03-14 | 2026-03-14 | `74-fase-63-validacao.md` | HANDOFF.md, TODO_AI.md e memoria_execucao_fases.md validados mutuamente; 63 rows CONCLUIDA (fases 0-62); evidencia da última fase presente; validateCommands cobre 48 test:phase commands |
 
 ## Log de checkpoints
 

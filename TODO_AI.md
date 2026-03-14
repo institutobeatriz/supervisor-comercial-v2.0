@@ -1,18 +1,19 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 62
-- Proxima fase liberada: Fase 63 (a definir — projeto em estado production_ready)
+- Ultima fase concluida: Fase 63
+- Proxima fase liberada: Fase 64 (a definir — projeto em estado production_ready)
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: production_ready (F58); pipeline integro (F59); exclusoes CI documentadas (F60); evidencias auditadas (F61); consistencia bidirecional validada (F62)
+- Estado atual: production_ready (F58); pipeline integro (F59); exclusoes CI documentadas (F60); evidencias auditadas (F61); consistencia bidirecional validada (F62); consistencia cruzada de rastreamento validada (F63)
 
 ## Prioridade alta
-- [ ] Fase 63: a definir — projeto em estado production_ready; avaliar necessidade de evolucao
+- [ ] Fase 64: a definir — projeto em estado production_ready; avaliar necessidade de evolucao
 
 ## Prioridade baixa
 - [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`) — fora do worktree git, requer decisao de move-los
 
 ## Fases concluidas (historico)
+- [x] Fase 63: drill de consistencia cruzada dos arquivos de rastreamento — HANDOFF/TODO/memoria validados mutuamente; 64 rows CONCLUIDA (fases 0-63); validateCommands cobre 48 test:phase commands
 - [x] Fase 62: drill de consistencia bidirecional package.json vs validateCommands — 7 exclusoes documentadas confirmadas (3-5 Docker, 10-13 dados reais); 4 drills passando; validateCommands cobre 47 test:phase commands
 - [x] Fase 61: drill de auditoria de evidencias — 61 CONCLUIDA rows; 29 evidencias pos-worktree presentes (32-60); 32 ausencias pre-worktree documentadas (0-31); validateCommands cobre 46 test:phase commands
 - [x] Fase 60: drill de auditoria das exclusoes intencionais do CI — 16 fases documentadas; 4 drills; validateCommands cobre 45 test:phase commands
@@ -45,6 +46,7 @@
 - Exclusoes intencionais do CI: AUDITADAS na Fase 60 (16 fases, 4 categorias)
 - Consistencia de evidencias: AUDITADA na Fase 61 (61 rows, 29 presentes, 32 pre-worktree)
 - Consistencia bidirecional package.json vs validateCommands: VALIDADA na Fase 62
+- Consistencia cruzada dos arquivos de rastreamento: VALIDADA na Fase 63
 
 ## Checklist obrigatorio para troca de IA
 - [x] atualizar `HANDOFF.md`
