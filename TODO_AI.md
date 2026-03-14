@@ -1,18 +1,20 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 58
-- Proxima fase liberada: Fase 59 (a definir — projeto em estado production_ready)
+- Ultima fase concluida: Fase 60
+- Proxima fase liberada: Fase 61 (a definir — projeto em estado production_ready)
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: projeto formalizado como production_ready (Fase 58); próximo candidato: manutenção ou evolução
+- Estado atual: projeto formalizado como production_ready (Fase 58); pipeline integro (Fase 59); exclusões CI documentadas (Fase 60); próximo candidato: manutenção ou evolução
 
 ## Prioridade alta
-- [ ] Fase 59: a definir — projeto em estado production_ready; avaliar necessidade de evolução
+- [ ] Fase 61: a definir — projeto em estado production_ready; avaliar necessidade de evolução
 
 ## Prioridade baixa
 - [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`) — fora do worktree git, requer decisão de movê-los
 
 ## Fases concluidas (historico)
+- [x] Fase 60: drill de auditoria das exclusões intencionais do CI — 16 fases documentadas (Docker/network/dados reais/sem drill); 4 drills passando; validateCommands agora cobre 45 test:phase commands
+- [x] Fase 59: drill de integridade do pipeline de CI — 44 test:phase commands validados; todos os drill .mjs existem; package.json coverage completa; phase58 evidence presente; CI verde run 23072976792
 - [x] Fase 58: drill de completeness readiness — validateCommands cobre 43 fases; 58 CONCLUIDA na memória; projeto formalizado como production_ready
 - [x] Fase 57: drill de decisão de extração git root — conclusão: não necessário; 4 drills passando; decisão arquivada em JSON
 - [x] Fase 56: standalone sync drill no CI — test:phase37 e test:phase56 adicionados; último gap CI fechado
@@ -31,12 +33,14 @@
 - [x] Fase 43: transformar `phase43-disable-legacy-fallback` em enforcement real
 
 ## Bugs / riscos abertos
-- Testes phase3-5 (Docker) e phase10-13 (dados reais) NÃO estão no validateCommands
+- Testes phase3-5 (Docker) e phase10-13 (dados reais) NÃO estão no validateCommands (documentado + auditado na Fase 60)
 - PRs aguardam review/merge pelo mantenedor do repo canonical
 
 ## Dividas tecnicas
 - Decisão sobre extração git root: FORMALIZADA na Fase 57 — não necessário neste estágio
 - Projeto production_ready: FORMALIZADO na Fase 58
+- Integridade do pipeline: VALIDADA na Fase 59 (44 test:phase commands)
+- Exclusões intencionais do CI: AUDITADAS na Fase 60 (16 fases, 4 categorias)
 
 ## Checklist obrigatorio para troca de IA
 - [x] atualizar `HANDOFF.md`

@@ -68,6 +68,8 @@
 | Fase 56 - Standalone sync drill no CI (phase37) | CONCLUIDA | 2026-03-13 | 2026-03-13 | `67-fase-56-validacao.md` | drill phase56 (phase37_pass); test:phase37 e test:phase56 adicionados ao validateCommands; último gap de CI fechado; CI verde run 23066873046 |
 | Fase 57 - Drill de decisão de extração do git root | CONCLUIDA | 2026-03-13 | 2026-03-13 | `68-fase-57-validacao.md` | Drill formaliza decisão: git root separado não é necessário neste estágio; 4 drills (workspace_structure_sufficient/standalone_ci_validates_coverage/standalone_sync_scripts_present/decision_extraction_not_required) passando; validateCommands cobre 42 fases; decisão arquivada em JSON |
 | Fase 58 - Drill de completeness readiness — formalização do fechamento da trilha | CONCLUIDA | 2026-03-13 | 2026-03-13 | `69-fase-58-validacao.md` | Drill formaliza estado production_ready: validateCommands cobre 43 fases (42 phases esperados sem gaps); 58 CONCLUIDA na memória; handoff/todo consistentes; decisão arquivada em JSON; CI verde |
+| Fase 59 - Drill de integridade do pipeline de CI | CONCLUIDA | 2026-03-13 | 2026-03-13 | `70-fase-59-validacao.md` | Drill valida integridade estrutural do pipeline: 44 test:phase commands em validateCommands; todos os drill .mjs existem; package.json coverage completa; phase58 evidence presente; CI verde run 23072976792 |
+| Fase 60 - Auditoria das exclusões intencionais do CI | CONCLUIDA | 2026-03-13 | 2026-03-13 | `71-fase-60-validacao.md` | Drill formaliza 16 fases intencionalmente ausentes do validateCommands: phases 3-5 (Docker), phase 36 (network), phases 10-13 (dados reais), phases 1-2/6-9/45 (sem drill aplicável); 4 drills passando; validateCommands agora cobre 45 test:phase commands |
 
 ## Log de checkpoints
 
