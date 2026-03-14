@@ -2391,6 +2391,7 @@ Proxima fase liberada:
 Ao concluir cada fase:
 1. atualizar status para `CONCLUIDA`;
 | Fase 64 - Meta-drill de auditoria (bloco 57-63) | CONCLUIDA | 2026-03-14 | 7 drills passando; fix evergreen em phase58/61/62/63; validateCommands cobre 49 test:phase commands | `75-fase-64-validacao.md` |
+| Fase 65 - Meta-drill de implementacao (bloco 43-56) | CONCLUIDA | 2026-03-14 | 13 drills passando; phase45 excluido (propagation); validateCommands cobre 50 test:phase commands | `76-fase-65-validacao.md` |
 2. registrar data de conclusao;
 3. anexar evidencia objetiva (logs, testes, endpoints, migracoes, screenshots quando aplicavel);
 4. listar riscos residuais e proxima fase liberada.

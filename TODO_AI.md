@@ -1,18 +1,19 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 64
-- Proxima fase liberada: Fase 65 (a definir — projeto em estado production_ready)
+- Ultima fase concluida: Fase 65
+- Proxima fase liberada: Fase 66 (a definir — projeto em estado production_ready)
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual: production_ready (F58); pipeline integro (F59); exclusoes CI documentadas (F60); evidencias auditadas (F61); consistencia bidirecional validada (F62); consistencia cruzada de rastreamento validada (F63); meta-drill auditoria (F64)
+- Estado atual: production_ready (F58); pipeline integro (F59); exclusoes CI documentadas (F60); evidencias auditadas (F61); consistencia bidirecional validada (F62); consistencia cruzada validada (F63); meta-drill auditoria (F64); meta-drill implementacao (F65)
 
 ## Prioridade alta
-- [ ] Fase 65: a definir — projeto em estado production_ready; avaliar necessidade de evolucao
+- [ ] Fase 66: a definir — projeto em estado production_ready; avaliar necessidade de evolucao
 
 ## Prioridade baixa
 - [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`) — fora do worktree git, requer decisao de move-los
 
 ## Fases concluidas (historico)
+- [x] Fase 65: meta-drill de implementacao (bloco 43-56) — 13 drills passando; phase45 excluido (propagation); validateCommands cobre 50 test:phase commands
 - [x] Fase 64: meta-drill de auditoria (bloco 57-63) — 7 drills passando; fix evergreen em phase58/61/62/63 (>= em vez de ===); validateCommands cobre 49 test:phase commands
 - [x] Fase 63: drill de consistencia cruzada dos arquivos de rastreamento — HANDOFF/TODO/memoria validados mutuamente; 64 rows CONCLUIDA (fases 0-63); validateCommands cobre 48 test:phase commands
 - [x] Fase 62: drill de consistencia bidirecional package.json vs validateCommands — 7 exclusoes documentadas confirmadas (3-5 Docker, 10-13 dados reais); 4 drills passando; validateCommands cobre 47 test:phase commands
@@ -40,15 +41,25 @@
 - Testes phase3-5 (Docker) e phase10-13 (dados reais) NAO estao no validateCommands (documentado nas Fases 60 e 62)
 - PRs aguardam review/merge pelo mantenedor do repo canonical
 
+## Mapa de cobertura por meta-drills
+| Meta-drill | Bloco coberto      | Fases |
+|------------|--------------------|-------|
+| phase54    | CI gap closure     | 38-42 |
+| phase55    | Early phases       | 14-30 |
+| phase56    | Standalone sync    | 37    |
+| phase64    | Audit suite        | 57-63 |
+| phase65    | Implementation     | 43-56 |
+
 ## Dividas tecnicas
 - Decisao sobre extracao git root: FORMALIZADA na Fase 57 — nao necessario
 - Projeto production_ready: FORMALIZADO na Fase 58
 - Integridade do pipeline: VALIDADA na Fase 59 (44 test:phase commands)
 - Exclusoes intencionais do CI: AUDITADAS na Fase 60 (16 fases, 4 categorias)
-- Consistencia de evidencias: AUDITADA na Fase 61 (61 rows, 29 presentes, 32 pre-worktree)
+- Consistencia de evidencias: AUDITADA na Fase 61
 - Consistencia bidirecional package.json vs validateCommands: VALIDADA na Fase 62
 - Consistencia cruzada dos arquivos de rastreamento: VALIDADA na Fase 63
-- Meta-drill de auditoria (57-63): VALIDADO na Fase 64; fix evergreen aplicado
+- Meta-drill de auditoria (57-63): VALIDADO na Fase 64
+- Meta-drill de implementacao (43-56): VALIDADO na Fase 65
 
 ## Checklist obrigatorio para troca de IA
 - [x] atualizar `HANDOFF.md`
