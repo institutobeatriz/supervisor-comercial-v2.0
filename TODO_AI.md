@@ -1,38 +1,50 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 35
-- Proxima fase liberada: Fase 36
+- Ultima fase concluida: Fase 62
+- Proxima fase liberada: Fase 63 (a definir — projeto em estado production_ready)
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual da Fase 36: andamento parcial com bloqueio operacional (`remote origin` ausente)
+- Estado atual: production_ready (F58); pipeline integro (F59); exclusoes CI documentadas (F60); evidencias auditadas (F61); consistencia bidirecional validada (F62)
 
 ## Prioridade alta
-- [ ] Fase 36: conectar este repo a um `remote origin` existente ou autorizar a criacao/publicacao de um remoto privado
-- [x] Fase 36: reduzir o ruido de bootstrap do painel (`401` antes do `adminKey`) sem quebrar a validacao headless/live
-- [ ] Fase 36: executar a trilha das Fases 34/35 em runner GitHub real com evidencia objetiva do browser e dos services
-- [ ] Fase 36: confirmar que o gate live permanece verde em CI com os endpoints legados endurecidos em `200`
-
-## Prioridade media
-- [ ] Decidir se os dashboards HTML internos devem migrar gradualmente para assets externos para reduzir dependencia de CSP route-scoped
-- [ ] Avaliar se `backend/analytics` deve aparecer diretamente na UI executiva do painel
-- [ ] Definir horizonte de descontinuacao formal da camada legada agora que a compatibilidade backend-first esta materializada
-- [x] Criar preflight objetivo para verificar `gh auth` + `remote origin` + capacidade de consultar workflows/runs
+- [ ] Fase 63: a definir — projeto em estado production_ready; avaliar necessidade de evolucao
 
 ## Prioridade baixa
-- [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`) com a memoria atual
-- [ ] Evoluir a origem do on-call de arquivos locais para fonte operacional real sem perder o contrato atual
+- [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`) — fora do worktree git, requer decisao de move-los
+
+## Fases concluidas (historico)
+- [x] Fase 62: drill de consistencia bidirecional package.json vs validateCommands — 7 exclusoes documentadas confirmadas (3-5 Docker, 10-13 dados reais); 4 drills passando; validateCommands cobre 47 test:phase commands
+- [x] Fase 61: drill de auditoria de evidencias — 61 CONCLUIDA rows; 29 evidencias pos-worktree presentes (32-60); 32 ausencias pre-worktree documentadas (0-31); validateCommands cobre 46 test:phase commands
+- [x] Fase 60: drill de auditoria das exclusoes intencionais do CI — 16 fases documentadas; 4 drills; validateCommands cobre 45 test:phase commands
+- [x] Fase 59: drill de integridade do pipeline de CI — 44 test:phase commands validados; CI verde run 23072976792
+- [x] Fase 58: drill de completeness readiness — validateCommands cobre 43 fases; projeto formalizado como production_ready
+- [x] Fase 57: drill de decisao de extracao git root — conclusao: nao necessario
+- [x] Fase 56: standalone sync drill no CI — test:phase37 e test:phase56 adicionados
+- [x] Fase 55: fechamento do gap CI phase14-30 — meta-drill phase55 (17 drills)
+- [x] Fase 54: fechamento do gap CI — test:phase38-42 adicionados; regressao phase42 corrigida
+- [x] Fase 53: drill formaliza politica minTeams
+- [x] Fase 52: remover dead config cfg.providerMode de loadOperationalProvider()
+- [x] Fase 51: decidir quando backend/producer vira obrigatorio sem fallback
+- [x] Fase 50: card Cobertura Operacional em Executivo.tsx
+- [x] Fase 49: remover dead branches legacy fallback
+- [x] Fase 48: implementar modo service no coletor
+- [x] Fase 47: adicionar modo api ao coletor
+- [x] Fase 46: fazer USE_COLLECTOR=true o default no producer
+- [x] Fase 45: propagar Fases 43 e 44 para o repo standalone canonico
+- [x] Fase 44: implementar o coletor/stub concreto
+- [x] Fase 43: transformar phase43-disable-legacy-fallback em enforcement real
 
 ## Bugs / riscos abertos
-- caminho CI real das Fases 34/35 ainda nao foi exercitado em runner GitHub neste turno
-- repositorio local nao possui `remote origin`, bloqueando GitHub Actions reais
-- dashboards HTML internos continuam com `<script>`/`<style>` inline, embora agora protegidos por CSP especifico de rota
-- ownership de on-call ainda depende de `rotation/calendar` file-based
+- Testes phase3-5 (Docker) e phase10-13 (dados reais) NAO estao no validateCommands (documentado nas Fases 60 e 62)
+- PRs aguardam review/merge pelo mantenedor do repo canonical
 
 ## Dividas tecnicas
-- decidir o papel de longo prazo da trilha legada agora que ela foi compatibilizada via backend-first
-- reduzir dependencia de assets inline nos dashboards HTML internos
-- decidir o papel exato de `backend/analytics` na UI, hoje validado live mas ainda sem consumo dedicado na tela
-- transformar o preflight GitHub da Fase 36 em execucao real assim que houver remoto conectado
+- Decisao sobre extracao git root: FORMALIZADA na Fase 57 — nao necessario
+- Projeto production_ready: FORMALIZADO na Fase 58
+- Integridade do pipeline: VALIDADA na Fase 59 (44 test:phase commands)
+- Exclusoes intencionais do CI: AUDITADAS na Fase 60 (16 fases, 4 categorias)
+- Consistencia de evidencias: AUDITADA na Fase 61 (61 rows, 29 presentes, 32 pre-worktree)
+- Consistencia bidirecional package.json vs validateCommands: VALIDADA na Fase 62
 
 ## Checklist obrigatorio para troca de IA
 - [x] atualizar `HANDOFF.md`
@@ -41,4 +53,4 @@
 - [x] listar arquivos alterados
 - [x] registrar testes executados
 - [x] registrar pendencias e proximo passo exato
-- [x] criar commit WIP focado apenas na fase
+- [x] criar commit WIP focado apenas no andamento atual
