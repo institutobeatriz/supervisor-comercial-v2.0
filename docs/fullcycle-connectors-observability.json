@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-09T15:45:22.791Z",
+  "generatedAt": "2026-03-09T20:07:38.759Z",
   "status": "warn",
   "source": "backend_first_compat",
   "summary": {
@@ -8,9 +8,9 @@
     "alertingStatus": "unknown",
     "cursor": 0,
     "incidents": {
-      "total": 0,
+      "total": 1,
       "open": 0,
-      "resolved": 0,
+      "resolved": 1,
       "openCritical": 0,
       "openWarning": 0,
       "openInfo": 0
@@ -23,34 +23,148 @@
       "activeWarning": 0,
       "activeInfo": 0
     },
-    "teamsTracked": 0,
+    "teamsTracked": 1,
     "latestApiSla": null,
-    "violations": 3,
-    "blockingViolations": 3,
+    "violations": 2,
+    "blockingViolations": 2,
     "ownerCoveragePct": 100,
     "unassignedOwners": 0,
     "breachedEscalations": 0,
-    "analyticsPoints": 1,
-    "incidentsTracked": 0,
+    "analyticsPoints": 12,
+    "operationalProviderMode": "materialized_contract",
+    "operationalContractLoaded": true,
+    "operationalLoadedSources": 2,
+    "operationalWorkloadState": "idle",
+    "operationalFreshnessState": "missing",
+    "operationalActionabilityState": "idle_gap",
+    "operationalHealthySources": 0,
+    "operationalStaleSources": 2,
+    "operationalMissingSources": 1,
+    "operationalUnknownSources": 0,
+    "incidentsTracked": 1,
     "alertsTracked": 0,
-    "historyPoints": 1,
+    "historyPoints": 12,
     "compatibilityMode": "materialized_from_backend_first"
   },
-  "teams": [],
-  "incidents": [],
+  "teams": [
+    {
+      "team": "integrations",
+      "openIncidents": 0,
+      "resolvedIncidents": 1,
+      "criticalOpenIncidents": 0,
+      "activeAlerts": 0,
+      "resolvedAlerts": 0,
+      "criticalActiveAlerts": 0,
+      "pendingEscalations": 0,
+      "ownerCount": 0,
+      "owners": [],
+      "channels": [
+        "slack",
+        "webhook"
+      ],
+      "sources": [
+        "connectors_runtime"
+      ]
+    }
+  ],
+  "incidents": [
+    {
+      "id": "conn-20260309011820-mtofr",
+      "source": "connectors_runtime",
+      "environment": "development",
+      "status": "resolved",
+      "severity": "critical",
+      "maxSeverity": "critical",
+      "startedAt": "2026-03-09T01:18:20.881Z",
+      "detectedAt": "2026-03-09T01:18:20.881Z",
+      "openedAt": "2026-03-09T01:18:20.881Z",
+      "lastSeenAt": "2026-03-09T01:19:07.907Z",
+      "resolvedAt": "2026-03-09T01:19:07.907Z",
+      "ageMinutes": 0.78,
+      "durationMinutes": 0.78,
+      "violationCount": 1,
+      "violations": [
+        {
+          "connector": "oncall:generic",
+          "code": "success_rate_below_target",
+          "message": "success rate 90% < 99%",
+          "severity": "critical",
+          "blocking": true
+        }
+      ],
+      "connectors": [
+        "oncall:generic"
+      ],
+      "alertEventsCount": 0,
+      "lastAlertAt": null,
+      "routing": {
+        "team": "integrations",
+        "channels": [
+          "webhook",
+          "slack"
+        ],
+        "escalateAfterMinutes": 30,
+        "matchedBy": "source",
+        "ruleKey": "connectors_runtime"
+      },
+      "ownerTeam": "integrations",
+      "escalationTeam": "integrations",
+      "postmortem": {
+        "exists": false,
+        "filePath": null,
+        "status": null,
+        "generated": false,
+        "resolvedAt": null
+      },
+      "presentInSource": true,
+      "owner": null,
+      "ownerSource": null,
+      "ownerRuleId": null,
+      "ownerAssignedAt": null,
+      "ownerTimezone": "America/Sao_Paulo",
+      "ownerTier": "P1",
+      "ownerReferenceTime": "2026-03-09T01:18:20.881Z",
+      "escalation": {
+        "targetMinutes": 30,
+        "ageMinutes": 0.78,
+        "breached": false,
+        "status": "resolved"
+      }
+    }
+  ],
   "alerts": [],
   "analytics": {
     "current": {
-      "generatedAt": "2026-03-09T15:45:22.861Z",
+      "generatedAt": "2026-03-09T20:07:39.036Z",
       "environment": "development",
-      "recordsTracked": 0,
+      "recordsTracked": 1,
       "activeRecords": 0,
       "ownerCoveragePct": 100,
       "assignedOwners": 0,
       "unassignedOwners": 0,
       "breachedEscalations": 0,
       "bySource": {},
-      "byTeam": [],
+      "byTeam": [
+        {
+          "team": "integrations",
+          "openIncidents": 0,
+          "resolvedIncidents": 1,
+          "criticalOpenIncidents": 0,
+          "activeAlerts": 0,
+          "resolvedAlerts": 0,
+          "criticalActiveAlerts": 0,
+          "pendingEscalations": 0,
+          "ownerCount": 0,
+          "owners": [],
+          "channels": [
+            "slack",
+            "webhook"
+          ],
+          "sources": [
+            "connectors_runtime"
+          ]
+        }
+      ],
       "severity": {
         "incidents": {
           "criticalOpen": 0,
@@ -62,12 +176,71 @@
           "warningActive": 0,
           "infoActive": 0
         }
+      },
+      "operationalProvider": {
+        "mode": "materialized_contract",
+        "contractLoaded": true,
+        "contractVersion": 1,
+        "contractSchema": "fullcycle.observability.operational-provider.v1"
+      },
+      "operationalSources": {
+        "overall": {
+          "workloadState": "idle",
+          "freshnessState": "missing",
+          "actionabilityState": "idle_gap",
+          "healthySources": 0,
+          "staleSources": 2,
+          "missingSources": 1,
+          "unknownSources": 0,
+          "requiredSources": 0,
+          "requiredHealthySources": 0,
+          "activeRecords": 0,
+          "activeWorkloadPresent": false
+        },
+        "sources": {
+          "incidentAutomation": {
+            "key": "incidentAutomation",
+            "label": "Incident automation state",
+            "file": "C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\logs\\monitoring\\incident-automation-state.json",
+            "loaded": true,
+            "requiredWhenActive": false,
+            "maxAgeMinutes": 30,
+            "timestamp": "2026-03-09T00:57:44.829Z",
+            "ageMinutes": 1149.9,
+            "freshnessState": "stale",
+            "freshEnough": false
+          },
+          "itsmSnapshot": {
+            "key": "itsmSnapshot",
+            "label": "ITSM snapshot",
+            "file": "C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\logs\\monitoring\\itsm-snapshot.json",
+            "loaded": false,
+            "requiredWhenActive": false,
+            "maxAgeMinutes": 30,
+            "timestamp": null,
+            "ageMinutes": null,
+            "freshnessState": "missing",
+            "freshEnough": false
+          },
+          "fullcycleReport": {
+            "key": "fullcycleReport",
+            "label": "Fullcycle report",
+            "file": "C:\\Users\\user\\.openclaw\\workspace\\supervisor-comercial\\logs\\monitoring\\fullcycle-governance-report.json",
+            "loaded": true,
+            "requiredWhenActive": false,
+            "maxAgeMinutes": 60,
+            "timestamp": "2026-03-09T00:57:44.829Z",
+            "ageMinutes": 1149.9,
+            "freshnessState": "stale",
+            "freshEnough": false
+          }
+        }
       }
     },
-    "totalEntries": 1
+    "totalEntries": 12
   },
   "links": {
-    "backendReportGeneratedAt": "2026-03-09T15:45:22.861Z",
-    "backendStoreGeneratedAt": "2026-03-09T15:45:22.861Z"
+    "backendReportGeneratedAt": "2026-03-09T20:07:38.959Z",
+    "backendStoreGeneratedAt": "2026-03-09T20:07:38.959Z"
   }
 }

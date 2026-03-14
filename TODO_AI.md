@@ -1,38 +1,48 @@
 # TODO AI
 
 ## Estado da fila
-- Ultima fase concluida: Fase 35
-- Proxima fase liberada: Fase 36
+- Ultima fase concluida: Fase 42
+- Proxima fase liberada: Fase 43
 - Fonte historica: `docs/analise-projeto/10-memoria-execucao-fases.md`
-- Estado atual da Fase 36: andamento parcial com bloqueio operacional (`remote origin` ausente)
+- Estado atual: o backend observability agora usa um produtor dedicado para alimentar o provider operacional canônico versionado `fullcycle.observability.operational-provider.v1`; o gap estrutural principal passou a ser o enforcement final contra `legacy_files` e a futura origem produtiva desse producer
 
 ## Prioridade alta
-- [ ] Fase 36: conectar este repo a um `remote origin` existente ou autorizar a criacao/publicacao de um remoto privado
-- [x] Fase 36: reduzir o ruido de bootstrap do painel (`401` antes do `adminKey`) sem quebrar a validacao headless/live
-- [ ] Fase 36: executar a trilha das Fases 34/35 em runner GitHub real com evidencia objetiva do browser e dos services
-- [ ] Fase 36: confirmar que o gate live permanece verde em CI com os endpoints legados endurecidos em `200`
+- [ ] Fase 43: transformar `phase43-disable-legacy-fallback` em enforcement real em todos os caminhos observability
+- [ ] Fase 43: impedir reintroducao de `legacy_files` em smoke/live/compat/API
+- [ ] Fase 43: definir a interface do coletor/servico dedicado que substituira a alimentacao file-based do producer
+- [x] Fase 42: conectar o provider operacional canônico a um produtor/coletor dedicado
+- [x] Fase 42: definir criterios objetivos de desativacao do fallback `legacy_files`
+- [x] Fase 42: validar a troca do produtor preservando `backend/provider`, `backend/summary`, `backend/analytics`, painel, smoke e live
+- [x] Fase 41: decidir o caminho canonico da ingestao operacional
+- [x] Fase 41: formalizar o contrato versionado `fullcycle.observability.operational-provider.v1`
+- [x] Fase 41: integrar backend/API/painel/live/smoke ao provider operacional canônico
+- [x] Fase 41: validar `materialize/replay/fail`, governanca live e CI remoto
+- [x] Fase 40: medir frescor e saude da fonte operacional (`incident automation`, `itsm snapshot`, `fullcycle report`)
+- [x] Fase 40: expor esse estado em `backend/report`, `backend/analytics` e painel para diferenciar `sem workload ativo` de `fonte operacional indisponivel`
+- [x] Fase 40: validar cenarios `healthy/stale/missing` na trilha live, compat e CI remoto
 
 ## Prioridade media
-- [ ] Decidir se os dashboards HTML internos devem migrar gradualmente para assets externos para reduzir dependencia de CSP route-scoped
-- [ ] Avaliar se `backend/analytics` deve aparecer diretamente na UI executiva do painel
-- [ ] Definir horizonte de descontinuacao formal da camada legada agora que a compatibilidade backend-first esta materializada
-- [x] Criar preflight objetivo para verificar `gh auth` + `remote origin` + capacidade de consultar workflows/runs
+- [ ] Definir o rollout de um coletor/servico operacional real por tras do producer dedicado
+- [ ] Decidir quando `backend/provider` e `backend/producer` devem virar dependencias obrigatorias sem fallback em todos os ambientes
+- [ ] Definir se `backend/analytics` deve aparecer diretamente na UI executiva do painel
+- [ ] Avaliar se a extracao futura para um git root proprio ainda traz ganho operacional relevante apos a Fase 37
 
 ## Prioridade baixa
 - [ ] Padronizar documentos legados da raiz (`ROADMAP.md`, `STATUS-v2.md`, `IMPLEMENTATION_PLAN.md`) com a memoria atual
-- [ ] Evoluir a origem do on-call de arquivos locais para fonte operacional real sem perder o contrato atual
+- [ ] Revisar se a politica `minTeams=0` da gate final do painel deve continuar so em CI limpo ou se precisa de dataset minimo sintetico
 
 ## Bugs / riscos abertos
-- caminho CI real das Fases 34/35 ainda nao foi exercitado em runner GitHub neste turno
-- repositorio local nao possui `remote origin`, bloqueando GitHub Actions reais
-- dashboards HTML internos continuam com `<script>`/`<style>` inline, embora agora protegidos por CSP especifico de rota
-- ownership de on-call ainda depende de `rotation/calendar` file-based
+- o producer dedicado ainda e alimentado por artefatos locais (`incident-automation-state`, `itsm-snapshot`, `fullcycle-report`)
+- o fallback `legacy_files` ainda existe no codigo-base, embora ja esteja desabilitado no caminho oficial da Fase 42
+- `docs/fullcycle-connectors-observability-live-governance.md` continua sendo artefato gerado e muda a cada execucao da rotina live
+- o repo canonico de CI remoto segue separado do git root principal do workspace
 
 ## Dividas tecnicas
-- decidir o papel de longo prazo da trilha legada agora que ela foi compatibilizada via backend-first
-- reduzir dependencia de assets inline nos dashboards HTML internos
-- decidir o papel exato de `backend/analytics` na UI, hoje validado live mas ainda sem consumo dedicado na tela
-- transformar o preflight GitHub da Fase 36 em execucao real assim que houver remoto conectado
+- substituir a alimentacao file-based do producer por um coletor/servico dedicado sem quebrar os contratos das Fases 41/42
+- formalizar o enforcement definitivo e a remocao progressiva do fallback `legacy_files`
+- decidir o papel de longo prazo de `backend/analytics` na UI executiva
+- avaliar se o git root principal deve ser extraido no futuro ou se o fluxo standalone ja cobre a necessidade operacional
+- manter alinhados os contratos dos dashboards HTML internos com a trilha live/compat real
 
 ## Checklist obrigatorio para troca de IA
 - [x] atualizar `HANDOFF.md`
@@ -41,4 +51,4 @@
 - [x] listar arquivos alterados
 - [x] registrar testes executados
 - [x] registrar pendencias e proximo passo exato
-- [x] criar commit WIP focado apenas na fase
+- [x] criar commit WIP focado apenas no andamento atual
