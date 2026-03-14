@@ -1,6 +1,6 @@
 # Fullcycle Connectors Observability Backend
 
-- Generated at: 2026-03-09T20:51:54.527Z
+- Generated at: 2026-03-11T10:27:06.447Z
 - Status: WARN
 - Environment: development
 - Stream status: unknown
@@ -30,7 +30,7 @@
 | Unassigned owners | 0 |
 | Owner coverage % | 100 |
 | Breached escalations | 0 |
-| Analytics history points | 15 |
+| Analytics history points | 16 |
 
 ## Teams
 
@@ -54,7 +54,8 @@
 
 | Timestamp | Coverage % | Open incidents | Active alerts | Breached escalations |
 |---|---:|---:|---:|---:|
-| 2026-03-09T20:51:54.527Z | 100 | 0 | 0 | 0 |
+| 2026-03-11T10:27:06.447Z | 100 | 0 | 0 | 0 |
+| 2026-03-09T20:51:54.462Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T20:46:50.225Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T20:14:37.902Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T20:07:38.959Z | 100 | 0 | 0 | 0 |
@@ -63,7 +64,6 @@
 | 2026-03-09T19:29:33.472Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T19:06:59.343Z | 100 | 0 | 0 | 0 |
 | 2026-03-09T18:58:25.253Z | 100 | 0 | 0 | 0 |
-| 2026-03-09T18:58:07.602Z | 100 | 0 | 0 | 0 |
 
 ## Violations
 
@@ -86,6 +86,6 @@
 
 | Source | Loaded | Freshness | Age (min) | Max Age (min) | Timestamp | Required when active |
 |---|---|---|---:|---:|---|---|
-| Incident automation state | yes | stale | 1194.16 | 30 | 2026-03-09T00:57:44.829Z | yes |
+| Incident automation state | yes | stale | 3449.36 | 30 | 2026-03-09T00:57:44.829Z | yes |
 | ITSM snapshot | no | missing | n/a | 30 | n/a | no |
-| Fullcycle report | yes | stale | 1194.16 | 60 | 2026-03-09T00:57:44.829Z | no |
+| Fullcycle report | yes | stale | 3449.36 | 60 | 2026-03-09T00:57:44.829Z | no |

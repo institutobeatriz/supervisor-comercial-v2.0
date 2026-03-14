@@ -3,7 +3,7 @@
 ## Atualizacao
 - Data: 2026-03-09 (America/Sao_Paulo)
 - Responsavel: Orquestracao tecnica (software house premium)
-- Fonte de verdade: este arquivo + evidencias em `11-fase-0-baseline.md` ate `52-fase-41-validacao.md`
+- Fonte de verdade: este arquivo + evidencias em `11-fase-0-baseline.md` ate `53-fase-42-validacao.md`
 
 ## Status por fase
 
@@ -51,6 +51,7 @@
 | Fase 39 - Ownership operacional do backend observability | CONCLUIDA | 2026-03-09 | 2026-03-09 | `50-fase-39-validacao.md` | Backend oficial migra para incident-automation/snapshot/fullcycle, drill pass/fail dedicado e CI remoto verde |
 | Fase 40 - Saude e frescor da fonte operacional | CONCLUIDA | 2026-03-09 | 2026-03-09 | `51-fase-40-validacao.md` | Backend oficial passa a expor `workloadState`/`freshnessState`/`actionabilityState`, painel/API usam `backend/summary` e CI remoto verde |
 | Fase 41 - Provider operacional canonico | CONCLUIDA | 2026-03-09 | 2026-03-09 | `52-fase-41-validacao.md` | Contrato versionado `fullcycle.observability.operational-provider.v1`, endpoint `backend/provider`, replay por contrato e CI remoto verde |
+| Fase 42 - Produtor dedicado do provider operacional | CONCLUIDA | 2026-03-09 | 2026-03-09 | `53-fase-42-validacao.md` | Gate oficial producer-backed, endpoint `backend/producer`, fallback `legacy_files` desabilitado no caminho oficial e CI remoto verde |
 
 ## Log de checkpoints
 
@@ -2138,6 +2139,57 @@ Riscos residuais:
 
 Proxima fase liberada:
 1. Fase 42 - conectar o provider operacional canônico a um produtor/coletor dedicado e definir a estrategia de deprecacao do fallback `legacy_files`.
+
+### 2026-03-09 - Checkpoint 44 (Fase 42 concluida)
+Itens executados:
+1. Produtor dedicado do provider operacional oficializado:
+- criado `scripts/phase42-observability-operational-provider-producer.mjs`;
+- criado `scripts/phase42-observability-operational-provider-producer-drill.mjs`;
+- `monitor:fullcycle:observability:backend` passa a apontar para a Fase 42.
+2. Contrato canonico enriquecido com metadata do produtor:
+- `scripts/observability-operational-provider.mjs` passa a persistir `producerMode`, `producerReady`, `producerReportFile`, `producerDashboardFile`, `producerAuditFile`, `legacyFallbackState` e `deprecationTarget`;
+- o schema oficial segue `fullcycle.observability.operational-provider.v1`, preservando compatibilidade dos consumidores.
+3. Backend/API/painel/live/smoke alinhados ao producer:
+- criado `GET /api/observability/connectors/backend/producer` em `apps/api/src/routes/observability.ts`;
+- `scripts/phase39-observability-backend-operational-oncall.mjs`, `scripts/phase40-observability-operational-source-health.mjs`, `scripts/assets/fullcycle-connectors-observability-ops-panel.js`, `scripts/ci-api-smoke.mjs`, `scripts/phase33-observability-live-runtime-validation.mjs`, `scripts/phase34-observability-live-governance.mjs`, `scripts/phase35-observability-legacy-convergence.mjs` e `scripts/phase41-observability-operational-provider-contract.mjs` passam a refletir o producer dedicado;
+- o caminho oficial desabilita `legacy_files` via `FULLCYCLE_CONNECTOR_OBS_BACKEND_OPERATIONAL_ALLOW_LEGACY_FALLBACK=false`.
+4. Documentacao e artefatos atualizados:
+- atualizados `.env.example`, `.github/workflows/ci.yml`, `README.md`, `docs/runbook-operacional.md` e `docs/monitoramento-externo.md`;
+- gerados `docs/fullcycle-connectors-observability-operational-producer.md`, `docs/fullcycle-connectors-observability-operational-provider.md` e `docs/fullcycle-connectors-observability-live-governance.md`;
+- evidencia formal consolidada em `53-fase-42-validacao.md`.
+
+Validacao tecnica deste checkpoint:
+1. Sintaxe:
+- `node --check scripts/observability-operational-provider.mjs` => sucesso;
+- `node --check scripts/phase42-observability-operational-provider-producer.mjs` => sucesso;
+- `node --check scripts/phase42-observability-operational-provider-producer-drill.mjs` => sucesso;
+- `node --check scripts/phase33-observability-live-runtime-validation.mjs` => sucesso;
+- `node --check scripts/ci-api-smoke.mjs` => sucesso;
+- `node --check apps/api/src/routes/observability.ts` => sucesso.
+2. Drills/regressoes locais:
+- `npm run test:phase42` => sucesso;
+- `npm run test:phase41` => sucesso;
+- `npm run test:phase39` => sucesso;
+- `npm run test:phase40` => sucesso;
+- `npm run test:phase33` => sucesso;
+- `npm run test:phase34` => sucesso (`contracts=24/24`);
+- `npm run test:phase37` => sucesso.
+3. Build/gates locais:
+- `npm run build -w @supervisor/api` => sucesso;
+- `npm run monitor:fullcycle:observability:backend` => `pass` com `producer=dedicated_script`, `contract=ready`, `legacy=disabled` e backend consumer `warn` esperado no workspace real;
+- `npm run monitor:fullcycle:observability:live` => sucesso (`contracts=24/24`, `smokeOk=34`, `producerStatus=200`).
+4. Validacao remota no repo standalone:
+- PR `#9`: `https://github.com/institutobeatriz/supervisor-comercial-v2.0/pull/9`;
+- GitHub Actions run `22874254804` => `success`;
+- commit standalone: `e65e0ff910ef21b54c4fdc187c15b3cf9c9c5ea2`.
+
+Riscos residuais:
+1. o producer dedicado ainda consome artefatos locais (`incident-automation-state`, `itsm-snapshot`, `fullcycle-report`), nao um coletor/servico autonomo;
+2. o fallback `legacy_files` segue existindo no codigo-base como compatibilidade, embora ja esteja desabilitado no caminho oficial da Fase 42;
+3. o repo canonico de CI remoto continua separado do git root principal do workspace.
+
+Proxima fase liberada:
+1. Fase 43 - transformar `phase43-disable-legacy-fallback` em enforcement real em todos os caminhos observability e preparar a interface do coletor/servico dedicado que substituira a alimentacao file-based do producer.
 
 ## Backlog ativo (referencia curta)
 
