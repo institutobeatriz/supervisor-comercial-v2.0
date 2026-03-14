@@ -58,10 +58,9 @@ When a phase is completed, do all of the following automatically:
 5. Do not invent behavior not supported by code or documentation.
 
 ## Current expectation in this repository
-At the time this file was created:
-- phases 0 to 31 were already completed
-- `HANDOFF.md` contains the current baton state
-- the next expected work starts from phase 32
+Treat `HANDOFF.md` and `docs/analise-projeto/10-memoria-execucao-fases.md` as the live state.
+Do not rely on the creation date of this file for the current phase number.
+The current unlocked phase must always be taken from the official handoff/memory pair.
 
 ## Short takeover prompt
 Continue this project from the current repository state.
@@ -73,6 +72,7 @@ Read first:
 4. `HANDOFF.md`
 5. `TODO_AI.md`
 6. `docs/analise-projeto/10-memoria-execucao-fases.md`
+7. the latest phase evidence referenced by `HANDOFF.md`
 
 Goal:
 Continue exactly from the current unlocked phase without restarting, without unnecessary refactors, and without creating conflicting project memory.
